@@ -1,0 +1,20 @@
+// -*- Ruby Sass -*-
+
+@mixin rounded-border($radius: 10px) {
+    border-radius: $radius;
+    -moz-border-radius: $radius;
+    padding: $radius;
+}
+
+@mixin centered($width: auto) {
+    width: $width !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+@mixin drop-shadow-right-bottom($h: 0px,$v: 1px,$b: 3px, $color: rgba(0, 0, 0, 0.5)) {
+    box-shadow: $h $v $b $color;
+    -moz-box-shadow: $h $v $b $color;
+    -webkit-box-shadow: $h $v $b $color;
+    -o-box-shadow: $h $v $b $color;
+}
