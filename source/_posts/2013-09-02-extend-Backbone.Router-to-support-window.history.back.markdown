@@ -79,7 +79,7 @@ Router很好的解决了进入一个url能触发相应的方法的问题，但�
         @
 
 
-### 编写Route
+### 编写Router
 
 	class extends Base.Router
       routes:

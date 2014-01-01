@@ -78,7 +78,7 @@ TP-LINK TL-WN725N分[V1](http://wikidevi.com/wiki/TP-LINK_TL-WN725N_v1), [V2](ht
 	
 	cp ../rpi-firmware/extra/Module.symvers .
 	
-	cd ../rtl-8188eu
+	cd ../rtl8188eu
 	
 	CONFIG_RTL8188EU=m make -C ../rpi-linux M=`pwd`
 	

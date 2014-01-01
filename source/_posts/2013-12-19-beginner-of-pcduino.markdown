@@ -7,6 +7,9 @@ categories:
 ---
 > 感谢刘博士送的这块pcDuino板。入Raspberry Pi前，优先考虑过pcDuino。在OSChina源创会上海站被刘博士打动过。买Raspberry Pi是为了DIY一个Mac的Time Capsule。随便Google了一下，找到了Raspberry实现Time Capsule的相关资料，而pcDuino的相关资料没有找到，于是作罢。
 
+![pcDuino V2](/images/post/2013-12-19/pcduinov2.jpg)
+
+
 由于Raspberry Pi的先入为主，上手pcDuino碰到写问题，下面一一列出
 
 <!-- more -->
