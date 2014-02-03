@@ -69,7 +69,7 @@ categories:
 ####KUAL
 [KUAL](http://www.mobileread.com/forums/showthread.php?t=203326)是Kindle Unified Application Launcher的缩写，其作用是为越狱的Kindle启动第三方应用。简单的说通过一本特殊的书籍来统一实现启动触发器。
 
-1. 下载[prerequisites-all-supported-devices](prerequisites-all-supported-devices.zip)
+1. 下载[prerequisites-all-supported-devices.zip](http://www.mobileread.com/forums/attachment.php?attachmentid=115571&d=1385111909)
 2. 解压后将update_kindlet-dev-20130710-k5-ALL_install.bin文件拷贝到Kindle根目录，Kindle安装.bin文件的方法都是一样的，Kindle里点击[更新您的Kindle],然后会显示安装进度，自动重启后完成。
 3. 下载[KUAL.V.2.2.zip](http://www.mobileread.com/forums/attachment.php?attachmentid=109526&d=1376691043)
 4. 解压后将KindleLauncher-2.0.azw2文件拷贝到Kindle的`/documents`目录
@@ -91,8 +91,8 @@ categories:
 		cp /mnt/us/extend/mountd /mnt/us/circles
 		ln -s /mnt/us/circles/mountd /etc/rc5.d/S101mountd
 		mntroot ro
-		./mnt/us/install.sh
-		./mnt/us/mount.sh
+		/mnt/us/install.sh
+		/mnt/us/mount.sh
 
 ####Kterm
 [Kterm](http://www.fabiszewski.net/kindle-terminal/)是一个内置虚拟键盘的GTK+的Kindle终端模拟器

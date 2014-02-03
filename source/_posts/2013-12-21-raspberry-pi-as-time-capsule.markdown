@@ -109,3 +109,7 @@ categories:
 3. [Time Capsule for $25](http://garmoncheg.blogspot.jp/2012/11/time-capsule-for-25.html)
 4. [Raspberry Pi, Raspbian, HFS+, AFP and Time Machine](http://andadapt.com/raspberry-pi-raspbian-hfs-afp-and-time-machine/)
 5. [HowTo: Make Ubuntu a Perfect Mac File Server and Time Machine Volume](http://kremalicious.com/ubuntu-as-mac-file-server-and-time-machine-volume/?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+kremalicious+(kremalicious))
+6. [Making A Linux File Server That Interacts With OS X Mavericks](http://www.andyibanez.com/260-linux-file-server-os-x-mavericks)
+7. [Install Netatalk v3 on Debian](http://netatalk.sourceforge.net/wiki/index.php/Install_Netatalk_v3_on_Debian)
+8. [How to write to HFS+ through AFP/Netatalk without permission denied and cnid_metad error?](http://superuser.com/questions/558150/how-to-write-to-hfs-through-afp-netatalk-without-permission-denied-and-cnid-met)
+9. [Using Netatalk: AFP Services on a Linux Server](http://www.afp548.com/2013/05/06/afp-services-on-a-linux-server/)

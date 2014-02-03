@@ -29,6 +29,9 @@
 		{% if site.github_user %}
 		<a class="github" href="https://github.com/{{ site.github_user }}" title="GitHub">GitHub</a>
 		{% endif %}
+    {% if site.pinboard_user %}
+    <a class="pinboard" href="https://pinboard.in/u:{{ site.pinboard_user }}" title="Pinboard">Pinboard</a>
+    {% endif %}
 		{% if site.coderwall_user %}
 		<a class="coderwall" href="https://coderwall.com/{{ site.coderwall_user }}" title="Coderwall">Coderwall</a>
 		{% endif %}
@@ -43,6 +46,9 @@
 		{% endif %}
 		{% if site.subscribe_rss %}
 		<a class="rss" href="{{ site.subscribe_rss }}" title="RSS">RSS</a>
+		{% endif %}
+    {% if site.instagram_user %}
+    <a class="instagram" href="http://instagram.com/{{ site.instagram_user }}" title="Instagram">Instagram</a>
 		{% endif %}
 	</div>
 	<form class="search" action="{{ site.simple_search }}" method="get">
