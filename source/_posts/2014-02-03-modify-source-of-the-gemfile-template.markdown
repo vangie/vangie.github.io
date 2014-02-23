@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "modify-source-of-the-gemfile-template"
+title: "将Gemfile模板文件的source改成淘宝源"
 date: 2014-02-03 21:54:20 +0800
 comments: true
 categories: 
