@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Coffeescript人民币小写转换为大写"
+title: "Coffeescript脚本将人民币金额小写转换为大写"
 date: 2013-03-09 10:43
 comments: true
 categories: 
 ---
-> windows系统的搜狗输入法v模式可以很贴心地把人民币由小写转换为大写模式，Mac平台的输入法迄今还没有发现类似的功能。OSChina上看到一个哥们写了个java的版本的，于是依葫芦画瓢倒腾了个coffee的版本只用
+> windows系统的搜狗输入法v模式可以很贴心地把人民币由小写转换为大写模式，Mac平台的输入法迄今还没有发现类似的功能。OSChina上看到一个哥们写了个java的版本的，于是依葫芦画瓢捣腾了个coffee的版本
 <!-- more -->
 ```coffeescript
 #! /usr/bin/env coffee
