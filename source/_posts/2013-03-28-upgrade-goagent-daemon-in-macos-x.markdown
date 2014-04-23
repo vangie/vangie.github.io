@@ -19,6 +19,7 @@ categories:
 	
 并在同目录下创建一个文件链接，
 
+	cd ~/Library/;rm goagent
 	ln -sf goagent-goagent-beadcf8 goagent
 	
 <!-- more -->

@@ -32,7 +32,27 @@ categories:
 ###JWT格式
 <abbr title="JSON Web Token">JWT</abbr>是一种紧凑的URL安全表示格式，适用于空格受限制的场景，比如HTTP授权头部和请求参数。JWT使用JSON格式表示一组声明，该JSON被编码成<abbr title="JSON Web Signature">JWS</abbr>或<abbr title="JSON Web Encryption">JWE</abbr>结构。
 
-{% gist 9976896 headers.json %}
+JWT是一段被base64url编码过的字符序列（去除了尾部的“=”），并用点号分隔。
+
+下面是一个JWT头部的
+{% gist 9976068 headers.json %}
+
+使用base64url编码以后
+{% gist 9976068 header_encoded %}
+
+下面是一个JWT的消息体其中包含声明集合
+{% gist 9976068 payload.json %}
+
+使用base64url编码以后
+{% gist 9976068 payload_encoded %}
+
+将上面编码过的JWS头部和JWS消息体使用HMAC SHA-256算法，并结合私钥计算得到的MAC，再经过base64url编码获得的字符序列成为JWS签名
+{% gist 9976068 signature %}
+
+将编码过的头部，消息体和JWS签名通过'.'号连接起来，就获得JWT
+{% gist 9976068 jwt %}
+
+关于JWT的更多技术细节，请阅读[JWT规范](http://tools.ietf.org/html/draft-ietf-oauth-json-web-token).
 
 ###基于声明的标识
 Cookie在请求和响应之间反复传递，对于无状态的HTTP协议，在Cookie里加入一个会话ID，以标识一组请求和响应属于同一会话。通常会话与用户是多对一关系，也就是说一个会话只会属于一个用户。所以通过Cookie技术就可以标识出用户。通常Cookie里也会携带一些额外的信息，但是考虑Cookie容易被截获和篡改，所以Cookie里并不适合放置用户的基本信息。
@@ -58,11 +78,11 @@ Token仅仅是某种信息的承载形式，基于Token的认证有一个更宽�
 登机牌就是一张包含了一组声明信息的卡片，是Token的一种实体形式。
 
 ###参考阅读
-1. 《A Guide to Claims-Based Identity and Access Control》
-2. http://dotnetcodr.com/2014/01/20/introduction-to-oauth2-json-web-tokens/
-3. http://www.layer7tech.com/blogs/index.php/give-me-a-jwt-ill-give-you-an-access-token/
-4. http://en.wikipedia.org/wiki/Claims-based_identity
-5. http://blog.auth0.com/2014/01/07/angularjs-authentication-with-cookies-vs-token/
-6. http://jpadilla.com/post/73791304724/auth-with-json-web-tokens
-7. http://openid.net/specs/draft-jones-json-web-token-07.html
+1. [《A Guide to Claims-Based Identity and Access Control》](http://book.douban.com/subject/5303216/)
+2. [Introduction to OAuth2: Json Web Tokens](http://dotnetcodr.com/2014/01/20/introduction-to-oauth2-json-web-tokens/)
+3. [Give Me a JWT, I’ll Give You an Access Token](http://www.layer7tech.com/blogs/index.php/give-me-a-jwt-ill-give-you-an-access-token/)
+4. [Claims-based identity](http://en.wikipedia.org/wiki/Claims-based_identity)
+5. [Cookies vs Tokens. Getting auth right with Angular.JS](http://blog.auth0.com/2014/01/07/angularjs-authentication-with-cookies-vs-token/)
+6. [Auth with JSON Web Tokens](http://jpadilla.com/post/73791304724/auth-with-json-web-tokens)
+7. [JSON Web Token (JWT) draft-jones-json-web-token-07](http://openid.net/specs/draft-jones-json-web-token-07.html)
 
