@@ -20,7 +20,7 @@ categories:
 
 其中`f084`就是icon-key图标对应的unicode编码。	
 ###开启Mac OS的unicode16进制输入法
-打开“系统偏好设置\语言与文本\输入源”,在左侧"请选择要使用的输入源"列表中勾上”Unicode 十六进制输入“。然后将系统输入法切换为”Unicode输入法“。按住Control健输入4位unicode字符即可输入.若当前字体不存在对应的unicode编码的字形会出现框框，所有输入前需要在keynote里把当前字体改为FontAwesome。
+打开“系统偏好设置\语言与文本\输入源”,在左侧"请选择要使用的输入源"列表中勾上”Unicode 十六进制输入“。然后将系统输入法切换为”Unicode输入法“。按住Option(Alt)健输入4位unicode字符即可输入.若当前字体不存在对应的unicode编码的字形会出现框框，所有输入前需要在keynote里把当前字体改为FontAwesome。
 
 
 [Font Awesome]: http://fortawesome.github.com/Font-Awesome/

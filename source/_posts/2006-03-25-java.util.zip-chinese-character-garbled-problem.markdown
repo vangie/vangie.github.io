@@ -1,0 +1,17 @@
+---
+layout: post
+title: "java.util.zip不支持中文字符的解决办法"
+date: 2006-03-25 14:35:10 +0800
+comments: true
+categories: 
+---
+`java.util.zip`对中文的支持不好,不管是文件名,还是文件中有中文都会出现乱码,更有甚者含中文的doc文件压缩后无法解压,出现 **"未知的文件末端"**.
+ 
+java的中文问题还是挺多的,很多都要通过转码.
+我转来转去老是转不好,
+无奈.
+ 
+后来在网上看到
+Ant中的`org.apache.tools.zip`对中文支持比较好,
+这个类在ant.jar,
+解压import后,直接就可以用了,类名和`java.util.zip`完全一样,不需要改.
