@@ -1,0 +1,388 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>iOS6里GoAgent和SSH Forwarding共用 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS6里GoAgent和SSH Forwarding共用">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">iOS6里GoAgent和SSH Forwarding共用</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>入了一台iPhone5联通合约机，可惜iOS 6.1.3无法越狱了，庆幸内置系统版本6.1.2，Alfred调出evasi0n.app,果断越狱了。本文介绍在iOS6里整合Goagent和SSH forwarding两种方式翻越长城。</p>
+</blockquote>
+
+<!--more-->
+
+<h2 id="goagent-for-ios">在安装GoAgent for iOS</h2>
+<p>根据<a href="https://code.google.com/p/goagent/wiki/GoAgent_IOS" title="GoAgent官方iOS客户端安装教程">GoAgent官方iOS客户端安装教程</a>
+###前提条件</p>
+
+<ul>
+  <li>越狱</li>
+  <li>已经部署GoAgent服务端</li>
+  <li>将Cydia切换为<code>开发者</code>模式：Cydia-&gt;管理-&gt;设置-&gt;开发者</li>
+</ul>
+
+<h3 id="section">步骤</h3>
+
+<ol>
+  <li>Cydia里添加源 http://repo.goagent.org/cydia</li>
+  <li>在Cydia里安装goagent-ios和goagent-widget,iFile</li>
+  <li>设置Proxy.ini里的appid
+    <ul>
+      <li>打开GoAgent for iOS.app，点击Edit File,如果有弹出菜单，先取消，找到<code>proxy.ini</code>文件，点击右边的箭头，在弹出的新页面里找到<code>打开方式…</code>，选<code>文本编辑器</code>,点击左边的<code>编辑</code>，然后将appid= goagent改成你server的appid</li>
+    </ul>
+  </li>
+  <li>安装CA.crt
+    <ul>
+      <li>在浏览器里打开 https://goagent.googlecode.com/files/CA.crt 然后安装</li>
+    </ul>
+  </li>
+  <li>开启通知中心GoAgent控件
+    <ul>
+      <li>设置 -&gt; 通知 -&gt; goagent-widget</li>
+    </ul>
+  </li>
+  <li>设置PAC
+    <ul>
+      <li>设置 -&gt; Wi-Fi -&gt; CurrentWiFi -&gt; HTTP Proxy -&gt; Auto -&gt; http://127.0.0.1:8086/8086.pac</li>
+      <li>或者在GoAgent for iOS设置页里点击“Change System Proxy”</li>
+    </ul>
+  </li>
+  <li>打开Facebook测试一下</li>
+</ol>
+
+<h2 id="ssh-forwarding">配置SSH Forwarding</h2>
+<p>这部有许多shell操作，Cydia里mobile terminal提供了一个可用的Shell。但是使用起来很不方便，通过SSH远程登录到iPhone借助电脑的全键盘更加便利。
+###SSH登录到iPhone
+1. Cydia里安装OpenSSH
+2. 设置 -&gt; Wi-Fi -&gt; CurrentWiFi 参看IP地址(假设：192.168.2.107)
+3. Mac OS里打开Bash输入<code>ssh root@192.168.2.107</code>，密码：alpine</p>
+
+<h3 id="ssh">免密码SSH登录远程服务器</h3>
+<p>详细步骤和说明参看<a href="http://codelife.me/blog/2012/09/01/ssh-session-profile-management-in-terminal-of-macos-x/">MacOS X终端里SSH会话管理</a></p>
+
+<ol>
+  <li>切换到mobie账户
+    <ul>
+      <li><code>su - mobile</code></li>
+    </ul>
+  </li>
+  <li>创建密钥对
+    <ul>
+      <li><code>ssh-keygen -t rsa</code></li>
+    </ul>
+  </li>
+  <li>拷贝公钥到远程服务器
+    <ul>
+      <li>
+        <p>若authorized_keys已存在</p>
+
+        <table>
+          <tbody>
+            <tr>
+              <td>cat ~/.ssh/id_rsa.pub</td>
+              <td>ssh username@example.com “cat - » ~/.ssh/authorized_keys”`</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>若authorized_keys不存在
+  scp ~/.ssh/id_rsa.pub username@example.com:~/.ssh/authorized_keys</p>
+      </li>
+    </ul>
+  </li>
+  <li>别名登录
+    <ul>
+      <li>
+        <p>在<code>~/.ssh/config</code>里添加如下配置</p>
+
+        <p>Host example	
+      HostName example.com
+      User username
+      Port 22</p>
+      </li>
+    </ul>
+  </li>
+  <li>测试
+    <ul>
+      <li><code>ssh example</code>能登录到远程主机即表示成功</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="section-1">断线重连</h3>
+<ol>
+  <li>编辑iOS下<code>/etc/ssh/ssh_config</code>
+    <ul>
+      <li>添加一行<code>ServerAliveInterval 10</code></li>
+    </ul>
+  </li>
+  <li>Cydia安装automatic ssh
+    <ul>
+      <li>使用<code>autossh -M 0 -D 9090 -Nfq example</code>开启SOCKS5代理服务，该命令会立即返回并且后台执行。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="goagentssh-forwardingpac">创建一个兼容GoAgent和SSH Forwarding的PAC文件</h3>
+<p>pac可以指定多个代理</p>
+
+<pre><code>function FindProxyForURL(url, host) {
+  		return "DIRECT; PROXY 192.168.1.1:3128; SOCKS5 lilinux.net:1080"; 
+} 上面语句的意思是：
+</code></pre>
+
+<ol>
+  <li>对所有URL，都直接连接；</li>
+  <li>如果不能直接连接，那么就使用192.168.1.1:3128这个http代理连接；</li>
+  <li>如果还是不能连接，则使用lilinux.net:1080这个socks5代理连接。	
+于是我们可以构造出<code>SOCKS 127.0.0.1:9090; PROXY 127.0.0.1:8087</code>让SSH Forwarding和GoAgent同时工作。(注意这里不能使用<code>SOCKS5</code>,iOS无法识别，只能用<code>SOCKS</code>)</li>
+</ol>
+
+<p>于是需要将GoAgent for iOS里的proxy.pac文件修改一下。</p>
+
+<ol>
+  <li>
+    <p>将proxy.pac拷贝到本地</p>
+
+    <p>scp root@192.168.2.107:/Applications/goagent-ios.app/goagent-local/proxy.pac autoproxy.pac</p>
+  </li>
+  <li>编辑autoproxy.pac
+    <ol>
+      <li>在行首加入<code>var D='DIRECT',P='SOCKS 127.0.0.1:9090; PROXY 127.0.0.1:8087'</code></li>
+      <li>将所有的<code>"DIRECT"</code>和<code>'DIRECT'</code>替换成<code>D</code></li>
+      <li>将所有的<code>"PROXY 127.0.0.1:8087"</code>和<code>'PROXY 127.0.0.1:8087'</code>替换成<code>P</code></li>
+    </ol>
+  </li>
+  <li>
+    <p>将修改过的autoproxy.pac拷贝到<code>/var/root</code>目录</p>
+
+    <p>scp autoproxy.pac root@192.168.2.107:/var/root</p>
+  </li>
+  <li>重新设定WiFi的Pac
+    <ul>
+      <li>设置 -&gt; Wi-Fi -&gt; CurrentWiFi -&gt; HTTP Proxy -&gt; Auto -&gt; file:///var/root/autoproxy.pac</li>
+    </ul>
+  </li>
+  <li>
+    <p>让GPRS/EDGE/3G流量支持Pac
+使用iFile编辑<code>/private/var/preferences/systemconfiguration/preferences.plist</code></p>
+
+    <pre><code>Interface = {
+    DeviceName = "ip1";
+    Hardware = "com.apple.CommCenter";
+    Type = "com.apple.CommCenter";
+    UserDefinedName = "com.apple.CommCenter (ip1)";
+};
+Proxies = {
+    ProxyAutoConfigEnable = 1;
+    ProxyAutoConfigURLString = "file:///var/root/pac";
+};
+UserDefinedName = "com.apple.CommCenter (ip1)";
+</code></pre>
+
+    <p>加入Proxies块，（注意：从前版本preferences.plist是xml格式，新的文件采用了JSON格式）重启后生效。</p>
+  </li>
+</ol>
+
+<h2 id="section-2">启动</h2>
+<ol>
+  <li>启动GoAgent有两种方法
+    <ol>
+      <li>在通知菜单启动 最方便</li>
+      <li>通过GoAgent for iOS.app启动</li>
+    </ol>
+  </li>
+  <li>启动SSH Forwarding，启动命令为<code>autossh -M 0 -D 9090 -Nfq example</code>其中example为host的别名
+    <ul>
+      <li>Mac OS远程登录启动（这个？没有电脑不就没戏了）</li>
+      <li>mobile terminal启动
+        <ol>
+          <li>Cydia里安装mobile terminal</li>
+          <li>在mobile terminal里设定shortcut Menu可以快捷输入</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="section-3">参考文献</h2>
+<ol>
+  <li><a href="https://code.google.com/p/goagent/wiki/GoAgent_IOS" title="GoAgent官方iOS客户端安装教程">GoAgent官方iOS客户端安装教程</a></li>
+  <li><a href="http://catty-house.blogspot.jp/2012/10/ios-wifiedge3gssh.html">iPhne/iPad 通过SSH终极翻墙解决方案</a></li>
+  <li><a href="http://catty-house.blogspot.jp/2012/11/iphonevpspythonpac.html">越狱iPhone下 VPS+Shadowsocks+PAC翻墙</a></li>
+  <li><a href="http://www.cpplive.com/html/1301.html">SSH登陆iPhone后台</a></li>
+  <li><a href="http://www.truevue.org/javascript/pac-format">PAC自动代理文件格式，教你如何写PAC文件</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/';
+        var disqus_url = 'http://codelife.me/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

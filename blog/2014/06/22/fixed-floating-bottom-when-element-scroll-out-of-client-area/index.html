@@ -1,0 +1,218 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>当元素滚动出可视区域后固定漂浮在底部 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="当元素滚动出可视区域后固定漂浮在底部">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">当元素滚动出可视区域后固定漂浮在底部</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>页面底部放置了几个功能按钮，当页面长度超过窗口高度时需要滚动到底部才能操作。点击按钮前多了一步滚动操作，多少有些不方便。如果元素位于可视区域之外时，可以固定漂浮于窗口底部就可以解决这种不便。</p>
+</blockquote>
+
+<p><img src="/images/post/2014-06-22/fixed-floating.png" alt="不在可视区域内时固定漂浮于底部" /></p>
+
+<!--more-->
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">#声明全局top变量，记录元素里页面顶部高度值</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">top = </span><span class="mi">0</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 计算top值</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">calcTop = </span><span class="nf">-&gt;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">$ff_container = </span><span class="nx">$</span><span class="p">(</span><span class="s">&#39;form:visible .panel-footer&#39;</span><span class="p">)</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">top = </span><span class="nx">$ff_container</span><span class="p">.</span><span class="nx">offset</span><span class="p">().</span><span class="nx">top</span> 
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">unless</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">browser</span><span class="p">.</span><span class="nx">mobile</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">top</span> <span class="o">+=</span> <span class="nx">$ff_container</span><span class="p">.</span><span class="nx">outerHeight</span><span class="p">()</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 判断是否需要固定漂浮</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">floating = </span><span class="nf">-&gt;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">y = </span><span class="nx">$win</span><span class="p">.</span><span class="nx">scrollTop</span><span class="p">()</span> <span class="o">+</span> <span class="nx">$win</span><span class="p">.</span><span class="nx">height</span><span class="p">()</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">$ff_container = </span><span class="nx">$</span><span class="p">(</span><span class="s">&#39;form:visible .panel-footer&#39;</span><span class="p">)</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">if</span> <span class="nx">y</span> <span class="o">&gt;=</span> <span class="nx">top</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">$ff_container</span><span class="p">.</span><span class="nx">removeClass</span><span class="p">(</span><span class="s">&#39;fixed&#39;</span><span class="p">)</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">else</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">$ff_container</span><span class="p">.</span><span class="nx">addClass</span><span class="p">(</span><span class="s">&#39;fixed&#39;</span><span class="p">)</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 窗口滚动时计算是否需要漂浮</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$win</span><span class="p">.</span><span class="nx">scroll</span><span class="p">(</span><span class="nx">floating</span><span class="p">)</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 调整窗口大小时计算是否需要漂浮</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$win</span><span class="p">.</span><span class="nx">resize</span><span class="p">(</span><span class="nx">floating</span><span class="p">)</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># 在手机屏幕滚动时计算是否需要漂浮</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="s">&#39;body&#39;</span><span class="p">).</span><span class="nx">bind</span><span class="p">(</span><span class="s">&#39;touchmove&#39;</span><span class="p">,</span> <span class="nx">floating</span><span class="p">)</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">calcTop</span><span class="p">()</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">floating</span><span class="p">()</span></div></div></pre></div></figure>
+
+<h3 id="section">参考阅读</h3>
+<ol>
+  <li><a href="http://jqueryfordesigners.com/fixed-floating-elements/">Fixed Floating Elements</a></li>
+  <li><a href="http://stackoverflow.com/questions/8644248/jquery-fix-div-when-browser-scrolls-to-it">jQuery: Fix div when browser scrolls to it</a></li>
+  <li><a href="http://stackoverflow.com/questions/18753367/jquery-live-scroll-event-on-mobile-work-around">jQuery: Fix div when browser scrolls to it</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/';
+        var disqus_url = 'http://codelife.me/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

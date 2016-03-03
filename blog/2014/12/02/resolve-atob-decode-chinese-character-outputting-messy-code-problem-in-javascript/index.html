@@ -1,0 +1,253 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>解决 Javascript 中 atob 方法解码中文字符乱码问题 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解决 Javascript 中 atob 方法解码中文字符乱码问题">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">解决 Javascript 中 atob 方法解码中文字符乱码问题</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>由于一些网络通讯协议的限制,你必须使用<code>window.btoa()</code>方法对原数据进行编码后，才能进行发送。接收方使用相当于<code>window.atob()</code>的方法对接受到的base64数据进行解码,得到原数据。例如，发送某些含有ASCII码表中0到31之间的控制字符的数据。</p>
+</blockquote>
+
+<h3 id="windowbtoawindowatob"><code>window.btoa</code>与<code>window.atob</code>不支持中文</h3>
+
+<p>对于unicode编码的字符进行base64编码之后，通过浏览器原生的btoa方法界面中文会乱码。</p>
+
+<p>在bash终端，将“中文”转成 base64 编码</p>
+
+<pre><code>$ echo 中文 | base64
+5Lit5paHCg==
+</code></pre>
+
+<p>在Chrome console通过<code>window.atob</code>解码，结果为乱码</p>
+
+<pre><code>&gt; window.atob('5Lit5paHCg==')
+ä¸­æ
+</code></pre>
+
+<p>在Chrome console中执行<code>windows.btoa</code>编码，报错</p>
+
+<pre><code>&gt; window.btoa('中文')
+Uncaught DOMException: Failed to execute 'btoa' on 'Window': The string to be encoded contains characters outside of the Latin1 range.
+</code></pre>
+
+<p>从错误提示看，<code>btoa</code>仅支持 ASCII 编码。</p>
+
+<!--more-->
+
+<h3 id="encodeuricomponentdecodeuricomponent">借助<code>encodeURIComponent</code>和<code>decodeURIComponent</code>转义非中文字符</h3>
+<p>由于<code>btoa</code>仅支持ASCII字符序列，如果通过<code>encodeURIComponent</code>将中文字符编码成ASCII字符序列，再通过<code>btoa</code>进行base64编码。</p>
+
+<p>编码</p>
+
+<pre><code>&gt; window.btoa(encodeURIComponent('中文'))
+"JUU0JUI4JUFEJUU2JTk2JTg3"
+</code></pre>
+
+<p>解码</p>
+
+<pre><code>&gt; decodeURIComponent(window.atob('JUU0JUI4JUFEJUU2JTk2JTg3'))
+"中文"
+</code></pre>
+
+<p>虽然到达了曲线救国的目的，但是由于<code>encodeURIComponent</code>和<code>decodeURIComponent</code>已经达到了转义控制字符的目的，使用<code>atob</code>和<code>btoa</code>感觉是多此一举。</p>
+
+<h3 id="base64">第三方Base64工具</h3>
+
+<p><a href="http://www.webtoolkit.info/javascript-base64.html">webtoolkit.base64</a>是一个第三方实现的Base64编码工具，完美的支持unicode编码的字符串。</p>
+
+<pre><code>&gt; Base64.encode('中文')
+"5Lit5paH"
+
+&gt; Base64.decode('5Lit5paH');
+"中文"
+</code></pre>
+
+<p>另外，如果服务端为Nodejs，可用如下coffee代码进行base64的编码和解码。</p>
+
+<pre><code>btoa: (s)-&gt;
+    (new Buffer(s, 'utf8')).toString('base64')
+atob: (s)-&gt;
+    (new Buffer(s, 'base64').toString('utf8'))
+</code></pre>
+
+<h3 id="section">参考阅读</h3>
+
+<ol>
+  <li><a href="http://nelluil.postach.io/btoa-atob-zhi-yuan-zhong-wen-de-fang-fa">btoa(), atob() 支援中文的方法</a></li>
+  <li><a href="http://stackoverflow.com/questions/14535484/how-to-encode-utf8-characters-into-base64-in-javascript">How to encode UTF8 characters into Base64 in JavaScript</a></li>
+  <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Window.atob">window.atob</a></li>
+  <li><a href="http://stackoverflow.com/questions/75980/best-practice-escape-or-encodeuri-encodeuricomponent">Best practice: escape, or encodeURI / encodeURIComponent</a></li>
+  <li><a href="http://www.cnblogs.com/izhaoyang/articles/1765095.html">JavaScript - code</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/';
+        var disqus_url = 'http://codelife.me/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

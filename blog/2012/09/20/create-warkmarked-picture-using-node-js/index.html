@@ -1,0 +1,228 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>NodeJs里给图片添加水印 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NodeJs里给图片添加水印">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/09/20/create-warkmarked-picture-using-node-js/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/09/20/create-warkmarked-picture-using-node-js/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">NodeJs里给图片添加水印</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p><a href="http://imagemagick.org/">ImageMagick</a>和<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>是两款强大的跨平台图片命令行工具,据说<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>是从<a href="http://imagemagick.org/">ImageMagick</a>分支出来的,更稳定些.</p>
+
+<p>Java平台图片处理包<a href="http://im4java.sourceforge.net/">im4java</a>使用JNI的方式封装了<a href="http://imagemagick.org/">ImageMagick</a>.NodeJs平台图片处理模块<a href="http://aheckmann.github.com/gm/">gm</a>只需要<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>和<a href="http://imagemagick.org/">ImageMagick</a>任选一种安装就好了.</p>
+
+<!--more-->
+
+<p>使用<a href="http://aheckmann.github.com/gm/">gm</a>进行图片处理非常之方便</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">gm</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;gm&#39;</span><span class="p">);</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">gm</span><span class="p">(</span><span class="s1">&#39;/path/to/image.jpg&#39;</span><span class="p">)</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">.</span><span class="nx">resize</span><span class="p">(</span><span class="mi">353</span><span class="p">,</span> <span class="mi">257</span><span class="p">)</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">.</span><span class="nx">autoOrient</span><span class="p">()</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">writeStream</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">err</span><span class="p">)</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39; hooray! &#39;</span><span class="p">);</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+<p>但在Mac平台安装有些麻烦,由于<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>使用了linux的图形库,所以需要先安装<a href="http://xquartz.macosforge.org/">XQuartz</a>,最新版本已经支持Mountain Lion了.</p>
+
+<p><a href="http://www.graphicsmagick.org/">GraphicsMagick</a>可以通过homebrew安装</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">brew install graphicsmagick</div></div></pre></div></figure>
+
+<p>装<a href="http://aheckmann.github.com/gm/">gm</a>就不多说了<code>npm install gm</code></p>
+
+<p><a href="http://aheckmann.github.com/gm/">gm</a>目前只封装了<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>的<code>convert</code>子命令,添加水印需要的用到<code>composite</code>子命令.所以只能采用下策:直接调用<a href="http://www.graphicsmagick.org/">GraphicsMagick</a>命令行接口</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">spawn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;child_process&#39;</span><span class="p">).</span><span class="nx">spawn</span><span class="p">;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">composite</span> <span class="o">=</span> <span class="nx">spawn</span><span class="p">(</span><span class="s1">&#39;gm&#39;</span><span class="p">,</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">[</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;composite&#39;</span><span class="p">,</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;-gravity&#39;</span><span class="p">,</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;SouthEast&#39;</span><span class="p">,</span> <span class="c1">//右下角</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;-dissolve&#39;</span><span class="p">,</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;80&#39;</span><span class="p">,</span> <span class="c1">//溶解度,和透明度类似</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;watermark.png&#39;</span><span class="p">,</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;src.jpg&#39;</span><span class="p">,</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="s1">&#39;dest.jpg&#39;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">]);</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">composite</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">composite</span><span class="p">.</span><span class="nx">stderr</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">composite</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;exit&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">code</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="k">if</span><span class="p">(</span><span class="nx">code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;gm composite process exited with code &#39;</span> <span class="o">+</span> <span class="nx">code</span><span class="p">);</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">&#x7d;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span></div></div></pre></div></figure>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/09/20/create-warkmarked-picture-using-node-js/';
+        var disqus_url = 'http://codelife.me/blog/2012/09/20/create-warkmarked-picture-using-node-js/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

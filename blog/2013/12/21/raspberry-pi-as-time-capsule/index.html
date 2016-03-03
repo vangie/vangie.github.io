@@ -1,0 +1,307 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>将树莓派配置成时间胶囊 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="将树莓派配置成时间胶囊">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/12/21/raspberry-pi-as-time-capsule/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/12/21/raspberry-pi-as-time-capsule/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">将树莓派配置成时间胶囊</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>MacBookAir的SSD坏了两次以后，发现TimeMachine真的很有必要。外插个尿袋子真的不方便。AirPort Time Capsule 2T版本价格买到了$299，觉得有些不值。$25的树莓派+一块移动硬盘DIY一个Time Capsule即经济又有趣。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-21/raspberry-pi-as-time-capsule.png" alt="Raspberry Pi as TimeCapsule" /></p>
+
+<!--more-->
+
+<h3 id="section">组件清单</h3>
+<p><img src="/images/post/2013-12-21/component-of-time-capsule.png" alt="Component of TimeCapsule" /></p>
+
+<ul>
+  <li>树莓派
+    <ul>
+      <li>TF卡 + 卡套</li>
+      <li>USB WiFi 网卡</li>
+      <li>5V电源 + MicroUSB 电源线</li>
+    </ul>
+  </li>
+  <li>移动硬盘
+    <ul>
+      <li>2.5寸 500G SATA 硬盘</li>
+      <li>USB3.0 硬盘电路板</li>
+      <li>USB3.0 数据线</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="hfs">安装HFS+文件系统工具</h3>
+
+<pre><code>sudo apt-get install hfsplus hfsutils hfsprogs
+</code></pre>
+
+<h3 id="hfs-1">准备HFS+设备</h3>
+<p>列出所有块设备</p>
+
+<pre><code>sudo blkid
+</code></pre>
+
+<p>返回如下</p>
+
+<pre><code>/dev/mmcblk0p1: LABEL="RECOVERY" UUID="F69B-A989" TYPE="vfat"
+/dev/mmcblk0p3: LABEL="SETTINGS" UUID="7f8a9faf-84a1-4062-ab9c-b2e6115035ce" TYPE="ext4"
+/dev/mmcblk0p5: LABEL="BOOT" UUID="03D6-2985" TYPE="vfat"
+/dev/mmcblk0p6: LABEL="root" UUID="e2a46600-20ca-42f4-8ec8-aa52d258aad2" TYPE="ext4"
+/dev/sda1: UUID="943f46c5-2de2-3ef9-8494-46c3cf8bd915" LABEL="Time Capsule" TYPE="hfsplus"
+</code></pre>
+
+<p>包含TYPE=“hfsplus”的即是。</p>
+
+<p>如果希望把一个新的分区格式化为HFS+，使用如下命令</p>
+
+<pre><code>sudo mkfs.hfsplus -v "Time Capsule" /dev/sda1
+</code></pre>
+
+<p><strong>建议使用全新的hfs+分区</strong>
+把一块已经做过TimeMachine的hfs+分区，可能导致原有的备份数据丢失</p>
+
+<h3 id="section-1">挂载</h3>
+
+<pre><code>sudo mkidr /media/TimeCapsule
+sudo mount -t hfsplus -o force /dev/sda1 /media/TimeCapsule
+sudo chown -R pi:pi /media/TimeCapsule
+</code></pre>
+
+<h3 id="netatalk">安装配置netatalk服务</h3>
+
+<pre><code>sudo apt-get install netatalk
+sudo echo "/media/TimeCapsule \"Time Capsule\" options:tm" &gt;&gt; /etc/netatalk/AppleVolumes.default
+sudo service netatalk restart
+</code></pre>
+
+<p>接下来就可以从Mac的Time Machine里找到这块磁盘 <br />
+<img src="/images/post/2013-12-21/avaliable-disk.png" alt="选择Time Machine磁盘" /></p>
+
+<h3 id="avahi">配置Avahi</h3>
+<p>安装<code>avahi-daemon</code>和<code>libnss-mdns</code></p>
+
+<pre><code>sudo apt-get install avahi-daemon libnss-mdns
+</code></pre>
+
+<p>配置nsswitch.conf</p>
+
+<p>在<code>hosts:</code>后添加“mdns”</p>
+
+<pre><code>hosts:      files mdns4_minimal [NOTFOUND=return] dns mdns4 mdns
+</code></pre>
+
+<p>接下来让Avahi在局域网广播AFP共享</p>
+
+<p>添加如下文件<code>/etc/avahi/services/afpd.service</code>内容如下：</p>
+
+<pre><code>&lt;?xml version="1.0" standalone='no'?&gt;&lt;!--*-nxml-*--&gt;
+&lt;!DOCTYPE service-group SYSTEM "avahi-service.dtd"&gt;
+&lt;service-group&gt;
+	&lt;name replace-wildcards="yes"&gt;%h&lt;/name&gt;
+	&lt;service&gt;
+        &lt;type&gt;_afpovertcp._tcp&lt;/type&gt;
+        &lt;port&gt;548&lt;/port&gt;
+    &lt;/service&gt;
+    &lt;service&gt;
+        &lt;type&gt;_device-info._tcp&lt;/type&gt;
+ 	       &lt;port&gt;0&lt;/port&gt;
+        &lt;txt-record&gt;model=Xserve&lt;/txt-record&gt;
+    &lt;/service&gt;
+&lt;/service-group&gt;
+</code></pre>
+
+<p>重启服务</p>
+
+<pre><code>sudo /etc/init.d/avahi-daemon restart
+</code></pre>
+
+<p>在findler的左侧可以看到共享的文件系统</p>
+
+<p><img src="/images/post/2013-12-21/share.png" alt="共享" /></p>
+
+<h3 id="section-2">参考阅读</h3>
+<ol>
+  <li><a href="http://www.zisoft.de/elektronik/raspberrypi/timecapsule.html">Raspberry Pi als TimeCapsule</a></li>
+  <li><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=36&amp;t=47029">Use rPi as a Time Capsule - another method</a></li>
+  <li><a href="http://garmoncheg.blogspot.jp/2012/11/time-capsule-for-25.html">Time Capsule for $25</a></li>
+  <li><a href="http://andadapt.com/raspberry-pi-raspbian-hfs-afp-and-time-machine/">Raspberry Pi, Raspbian, HFS+, AFP and Time Machine</a></li>
+  <li><a href="http://kremalicious.com/ubuntu-as-mac-file-server-and-time-machine-volume/?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed%3A+kremalicious+(kremalicious)">HowTo: Make Ubuntu a Perfect Mac File Server and Time Machine Volume</a></li>
+  <li><a href="http://www.andyibanez.com/260-linux-file-server-os-x-mavericks">Making A Linux File Server That Interacts With OS X Mavericks</a></li>
+  <li><a href="http://netatalk.sourceforge.net/wiki/index.php/Install_Netatalk_v3_on_Debian">Install Netatalk v3 on Debian</a></li>
+  <li><a href="http://superuser.com/questions/558150/how-to-write-to-hfs-through-afp-netatalk-without-permission-denied-and-cnid-met">How to write to HFS+ through AFP/Netatalk without permission denied and cnid_metad error?</a></li>
+  <li><a href="http://www.afp548.com/2013/05/06/afp-services-on-a-linux-server/">Using Netatalk: AFP Services on a Linux Server</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/12/21/raspberry-pi-as-time-capsule/';
+        var disqus_url = 'http://codelife.me/blog/2013/12/21/raspberry-pi-as-time-capsule/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

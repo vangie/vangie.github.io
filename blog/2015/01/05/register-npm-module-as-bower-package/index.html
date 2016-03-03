@@ -1,0 +1,343 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>将 npm 模块注册成 bower 模块 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="将 npm 模块注册成 bower 模块">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2015/01/05/register-npm-module-as-bower-package/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2015/01/05/register-npm-module-as-bower-package/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">将 npm 模块注册成 bower 模块</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p><code>npm</code>是node的包管理系统，通过<code>package.json</code>声明模块间的依赖关系。然而node采用<code>CommonJS</code>规范组织的模块在浏览器中无法直接使用。bower是前端资源的包管理系统，通过<code>bower.json</code>来组织js、css和图标资源。bower管理的js包，一般采用全局变量模式，或者requirejs推崇的AMD规范，亦或UMD。</p>
+</blockquote>
+
+<h3 id="umd">UMD（通用模块定义）</h3>
+
+<p>由于现行的javascript版本中，没有原生的依赖管理实现，而随着前端和Nodejs的越来越流行，javascript的代码量越来越大，于是对依赖管理和包管理的需求越来越高，于是社区就出现了CommonJS和AMD两大依赖管理的阵营。目前CommonJS规范是Nodejs的内置支持，主要用于后端js。AMD被requirejs支持，是一种前端依赖管理的选择。</p>
+
+<p><em>全局变量</em></p>
+
+<pre><code>// MyDependency is in your global scope
+var MyModule = function() {};
+</code></pre>
+
+<p><em>CommonJS，Nodejs支持的规范</em></p>
+
+<pre><code>var MyDependency = require('my-dependency');
+module.exports = function() {};
+</code></pre>
+
+<p><em><a href="http://requirejs.org/docs/whyamd.html">AMD</a>， <a href="http://requirejs.org/">requirejs</a> 支持的规范</em></p>
+
+<pre><code>define(['my-dependency'], function(MyDependency) {
+  return function() {};
+});
+</code></pre>
+
+<p><em><a href="https://github.com/umdjs/umd">UMD</a>，兼容所有规范</em></p>
+
+<pre><code>(function (root, factory) {
+  if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = factory(require('b'));
+  } else if (typeof define === 'function' &amp;&amp; define.amd) {
+    // AMD
+    define(['b'], function (b) {
+      return (root.returnExportsGlobal = factory(b));
+    });
+  } else {
+    // Global Variables
+    root.returnExportsGlobal = factory(root.b);
+  }
+}(this, function (b) {
+  // Your actual module
+  return {};
+}));
+</code></pre>
+
+<!--more-->
+
+<h3 id="browserify">Browserify</h3>
+
+<p>一个npm package项目，如果想同时兼容bower，可以通过 <a href="http://browserify.org/">Browserify</a> 生成支持浏览器端的package。</p>
+
+<pre><code>npm install -g browserify
+</code></pre>
+
+<h4 id="commonjs">CommonJS</h4>
+
+<p>假设有如下main.js</p>
+
+<pre><code>var unique = require('uniq');
+
+var data = [1, 2, 2, 3, 4, 5, 5, 5, 6];
+
+console.log(unique(data));
+</code></pre>
+
+<p>使用 npm 安装依赖包<code>uniq</code></p>
+
+<pre><code>npm install uniq
+</code></pre>
+
+<p>通过browserify命令将其转换成bundle.js</p>
+
+<pre><code>browserify main.js -o bundle.js
+</code></pre>
+
+<p>browserify会将所有<code>require()</code>依赖的文件都合并进bundle.js文件。然后通过<code>&lt;script/&gt;</code>引入。</p>
+
+<pre><code>&lt;script src="bundle.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<h4 id="amd">AMD</h4>
+
+<p>安装<a href="https://www.npmjs.com/package/deamdify">deamdify</a>模块 Browserify 可以转换AMD规范的JS模块。</p>
+
+<pre><code>npm install deamdify
+browserify -t deamdify main.js -o bundle.js
+</code></pre>
+
+<h4 id="section">全局变量</h4>
+
+<p>安装<a href="https://www.npmjs.com/package/deglobalify">deglobalify</a>模块 Browserify 可以转换全局变量风格的JS模块。</p>
+
+<pre><code>npm install deglobalify
+browserify -t deglobalify main.js -o bundle.js
+</code></pre>
+
+<h4 id="es6">ES6</h4>
+
+<p>安装<a href="https://www.npmjs.com/package/es6ify">es6ify</a>模块 Browserify 可以转换ES6规范的JS模块。</p>
+
+<pre><code>npm install es6ify
+browserify -t es6ify main.js -o bundle.js
+</code></pre>
+
+<h4 id="section-1">支持所有规范</h4>
+
+<p>browserify 支持一次装载多个转换器。</p>
+
+<pre><code>npm install deamdify es6ify deglobalify
+browserify -t deamdify -t es6ify -t deglobalify main.js -o bundle.js
+</code></pre>
+
+<h3 id="grunt">与grunt集成</h3>
+
+<p>借助grunt可以把转换集成到构建过程中，方便使用。</p>
+
+<pre><code>npm install grunt-browserify
+</code></pre>
+
+<p>Gruntfile.js</p>
+
+<pre><code>module.exports = function (grunt) {
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    browserify : {
+      app : {
+        files : { 'dist/index.js' : ['index.js'] }
+      }
+    }
+  })
+}
+</code></pre>
+
+<h3 id="bower">注册成bower模块</h3>
+
+<pre><code>$ bower init
+</code></pre>
+
+<p>交互模式下生成如下bower.json文件，注意main属性设置成browserify生成的文件<code>dist/index.js</code>。</p>
+
+<pre><code>{
+  "name": "module_name",
+  "main": "dist/index.js",
+  "version": "0.1.1",
+  ...
+}
+</code></pre>
+
+<p>将项目上传到Github，如后执行</p>
+
+<pre><code>$ bower register module_name git://github.com/user/module_name.git
+</code></pre>
+
+<p><code>bower register</code>只需要执行一次，今后发布新版本只需要向Github仓库推送符合<a href="http://semver.org/">semver</a> 规范的Git tags 即可。</p>
+
+<h3 id="section-2">参考阅读</h3>
+<ol>
+  <li><a href="http://thesocietea.org/2014/08/building-javascript-with-grunt-bower-browserify/">Building Javascript with Grunt, Bower, Browserify</a></li>
+  <li><a href="http://bower.io/docs/creating-packages/">Creating packages</a></li>
+  <li><a href="http://ilikekillnerds.com/2014/11/bower-vs-browserify">Bower vs Browserify</a></li>
+  <li><a href="http://dontkry.com/posts/code/browserify-and-the-universal-module-definition.html">Browserify and the Universal Module Definition</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2015/01/05/register-npm-module-as-bower-package/';
+        var disqus_url = 'http://codelife.me/blog/2015/01/05/register-npm-module-as-bower-package/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

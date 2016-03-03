@@ -1,0 +1,235 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Coffeescript脚本将人民币金额小写转换为大写 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Coffeescript脚本将人民币金额小写转换为大写">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Coffeescript脚本将人民币金额小写转换为大写</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>windows系统的搜狗输入法v模式可以很贴心地把人民币由小写转换为大写模式，Mac平台的输入法迄今还没有发现类似的功能。OSChina上看到一个哥们写了个java的版本的，于是依葫芦画瓢捣腾了个coffee的版本</p>
+</blockquote>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">more</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">#! /usr/bin/env coffee</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># convert amount from figures to words</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># @author vangie.du</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># @url http://codelife.me/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># @version 1.1</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># @since 2013-03-09</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">n = </span><span class="nb">parseFloat</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]).</span><span class="nx">toFixed</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">else</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="s">	Usage: \n</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="s">		rmb figure_number\n</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="s">	Example:\n</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="s">		rmb 42342.33\n</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="s">		肆万贰仟叁佰肆拾贰元叁角叁分&quot;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">fractions = </span><span class="p">[</span><span class="s">&quot;角&quot;</span><span class="p">,</span> <span class="s">&quot;分&quot;</span><span class="p">]</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">digits = </span><span class="p">[</span><span class="s">&quot;零&quot;</span><span class="p">,</span> <span class="s">&quot;壹&quot;</span><span class="p">,</span> <span class="s">&quot;贰&quot;</span><span class="p">,</span> <span class="s">&quot;叁&quot;</span><span class="p">,</span> <span class="s">&quot;肆&quot;</span><span class="p">,</span> <span class="s">&quot;伍&quot;</span><span class="p">,</span> <span class="s">&quot;陆&quot;</span><span class="p">,</span> <span class="s">&quot;柒&quot;</span><span class="p">,</span> <span class="s">&quot;捌&quot;</span><span class="p">,</span> <span class="s">&quot;玖&quot;</span><span class="p">]</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">units = </span><span class="p">[[</span><span class="s">&quot;元&quot;</span><span class="p">,</span> <span class="s">&quot;万&quot;</span><span class="p">,</span> <span class="s">&quot;亿&quot;</span><span class="p">],[</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;拾&quot;</span><span class="p">,</span> <span class="s">&quot;佰&quot;</span><span class="p">,</span> <span class="s">&quot;仟&quot;</span><span class="p">]]</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">[</span><span class="nx">head</span><span class="p">,</span> <span class="nx">n</span><span class="p">]</span> <span class="o">=</span> <span class="k">if</span> <span class="nx">n</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="p">[</span><span class="s">&#39;负&#39;</span><span class="p">,</span> <span class="o">-</span><span class="nx">n</span><span class="p">]</span> <span class="k">else</span> <span class="p">[</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="nx">n</span><span class="p">]</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">s = </span><span class="s">&#39;&#39;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">fractionalPart = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">n</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">%</span> <span class="mi">100</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="mi">1</span><span class="p">]</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nx">s</span> <span class="o">+=</span> <span class="p">(</span><span class="nx">digits</span><span class="p">[</span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">fractionalPart</span> <span class="o">/</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="nx">i</span><span class="p">))</span> <span class="o">%</span> <span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="nx">fractions</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(零.)+/g</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">s = </span><span class="s">&#39;整&#39;</span> <span class="k">unless</span> <span class="nx">s</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">intPart = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">n</span><span class="p">)</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">units</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">when</span> <span class="nx">intPart</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nv">p = </span><span class="s">&#39;&#39;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="k">for</span> <span class="nx">j</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">units</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">when</span> <span class="nx">n</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nv">p = </span><span class="nx">digits</span><span class="p">[</span><span class="nx">intPart</span> <span class="o">%</span> <span class="mi">10</span><span class="p">]</span> <span class="o">+</span> <span class="nx">units</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="nx">j</span><span class="p">]</span> <span class="o">+</span> <span class="nx">p</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">		<span class="nv">intPart = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">intPart</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nv">s = </span><span class="nx">p</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(零.)*零$/g</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">).</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^$/g</span><span class="p">,</span> <span class="s">&quot;零&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="nx">units</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="nx">s</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">head</span> <span class="o">+</span> <span class="nx">s</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(零.)*零元/g</span><span class="p">,</span> <span class="s">&quot;元&quot;</span><span class="p">)</span>
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(零.)+/</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+</div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/(零.)+/g</span><span class="p">,</span> <span class="s">&quot;零&quot;</span><span class="p">)</span>
+</div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/^整$/g</span><span class="p">,</span> <span class="s">&quot;零元整&quot;</span><span class="p">))</span></div></div></pre></div></figure>
+
+<p>将上面的文件保存为<code>~/bin/rmb</code>,或者其他$PATH中目录位置。</p>
+
+<p>然后命令行执行</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">chmod + x ~/bin/rmb
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">rmb 42342.33</div></div></pre></div></figure>
+
+<p>更进一步</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">ln -s ~/bin/rmb ~/bin/￥
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">￥ 42342.33</div></div></pre></div></figure>
+
+<h3 id="section">参考</h3>
+<ol>
+  <li><a href="http://www.oschina.net/code/snippet_32903_18900">人民币小写转换为大写</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/';
+        var disqus_url = 'http://codelife.me/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

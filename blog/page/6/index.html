@@ -1,0 +1,582 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code Life">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/page/6/index.html">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/page/6/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+    
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/12/09/three-types-of-ssh-turneling/" rel="bookmark" title="三种不同类型的ssh隧道" itemprop="url">三种不同类型的ssh隧道</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-12-09T13:20:00+08:00">
+            December 09, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>想通过ssh隧道连接远端机器的VNC服务，对<code>ssh -L</code>命令不太熟悉，<code>man ssh</code>后发现3组与隧道（turnnel）相关的参数:<code>ssh -D</code>，<code>ssh -L</code>，<code>ssh -R</code>，一下子就搞糊涂了，所有下决心仔细研究一番。</p>
+</blockquote>
+
+<h3 id="ssh">何谓SSH隧道</h3>
+
+<p>隧道是一种把一种网络协议封装进另外一种网络协议进行传输的技术。这里我们研究ssh隧道，所以所有的网络通讯都是加密的。又被称作端口转发，因为ssh隧道通常会绑定一个本地端口，所有发向这个端口端口的数据包，都会被加密并透明地传输到远端系统。</p>
+
+<h3 id="ssh-1">SSH隧道的类型</h3>
+
+<p>ssh隧道有3种类型：</p>
+
+<ol>
+  <li>动态端口转发（Socks 代理）</li>
+  <li>本地端口转发</li>
+  <li>远端端口转发</li>
+</ol>
+
+
+		<a href="/blog/2012/12/09/three-types-of-ssh-turneling/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/" rel="bookmark" title="qemu-kvm将SLIc 2.1刷入BIOS并成功激活Windows Server 2008 R2" itemprop="url">qemu-kvm将SLIc 2.1刷入BIOS并成功激活Windows Server 2008 R2</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-12-07T13:20:00+08:00">
+            December 07, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>在一台DELL R310的宿主机上安装了Ubuntu Server 12.10默认集成KVM虚拟机，用户态虚拟机软件qemu-kvm使用seabios的作为bios实现(位于 <code>/usr/share/qemu-kvm/bios.bin</code>,来自于qemu-common 1.2.0+noroms-0ubuntu2)，该bios.bin仅包含部分来自宿主机的SLIC信息，但不完整，无法通过Window OEM验证。</p>
+</blockquote>
+
+<p>本文将介绍安装KVM虚拟机，借助virt-install安装Windows客户机，去除bios.bin里内置的SLIC，然后使用-acpitable参数载入正确的SLIc 2.1信息，导入OEM证书和OEM key激活Windows。</p>
+
+<p>由于Ubuntu Server没有安装图形环境，DELL R310服务器也是不带显示器的，所有windows的安装过程是通过本来的Macbook Air的VNC客户端操作的。</p>
+
+
+		<a href="/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/12/04/change-default-locale-in-ubuntu-server-12-dot-10/" rel="bookmark" title="Ubuntu Server 12.10修改语言环境" itemprop="url">Ubuntu Server 12.10修改语言环境</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-12-04T16:59:00+08:00">
+            December 04, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>安装的时候把ubuntu server的默认语言设置成了中文，由于默认没有安装中文字体，控制台一片乱码。所有要么安装字体<code>sudo apt-get install language-pack-zh</code>,要么把语言环境设置成英文。</p>
+</blockquote>
+
+<p>网上大部分文章都提到修改<code>/etc/environment</code>文件，但是打开<code>/etc/environment</code>文件，默认是空的，说明这种方法虽然可以达到效果，但不是最完美的。更好的方式如下：</p>
+
+<pre><code>$ sudo update-locale LANG=en_US.UTF-8
+$ sudo update-locale LANGUAGE=en_US.en
+</code></pre>
+
+<p>然后重启系统即可。</p>
+
+
+		<a href="/blog/2012/12/04/change-default-locale-in-ubuntu-server-12-dot-10/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/11/20/how-to-flush-your-dns-cache/" rel="bookmark" title="如何清除DNS缓存" itemprop="url">如何清除DNS缓存</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-11-20T16:23:00+08:00">
+            November 20, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>系统管理员或者web开发者，偶尔需要刷新一下DNS，由于DNS存在本地缓存，如果不主动清除，那需要一段漫长的等待</p>
+</blockquote>
+
+<h3 id="mac-os">Mac OS</h3>
+
+<p>OS X Lion (10.7) and OS X Mountain Lion (10.8)</p>
+
+<pre><code>$ sudo killall -HUP mDNSResponder
+</code></pre>
+
+<p>Mac OS X 10.5, Mac OS X 10.6</p>
+
+<pre><code>$ dscacheutil -flushcache
+</code></pre>
+
+<p>Mac OS X 10.4 Tiger</p>
+
+<pre><code>$ lookupd -flushcache
+</code></pre>
+
+<h3 id="windows">Windows</h3>
+<p>Vista/Win7 以上系统</p>
+
+<p>查看DNS缓存</p>
+
+<pre><code>&gt; ipconfig /displaydns
+</code></pre>
+
+<p>清除DNS缓存</p>
+
+<pre><code>&gt; ipconfig /flushdns 
+</code></pre>
+
+<p>Winxp和之前的老系统</p>
+
+<pre><code>&gt; net stop dnscache
+&gt; net start dnscache
+</code></pre>
+
+<h3 id="linux">Linux</h3>
+
+<pre><code>$ sudo /etc/init.d/nscd restart
+</code></pre>
+
+<h4 id="section">参考文献</h4>
+<ol>
+  <li><a href="http://osxdaily.com/2008/03/21/how-to-flush-your-dns-cache-in-mac-os-x/">How to Flush DNS Cache in Mac OS X</a></li>
+  <li><a href="http://www.cnblogs.com/yryz/archive/2012/02/13/2299756.html">Vista/Win7以上系统查看和清除本地DNS缓存新方法</a></li>
+  <li><a href="http://www.techiecorner.com/35/how-to-flush-dns-cache-in-linux-windows-mac/">How to flush DNS cache in Linux / Windows / Mac</a></li>
+</ol>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/11/12/install-gnu-grep-in-mountain-lion/" rel="bookmark" title="Mountain Lion系统安装GNU Grep" itemprop="url">Mountain Lion系统安装GNU Grep</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-11-12T11:32:00+08:00">
+            November 12, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p><a href="http://news.ycombinator.com/item?id=4588304">由于License的问题</a>，OS X将GNU Grep替换成了FreeBSD Grep，这两个版本的grep大部分都兼容，FreeBSD Grep唯独少了-P（–per-regex）选项，缺少了对Perl正则表达式的支持。</p>
+</blockquote>
+
+<p>可以通过使用homebrew自己安装GNU Grep以兼容包含-P参数的bash脚本。</p>
+
+<pre><code>$ brew tap homebrew/dupes/
+$ brew install homebrew/dupes/grep
+</code></pre>
+
+<p>记得在PATH里确保/usr/local/bin在/usr/bin前面，并重启终端。</p>
+
+
+		<a href="/blog/2012/11/12/install-gnu-grep-in-mountain-lion/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/11/07/install-gateone-on-mac-osx/" rel="bookmark" title="Mac下安装Gate One" itemprop="url">Mac下安装Gate One</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-11-07T22:07:00+08:00">
+            November 07, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>HTML5终端模拟器/SSH客户端<a href="http://liftoffsoftware.com/Products/GateOne">Gate One</a>发布了<a href="https://github.com/liftoff/GateOne/downloads">v1.1版</a>。主要新特性包括：安全增强，性能改进，移动浏览器支持，改进终端模拟，系统日志信息的自动语法高亮，捕捉以及以图像形式展示PDF，Python 3支持，IE10支持，等等。官方DEMO演示显示你可以在浏览器上尝试vim，玩终端游戏，在lynx中冲浪，等等。</p>
+</blockquote>
+
+<p>官方给出了RPM，DEB安装包唯独没有mac下的安装包，由于该项目太新，也就不指望homebrew安装了，只能选择从源码安装。</p>
+
+
+		<a href="/blog/2012/11/07/install-gateone-on-mac-osx/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/11/06/get-the-hostname-of-a-windows-machine-by-ip-address/" rel="bookmark" title="通过IP地址获得windows机制主机名" itemprop="url">通过IP地址获得windows机制主机名</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-11-06T11:46:00+08:00">
+            November 06, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>局域网内可以通过NetBIOS协议将IP地址转换为windows机器的主机名</p>
+</blockquote>
+
+<h3 id="windows">Windows</h3>
+
+<pre><code>nbtstat -a [ip]
+</code></pre>
+
+<h3 id="linux">Linux</h3>
+
+<pre><code> nmblookup -A [ip] ###Mac OS
+
+smbutil status [ip]
+</code></pre>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/11/03/jackson-polymorphic-deserialization/" rel="bookmark" title="Jackson多态类型数据绑定" itemprop="url">Jackson多态类型数据绑定</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-11-03T14:28:00+08:00">
+            November 03, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Jackson数据绑定可以很方便的将java的对象类型和json数据格式之间进行转换。对于有多个子类型的多态集成结构的对象，Jackson在序列化的时候加入一些类型信息，可以在反序列化的时候准确的还原某个类型的子类。</p>
+</blockquote>
+
+<p>想要把JSON数据准确的反序列化为正确的子类型，简单的方法就是在数据中存储数据的类型。但是Jackson序列化时默认不会将对象的类型信息保存到Json数据中。有两种方式开始使Jackson序列化类型信息</p>
+
+
+		<a href="/blog/2012/11/03/jackson-polymorphic-deserialization/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/10/11/different-between-login-shell-and-interactive-shell/" rel="bookmark" title="登录Shell和交互Shell的区别" itemprop="url">登录Shell和交互Shell的区别</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-10-11T14:47:00+08:00">
+            October 11, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>遇到两个shell的概念：<code>交互式登录shell</code>和<code>交互式非登录shell</code>。要理解上面两个术语，先要理清两个概念<code>登录shell</code>和<code>交互shell</code></p>
+</blockquote>
+
+
+		<a href="/blog/2012/10/11/different-between-login-shell-and-interactive-shell/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/10/09/yum-aborts-with-missing-uramdon-when-rinse-installing-centos-6/" rel="bookmark" title="解决rinse安装CentOS 6报错找不到'/dev/urandom'的问题" itemprop="url">解决rinse安装CentOS 6报错找不到'/dev/urandom'的问题</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-10-09T15:53:00+08:00">
+            October 09, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Debian系统xen安装centos 6.3失败，报错找不到<code>/dev/urandom</code>。</p>
+</blockquote>
+
+<h3 id="section">错误如下</h3>
+<p><code>
+  File "/usr/lib64/python2.4/random.py", line 109, in seed
+    a = long(_hexlify(_urandom(16)), 16)
+OSError: [Errno 2] No such file or directory: '/dev/urandom'
+</code></p>
+
+
+		<a href="/blog/2012/10/09/yum-aborts-with-missing-uramdon-when-rinse-installing-centos-6/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+
+<div class="pagination">
+  
+    
+      <a href="/blog/page/5" class="btn">Previous</a>
+    
+  
+  <ul class="inline-list">
+    <li>
+      
+        <a href="/">1</a>
+      
+    </li>
+    
+      <li>
+        
+          <a href="/blog/page/2">2</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/5">5</a>
+        
+      </li>
+    
+      <li>
+        
+          <span class="current-page">6</span>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/7">7</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/8">8</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/9">9</a>
+        
+      </li>
+    
+  </ul>
+  
+    <a href="/blog/page/7" class="btn">Next</a>
+  
+</div><!-- /.pagination -->
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

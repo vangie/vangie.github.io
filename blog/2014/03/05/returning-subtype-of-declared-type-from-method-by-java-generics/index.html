@@ -1,0 +1,278 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Java泛型让声明方法返回子类型 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java泛型让声明方法返回子类型">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Java泛型让声明方法返回子类型</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>泛型典型的使用场景是集合。考虑到大多数情况下集合是同质的（同一类型），通过声明参数类型，可免去类型转换的麻烦。本文将讨论本人阅读Spring Security源码时遇到的一个关于<strong><em>泛型递归模式</em></strong>的问题。</p>
+</blockquote>
+
+<h3 id="section">声明方法返回子类型</h3>
+
+<p>在Spring Security的源码里有一个<code>ProviderManagerBuilder</code>接口，声明如下</p>
+
+<pre><code>public interface ProviderManagerBuilder&lt;B extends ProviderManagerBuilder&lt;B&gt;&gt; extends SecurityBuilder&lt;AuthenticationManager&gt; {
+    B authenticationProvider(AuthenticationProvider authenticationProvider);
+}
+</code></pre>
+
+<p>其实现类<code>AuthenticationManagerBuilder</code></p>
+
+<pre><code>public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuilder&lt;AuthenticationManager, AuthenticationManagerBuilder&gt; implements ProviderManagerBuilder&lt;AuthenticationManagerBuilder&gt; {
+
+    //...
+    
+	public AuthenticationManagerBuilder authenticationProvider(
+        AuthenticationProvider authenticationProvider) {
+    	this.authenticationProviders.add(authenticationProvider);
+    	return this;
+	}
+	
+    //...
+
+}
+</code></pre>
+
+<p>上面有很多干扰项，我们来简化一下</p>
+
+<!--more-->
+
+<p>接口<code>A</code>定义如下</p>
+
+<pre><code>public interface A&lt;T extends A&lt;T&gt;&gt; {
+
+	T add();
+
+} &gt;说明：`A`接口只有一个`add`方法，返回泛型`T`。`T`的声明有些饶`&lt;T extends A&lt;T&gt;&gt;`。
+</code></pre>
+
+<p><code>A</code>接口的实现类<code>B</code></p>
+
+<pre><code>public class B implements A&lt;B&gt; {
+	
+	@Override
+	public B add() {
+		return null;
+	}
+
+} 注意，此处类`B`里的add方法返回类型`B`。也就是说，接口`A`里声明的方法时并不知道子类型`B`的存在，通过继承和泛型，可以放返回值动态的适配子类型，这一切都要归功于`&lt;T extends A&lt;T&gt;&gt;`
+</code></pre>
+
+<h3 id="recurring-generic-pattern">泛型递归模式（Recurring Generic Pattern）</h3>
+<p><code>public interface A&lt;T extends A&lt;T&gt;&gt;</code>对于参数类型<code>T</code>是递归定义的。有如GNU的定义“GNU’s Not Unix!”。</p>
+
+<p>典型的例子是<code>java.lang.Enum</code></p>
+
+<pre><code>public abstract class Enum&lt;E extends Enum&lt;E&gt;&gt;
+    implements Comparable&lt;E&gt;, Serializable {
+	//...
+}
+</code></pre>
+
+<blockquote>
+  <p>java所有的枚举类型都隐式的继承<code>java.lang.Enum</code>，不允许通过现实的继承声明枚举类型，甚至集成<code>java.lang.Enum</code>也是编译器所不允许的。</p>
+</blockquote>
+
+<p>假设有一个枚举类<code>StatusCode</code>,其等价的声明如下</p>
+
+<pre><code>public class StatusCode extends Enum&lt;StatusCode&gt;
+</code></pre>
+
+<p>现在我们来验证一下泛型约束，</p>
+
+<ol>
+  <li>因为<code>Enum&lt;StatusCode&gt;</code>,所以<code>E=StatusCode</code></li>
+  <li>根据<code>&lt;E extend Enum&lt;E&gt;&gt;</code> 和 <code>E=StatusCode</code> 可得，<code>&lt;StatusCode extend Enum&lt;StatusCode&gt;&gt;</code>，</li>
+  <li>由于<code>public class StatusCode extends Enum&lt;StatusCode&gt;</code>第二步的结论显然成立。</li>
+</ol>
+
+<h4 id="enumenume">为什么Enum的声明这么绕？直接Enum<e>不行么？</e></h4>
+
+<p>因为<code>Enum&lt;E&gt;</code>实现了<code>Comparable&lt;E&gt;</code>接口，该接口有一个<code>compareTo</code>方法</p>
+
+<pre><code>public int compareTo(E o) {}
+</code></pre>
+
+<p>&lt;E extend Enum<e>&gt;强制约束了进行`compareTo`的调用对象类型和参数类型都严格一致，不会出现子类和超类或者兄弟类之间的比较。</e></p>
+
+<h3 id="section-1">泛型递归模式与继承</h3>
+<p>泛型递归模式<code>interface A&lt;T extend A&lt;T&gt;&gt;</code>用于约束参数类型T，要求其为类型<code>A</code>的子类。考虑到继承和实现<code>B implements A&lt;B&gt;</code>,参数类型和实体类型是一致的。这样类<code>A</code>中方法签名里涉及到参数类型<code>T</code>的地方，在实现类里会为实现类本身，这让类型系统更加的严谨。</p>
+
+<h3 id="section-2">参考文献</h3>
+<ol>
+  <li><a href="http://stackoverflow.com/questions/211143/java-enum-definition">Java Enum definition</a></li>
+  <li><a href="http://docs.oracle.com/javase/tutorial/java/javaOO/enum.html">Java Toturial - Enum Types</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/';
+        var disqus_url = 'http://codelife.me/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

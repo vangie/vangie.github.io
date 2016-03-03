@@ -1,0 +1,253 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>在OS X Mavericks上安装gdb &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在OS X Mavericks上安装gdb">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/07/14/install-gdb-on-osx-mavericks/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/07/14/install-gdb-on-osx-mavericks/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">在OS X Mavericks上安装gdb</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>最近帮外甥女写一段C程序作业。代码量不多，所有采用Sublime Text + gcc的方式。遇到了奇怪的<code>segmentation fault</code>,没有显示具体错误行号，所有需要借助gdb(The GNU Project Debugger 是*nix环境下著名的调试程序)返回更多有效信息和断点调试。</p>
+</blockquote>
+
+<h3 id="section">安装</h3>
+
+<pre><code>brew install gdb
+</code></pre>
+
+<h3 id="section-1">开启调试编译选项</h3>
+<p>希望gdb调试时输出行号与堆栈等详细信息需要<code>gcc</code>编译的时候使用<code>-g</code>选项</p>
+
+<pre><code>gcc -o course_test -g -rdynamic course_test.c
+</code></pre>
+
+<p>注意 homebrew安装的gnu版本的<code>gcc</code>在macox上不支持<code>-rdynamic</code>选项，此处使用的是xcode提供的<code>gcc</code>。</p>
+
+<!--more-->
+
+<h3 id="section-2">调试</h3>
+<pre><code>bash$ gdb course_test
+gdb&gt;run
+....
+The GDB command:
+„-exec-run“ returned the error:
+„,msg=„Unable to find Mach task port for process-id 62593:
+(os/kern) failure (0x5). (please check gdb is codesigned - see taskgated(8))““
+</code></pre>
+
+<p>不出意外将会遇到上述错误。这是由于macos的安全策略，homebrew安装的gdb没有签名导致。</p>
+
+<h3 id="gdb">签名gdb</h3>
+
+<ol>
+  <li>打开 “钥匙串访问”，位于<code>/Applications/Utilities/Keychain Access.app</code></li>
+  <li>打开菜单 /钥匙串访问/证书助理/创建证书…</li>
+  <li>在”创建您的证书”窗口设置如下
+    <ul>
+      <li>名称: gdbc</li>
+      <li>身份类型: 自签名根证书</li>
+      <li>证书类型: 代码签名</li>
+      <li>勾选”让我覆盖这些默认值”</li>
+    </ul>
+  </li>
+  <li>点击”继续”，将”有效期（天数）”设置为: 3650</li>
+  <li>点击若干次”继续”，指导出现”指定用于该证书的位置””
+    <ul>
+      <li>钥匙串: 系统</li>
+    </ul>
+  </li>
+  <li>点击”创建”，会弹出用户名密码输入框，输入密码，点击”修改钥匙串”</li>
+  <li>在“系统”钥匙串找到刚才创建的”gdbc”证书，右键”显示简介”，在“信任”分类下找到“代码签名”，指定为“总是信任”。</li>
+  <li>退出“钥匙串访问”</li>
+</ol>
+
+<p>要让刚刚添加的证书生效需要重启<code>taskgated</code>服务或者重启系统</p>
+
+<pre><code>sudo killall taskgated
+</code></pre>
+
+<p>证书准备好了，接下来给gdb签名</p>
+
+<pre><code>codesign -fs gdbc /usr/local/bin/gdb
+</code></pre>
+
+<h3 id="lldb">lldb</h3>
+<p>即使给签名gdb以后，在执行gdb调试仍然无法显示行号（行号显示为 ??），新版本的macox已经和gdb不兼容了，lldb是gdb的替代者。使用lldb调试可以显示错误发生位置的行号。</p>
+
+<h3 id="section-3">参考阅读</h3>
+
+<ol>
+  <li><a href="http://blog.panks.me/posts/2013/11/install-gdb-on-os-x-mavericks-from-source/">Install GDB on OS X Mavericks from source</a></li>
+  <li><a href="http://wiki.lazarus.freepascal.org/GDB_on_OS_X_Mavericks_and_Xcode_5">GDB on OS X Mavericks and Xcode 5</a></li>
+  <li><a href="http://stackoverflow.com/questions/13913818/how-to-get-a-codesigned-gdb-on-osx">How to get a “codesigned” gdb on OSX?</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/07/14/install-gdb-on-osx-mavericks/';
+        var disqus_url = 'http://codelife.me/blog/2014/07/14/install-gdb-on-osx-mavericks/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

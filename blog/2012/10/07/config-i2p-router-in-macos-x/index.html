@@ -1,0 +1,232 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>MacOS X配置I2P匿名网络 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MacOS X配置I2P匿名网络">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/10/07/config-i2p-router-in-macos-x/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/10/07/config-i2p-router-in-macos-x/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">MacOS X配置I2P匿名网络</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>I2P 是一个匿名网络项目，它提供了一个简单的网络层供对身份敏感的程序进行安全的匿名通讯。I2P 网络是动态的分布式网络，它在设计上并不信任网络中的任何一方，其中的所有数据都经过多层加密。</p>
+</blockquote>
+
+<p>简单的说I2P和Tor一样都可以作为梯子。相比Tor，I2P不需要中央服务器，属于分布式的匿名网络，更难被封杀。下面介绍如何在MacOS X下将I2P配置成本地的HTTP Proxy服务。</p>
+
+<!--more-->
+
+<h3 id="section">下载安装</h3>
+
+<p>打开I2P的<a href="http://www.i2p2.de/download_zh.html">下载页面</a>,找到“Linux / OS X / BSD / Solaris 图形安装程序”下载i2pinstall_0.9.2.jar</p>
+
+<p>然后在命令行里执行（需要java环境）</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">java -jar i2pinstall_0.9.2.jar</div></div></pre></div></figure>
+
+<p>图形向导很简单，没有什么特别需要注意的，可以选择<strong>中文</strong>界面语言。</p>
+
+<h3 id="section-1">运行配置</h3>
+
+<p>双击I2P安装目录（默认位置：/Applications/i2p）里Start I2P Router.app,I2P服务就启动了，浏览器打开<code>http://127.0.0.1:7657/</code>可以配置I2P服务。</p>
+
+<h5 id="section-2">补种</h5>
+
+<p>若此时网络状态为：<strong>测试中</strong>，则需要补种，默认的种子列表都被墙了。补种的方式有如下两个，请根据个人喜好任选一个。</p>
+
+<ol>
+  <li>
+    <p>手动下载种子</p>
+
+    <p>请翻墙打开官网的<a href="http://netdb.i2p2.de/">种子列表</a>，把页面上列出的大约20个种子下载下来。然后把下载的种子放到本机的 /Applications/i2p/netDb 目录下（这个目录是 I2P 用来存放种子的）。再把 I2P 重新启动一下。</p>
+  </li>
+  <li>
+    <p>通过代理补种</p>
+
+    <p>I2P 可以连接到它的官网去补种。但是 I2P 的官网被封。所以你需要在 I2P 的<a href="http://127.0.0.1:7657/configreseed">补种界面</a>添加代理，让 I2P 先暂时利用其它翻墙软件补充种子。</p>
+  </li>
+</ol>
+
+<p>不管哪种方法都是欲要翻墙先得翻墙</p>
+
+<h5 id="upnp">UPnP</h5>
+<p>若此时网络状态为：<strong>防火墙限制</strong>，这需要修改本地路由器配置开启UPnP。</p>
+
+<p>重启后，若网络状态为：<strong>正常</strong> 或者 <strong>隐身</strong>,则表示服务已经正常启动。i2p会在4444端口，开启http代理服务；4445端口，开启https代理服务。</p>
+
+<h3 id="section-3">后台服务</h3>
+
+<p>双击<code>/Applications/i2p/install_i2p_service_osx.command</code>,i2p被注册成后台服务。</p>
+
+<h3 id="section-4">参考文献</h3>
+<ol>
+  <li><a href="http://program-think.blogspot.com/2012/06/gfw-i2p.html">如何翻墙：简单扫盲 I2P 的使用</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/10/07/config-i2p-router-in-macos-x/';
+        var disqus_url = 'http://codelife.me/blog/2012/10/07/config-i2p-router-in-macos-x/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

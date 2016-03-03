@@ -1,0 +1,449 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>《HTTP权威指南》读书笔记 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《HTTP权威指南》读书笔记">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/09/08/reading-notes-of-http-the-definitive-guide/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/09/08/reading-notes-of-http-the-definitive-guide/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">《HTTP权威指南》读书笔记</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>一直在做web开发，对HTTP协议还算熟悉，但是这本手册类的砖头书还是很吸引我，看了两章觉得还不错，对于巩固基础很有帮助，最近感觉记性不如从前，烂笔头越来越重要了。</p>
+</blockquote>
+
+<h1 id="http">第一章 HTTP概述</h1>
+
+<h2 id="mime">MIME</h2>
+
+<p>媒体类型<code>MIME</code>（Multipurpose Internet Mail Extension）最初设计是为了解决不同的电子邮件系统之间搬移报文时存在的问题。</p>
+
+<!--more-->
+
+<p>MIME类型是一种文本标记，表示一种主要的对象类型和一个特定的子类型，中间由一条斜杠来分割</p>
+
+<ul>
+  <li>HTML格式 text/html</li>
+  <li>ASCII文本 text/plain</li>
+  <li>JPEG图片 image/jpeg</li>
+  <li>GIF图片 image/gif</li>
+</ul>
+
+<h2 id="uri">URI</h2>
+
+<p>URI(Uniform Resource Identifier)统一资源标识符，他有两种形式URL和URN</p>
+
+<ul>
+  <li>URL（Uniform Resource Locator）同一资源定位符</li>
+  <li>URN（Uniform Resource Name）同一资源名
+    <ul>
+      <li>由唯一的资源名来定位文件，解决URL因服务器变更等原因导致资源无法找到的问题，但是由于URL已被广泛的接受，目前URN技术没推广计划。</li>
+      <li>语法 <code>urn:&lt;NID&gt;:&lt;NSS&gt;</code><br />
+  <code>&lt;NID&gt;</code>表示命名空间标识符<br />
+  <code>&lt;NSS&gt;</code>表示命名空间里的特定字符</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="section">协议</h2>
+
+<p>HTTP协议是基于TCP协议的文本类型的报文，报文非为请求（Request）和相应（Response），报文的结构由3部分组成</p>
+
+<ul>
+  <li>起始行（start line）</li>
+  <li>首部字段（header）</li>
+  <li>主体（body）</li>
+</ul>
+
+<p>Telnet实质上就是一个基于TCP协议的工具，所有可以使用Telnet工具模拟HTTP报文与web服务器通讯。</p>
+
+<h2 id="http-1">HTTP协议的版本</h2>
+
+<ul>
+  <li>HTTP/0.9 已经废弃</li>
+  <li>HTTP/1.0</li>
+  <li>HTTP/1.0+ 各家厂商自己扩展的协议</li>
+  <li>HTTP/1.1 当前使用版本</li>
+  <li>HTTP/2.0(HTTP-NG) 尚未推广</li>
+</ul>
+
+<h2 id="web">web的结构组件</h2>
+
+<h3 id="section-1">代理</h3>
+<p>位于客户端和服务器之间的HTTP中间实体。客户端向代理发出请求，代理代替客户端向服务端发出请求。
+### 缓存
+HTTP的仓库，使常用的页面的副本可以保存在离客户端更近的地方。
+### 网关
+连接其他应用程序的特殊web服务器，将HTTP协议转换为其他协议，如FTP协议
+### 隧道
+对HTTP通信报文进行盲目转发的特殊代理，常见用途，通过HTTP连接承载SSL流量
+### Agent 代理
+发起自动HTTP请求的半智能web客户端，浏览器或者网络蜘蛛。</p>
+
+<h2 id="section-2">相关资源链接</h2>
+
+<ol>
+  <li><a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 超文本传输协议-HTTP/1.1</a></li>
+  <li><a href="http://www.ietf.org/rfc/rfc1945.txt">RFC1945 超文本传输协议-HTTP/1.0</a></li>
+  <li><a href="http://www.ietf.org/rfc/rfc2396.txt">RFC2396 统一资源标识符：通用语法</a></li>
+  <li><a href="http://www.ietf.org/rfc/rfc2141.txt">RFC2141 URN语法规范</a></li>
+  <li><a href="http://www.ietf.org/rfc/rfc2046.txt">RFC2046 MIME第二部分：媒体类型</a></li>
+  <li><a href="http://www.wrec.org/Drafts/draft-ietf-wrec-taxonomy-06.txt">因特网Web复制和缓存分类法</a></li>
+  <li><a href="http://www.w3.org/Protocols/WhyHTTP.html">Why HTTP</a></li>
+  <li><a href="http://www.w3.org/History.html">万维网简史</a></li>
+  <li><a href="http://www.w3.org/DesignIssues/Architecture.html">高考俯瞰Web结构</a></li>
+</ol>
+
+<h1 id="url">第二章 URL与资源</h1>
+
+<h2 id="url-1">URL的语法</h2>
+
+<pre><code>&lt;schema&gt;://&lt;user&gt;:&lt;password&gt;@&lt;host&gt;:&lt;port&gt;/&lt;path&gt;;&lt;params&gt;?&lt;query&gt;#&lt;frag&gt;
+</code></pre>
+
+<p>几乎没有URL包含上面的全部，最常见的部分是：<code>schema</code>，<code>host</code>，<code>path</code></p>
+
+<ul>
+  <li>
+    <p>&lt;params&gt;:参数</p>
+
+    <p>参数和参数，参数和路径之间使用<code>;</code>分割，每一级路径都可以带参数</p>
+
+    <pre><code>  ftp://prep.ai.mit.edu/pub/gnu;type=d
+  http://www.joes-hardware.com/hammers;sale=false/index.html;graphics=true
+</code></pre>
+  </li>
+</ul>
+
+<h2 id="url-2">URL字符集</h2>
+<p>URL可以接受的字符是US-ASCII字符集的子集，超过该字符集的字符需要使用<code>%</code>+两位16进制数进行转义。</p>
+
+<h2 id="section-3">需要转义的字符</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">字符</th>
+      <th style="text-align: left">保留/受限</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">%</td>
+      <td style="text-align: left">转移字符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">/</td>
+      <td style="text-align: left">路径分隔符</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">.</td>
+      <td style="text-align: left">路径当前目录</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">..</td>
+      <td style="text-align: left">路径上一级目录</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">#</td>
+      <td style="text-align: left">分段定界符号</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">?</td>
+      <td style="text-align: left">查询定界符号</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">;</td>
+      <td style="text-align: left">参数定界符号</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">:</td>
+      <td style="text-align: left">方案，用户/口令,主机/端口定界符号</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">$ , +</td>
+      <td style="text-align: left">保留</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">@ &amp; =</td>
+      <td style="text-align: left">用户/主机,查询条件,键值对定界符号</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">{}|\^~[]’</td>
+      <td style="text-align: left">由于各种传输Agent代理不安全处理，受限</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&lt;&gt;”</td>
+      <td style="text-align: left">不安全，会破坏html文档</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">0x00-0x1F,0x7F</td>
+      <td style="text-align: left">不可见</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">&gt;0x7F</td>
+      <td style="text-align: left">超出US-ASCII字符集范围</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="purl">PURL</h2>
+
+<p>PURL(persistent uniform resource locators)<a href="http://purl.oclc.org">永久统一资源定位符</a>，是一种使用URL实现URN功能的方案。</p>
+
+<h1 id="http-2">第三章 HTTP报文</h1>
+<p>这张全面的介绍了http报文。</p>
+
+<h2 id="section-4">报文的结构</h2>
+
+<h3 id="section-5">报文语法</h3>
+
+<p><strong>请求报文</strong></p>
+
+<pre><code>&lt;method&gt; &lt;request-URL&gt; &lt;version&gt;
+&lt;headers&gt;
+
+&lt;entity-body&gt;
+</code></pre>
+
+<p><strong>响应报文</strong></p>
+
+<pre><code>&lt;version&gt; &lt;status&gt; &lt;reason-phrase&gt;
+&lt;headers&gt;
+
+&lt;entity-body&gt;
+</code></pre>
+
+<h3 id="section-6">起始行</h3>
+
+<p><strong>方法</strong></p>
+
+<p>HTTP规范定义的方法：<code>GET</code>、<code>HEAD</code>、<code>POST</code>、<code>PUT</code>、<code>TRACE</code>、<code>OPTIONS</code>、<code>DELETE</code>。其中除了POST方法外，其它方法都是幂等的。</p>
+
+<p>除了规范定义的7中方法，其他服务器可以实现一些自己的请求方法，这类自己实现的方法称为<code>扩展方法</code>。</p>
+
+<p><strong>状态码分类</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">整体范围</th>
+      <th style="text-align: left">已定义范围</th>
+      <th style="text-align: left">分类</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">100~199</td>
+      <td style="text-align: left">100-101</td>
+      <td style="text-align: left">信息提示</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">200~299</td>
+      <td style="text-align: left">200-206</td>
+      <td style="text-align: left">成功</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">300~399</td>
+      <td style="text-align: left">300-305</td>
+      <td style="text-align: left">重定向</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">400~499</td>
+      <td style="text-align: left">400-415</td>
+      <td style="text-align: left">客户端错误</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">500~599</td>
+      <td style="text-align: left">500-505</td>
+      <td style="text-align: left">服务端错误</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>原因短语</strong></p>
+
+<p>原因短语是响应起始行中的最后部分。他是文本形式，<code>HTTP/1.0 200 OK</code>，<code>OK</code>就是原因短语。原因短语没有控制作用，原因短语与状态码不匹配不会引发任何异常。</p>
+
+<h3 id="section-7">首部</h3>
+
+<p>首部紧接着起始行，为请求和响应添加一些附加信息，可分为</p>
+
+<ul>
+  <li>通用首部</li>
+  <li>请求首部</li>
+  <li>响应首部</li>
+  <li>实体首部</li>
+  <li>扩展首部</li>
+</ul>
+
+<p>(未完待续…)</p>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/09/08/reading-notes-of-http-the-definitive-guide/';
+        var disqus_url = 'http://codelife.me/blog/2012/09/08/reading-notes-of-http-the-definitive-guide/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

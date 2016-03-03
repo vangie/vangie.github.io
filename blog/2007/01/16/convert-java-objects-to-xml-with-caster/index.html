@@ -1,0 +1,339 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>使用Castor实现对象数据绑定 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Castor实现对象数据绑定">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2007/01/16/convert-java-objects-to-xml-with-caster/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2007/01/16/convert-java-objects-to-xml-with-caster/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">使用Castor实现对象数据绑定</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>在项目需要从配置文件中读取一些数据，
+yaml的作为一种可选的非XML方案已经宣告失败，
+同事给我推荐了另外两个XML的解决方案：
+<a href="http://www.castor.org/">Castor</a>或者<a href="http://jakarta.apache.org/commons/digester/">Digester</a></p>
+</blockquote>
+
+<ul>
+  <li>Castor是一种将Java对象和XML自动绑定的开源软件. 它可以在Java对象,XML文本,SQL数据表以及LDAP目录之间绑定.</li>
+  <li>Digester原是Apache Jakarta Struts计划中的一部分，用来解析Web App中的XML配置文件，在开发一段时间之后，开发人员觉得这个小工具具有很普遍的使用场合，于是，将这个部分独立出来，放到Commons项目中。</li>
+</ul>
+
+<p>由于Digester只是支持由XML到JavaBean的单向转换，而我的项目还需要能够从JavaBean到XML的转换。
+所以我选择了Castor。</p>
+
+<p>下面是Castor的例子</p>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">SearchField.java</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">scbit</span><span class="o">.</span><span class="na">lentinus</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">public</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">class</span> <span class="nc">SearchField</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Table</span><span class="o">&gt;</span> <span class="n">tables</span><span class="o">;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="nf">SearchField</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">tables</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Table</span><span class="o">&gt;();</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Table</span><span class="o">&gt;</span> <span class="nf">getTables</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="n">tables</span><span class="o">;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kt">void</span> <span class="nf">addTable</span><span class="o">(</span><span class="n">Table</span> <span class="n">table</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">tables</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">table</span><span class="o">);</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">&#x7d;</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">Table.java</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">scbit</span><span class="o">.</span><span class="na">lentinus</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">public</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">class</span> <span class="nc">Table</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">String</span> <span class="n">tableDisplayName</span><span class="o">;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">String</span> <span class="n">tableClass</span><span class="o">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span> <span class="n">fields</span><span class="o">;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="nf">Table</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">fields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;();</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span> <span class="nf">getFields</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="n">fields</span><span class="o">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">addField</span><span class="o">(</span><span class="n">Field</span> <span class="n">field</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">fields</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">field</span><span class="o">);</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getTableClass</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="n">tableClass</span><span class="o">;</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setTableClass</span><span class="o">(</span><span class="n">String</span> <span class="n">tableClass</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">tableClass</span> <span class="o">=</span> <span class="n">tableClass</span><span class="o">;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getTableDisplayName</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="n">tableDisplayName</span><span class="o">;</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setTableDisplayName</span><span class="o">(</span><span class="n">String</span> <span class="n">tableDisplayName</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">this</span><span class="o">.</span><span class="na">tableDisplayName</span> <span class="o">=</span> <span class="n">tableDisplayName</span><span class="o">;</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">&#x7d;</span></div></div></pre></div></figure>
+
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">Field.java</span></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">package</span> <span class="n">org</span><span class="o">.</span><span class="na">scbit</span><span class="o">.</span><span class="na">lentinus</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">public</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">class</span> <span class="nc">Field</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="nf">Field</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">String</span> <span class="n">fieldDisplay</span><span class="o">;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">private</span> <span class="n">String</span> <span class="n">fieldName</span><span class="o">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFieldDisplay</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="n">fieldDisplay</span><span class="o">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFieldDisplay</span><span class="o">(</span><span class="n">String</span> <span class="n">fieldDisplay</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">fieldDisplay</span> <span class="o">=</span> <span class="n">fieldDisplay</span><span class="o">;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFieldName</span><span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="n">fieldName</span><span class="o">;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setFieldName</span><span class="o">(</span><span class="n">String</span> <span class="n">fieldName</span><span class="o">)</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">this</span><span class="o">.</span><span class="na">fieldName</span> <span class="o">=</span> <span class="n">fieldName</span><span class="o">;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">&#x7d;</span></div></div></pre></div></figure>
+<p>转换代码</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nd">@Test</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testField</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">SearchField</span> <span class="n">searchField</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SearchField</span><span class="o">();</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">Table</span> <span class="n">table</span><span class="o">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">Field</span> <span class="n">field</span><span class="o">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">table</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Table</span><span class="o">();</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">table</span><span class="o">.</span><span class="na">setTableDisplayName</span><span class="o">(</span><span class="s">&quot;级别信息&quot;</span><span class="o">);</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">table</span><span class="o">.</span><span class="na">setTableClass</span><span class="o">(</span><span class="s">&quot;TbBasicInfor&quot;</span><span class="o">);</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Field</span><span class="o">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span><span class="o">.</span><span class="na">setFieldDisplay</span><span class="o">(</span><span class="s">&quot;拉丁学名&quot;</span><span class="o">);</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span><span class="o">.</span><span class="na">setFieldName</span><span class="o">(</span><span class="s">&quot;latinName&quot;</span><span class="o">);</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">table</span><span class="o">.</span><span class="na">addField</span><span class="o">(</span><span class="n">field</span><span class="o">);</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Field</span><span class="o">();</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span><span class="o">.</span><span class="na">setFieldDisplay</span><span class="o">(</span><span class="s">&quot;拉丁别名&quot;</span><span class="o">);</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">field</span><span class="o">.</span><span class="na">setFieldName</span><span class="o">(</span><span class="s">&quot;latinAlias&quot;</span><span class="o">);</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">table</span><span class="o">.</span><span class="na">addField</span><span class="o">(</span><span class="n">field</span><span class="o">);</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">searchField</span><span class="o">.</span><span class="na">addTable</span><span class="o">(</span><span class="n">table</span><span class="o">);</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1">// write it out as XML</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">File</span> <span class="n">file</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">File</span><span class="o">(</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="s">&quot;D:\\dev\\workplace\\eclipse_workspace\\LentinusEdodes\\WebRoot\\WEB-INF\\conf\\searchField.xml&quot;</span><span class="o">);</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">Writer</span> <span class="n">writer</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">OutputStreamWriter</span><span class="o">(</span><span class="k">new</span> <span class="nf">FileOutputStream</span><span class="o">(</span><span class="n">file</span><span class="o">),</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">Marshaller</span> <span class="n">marshaller</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Marshaller</span><span class="o">(</span><span class="n">writer</span><span class="o">);</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">marshaller</span><span class="o">.</span><span class="na">setEncoding</span><span class="o">(</span><span class="s">&quot;utf-8&quot;</span><span class="o">);</span> <span class="c1">// 关键</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">marshaller</span><span class="o">.</span><span class="na">marshal</span><span class="o">(</span><span class="n">searchField</span><span class="o">);</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="c1">// now restore the value and list what we get</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">Reader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span><span class="k">new</span> <span class="nf">FileInputStream</span><span class="o">(</span><span class="n">file</span><span class="o">),</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="s">&quot;utf-8&quot;</span><span class="o">);</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">SearchField</span> <span class="n">read</span> <span class="o">=</span> <span class="o">(</span><span class="n">SearchField</span><span class="o">)</span> <span class="n">Unmarshaller</span><span class="o">.</span><span class="na">unmarshal</span><span class="o">(</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="n">SearchField</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">reader</span><span class="o">);</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">assertTrue</span><span class="o">(</span><span class="n">read</span><span class="o">.</span><span class="na">getTables</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">).</span><span class="na">getTableDisplayName</span><span class="o">().</span><span class="na">equals</span><span class="o">(</span><span class="s">&quot;级别信息&quot;</span><span class="o">));</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">writer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span></div></div></pre></div></figure>
+
+<p>转换后的XML文件</p>
+
+<p>searchField.xml</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;search-field&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;tables</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="na">xsi:type=</span><span class="s">&quot;java:org.scbit.lentinus.domain.Table&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;fields</span> <span class="na">xsi:type=</span><span class="s">&quot;java:org.scbit.lentinus.domain.Field&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nt">&lt;field-display&gt;</span>拉丁学名<span class="nt">&lt;/field-display&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nt">&lt;field-name&gt;</span>latinName<span class="nt">&lt;/field-name&gt;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;/fields&gt;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;fields</span> <span class="na">xsi:type=</span><span class="s">&quot;java:org.scbit.lentinus.domain.Field&quot;</span><span class="nt">&gt;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nt">&lt;field-display&gt;</span>拉丁别名<span class="nt">&lt;/field-display&gt;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="nt">&lt;field-name&gt;</span>latinAlias<span class="nt">&lt;/field-name&gt;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;/fields&gt;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;table-class&gt;</span>TbBasicInfor<span class="nt">&lt;/table-class&gt;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nt">&lt;table-display-name&gt;</span>级别信息<span class="nt">&lt;/table-display-name&gt;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">&lt;/tables&gt;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">&lt;/search-field&gt;</span></div></div></pre></div></figure>
+
+<p>Castor使用起来还是比较简单的，但在读取中文的时候，要注意可能会有乱码问题，在它官方的FAQ中有相应的解释和解决方法。
+&gt; How do I set the encoding?
+Create a new instance of the Marshaller class and use the setEncoding method. You’ll also need to make sure the encoding for the Writer is set properly as well: 
+…
+String encoding = “ISO-8859-1”;
+FileOutputStream fos = new FileOutputStream(“result.xml”);
+OutputStreamWriter osw = new OuputStreamWriter(fos, encoding);
+Marshaller marshaller = new Marshaller(osw);
+marshaller.setEncoding(encoding);
+…</p>
+
+<h3 id="section">参考文章</h3>
+
+<ol>
+  <li><a href="http://www.ibm.com/developerworks/cn/xml/x-bindcastor/">XML 与 Java 技术: 用 Castor 进行数据绑定</a></li>
+  <li><a href="http://www-128.ibm.com/developerworks/cn/java/j-castor/index.html">Castor JDO 入门</a></li>
+  <li><a href="http://www.blogchinese.com/06081/242496/archives/2006/200693205223.shtml">学习Digester笔记</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2007/01/16/convert-java-objects-to-xml-with-caster/';
+        var disqus_url = 'http://codelife.me/blog/2007/01/16/convert-java-objects-to-xml-with-caster/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

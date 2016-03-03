@@ -1,0 +1,560 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code Life">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/page/5/index.html">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/page/5/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+    
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/04/06/convert-gfwlist-to-pac/" rel="bookmark" title="gfwlist转换成PAC文件" itemprop="url">gfwlist转换成PAC文件</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-04-06T12:12:00+08:00">
+            April 06, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>iOS翻墙依赖于PAC文件，PAC文件里制定了一系列的规则用于智能判断某些流量是否需要走代理，这样就可以避免代理访问国内站点较慢的问题。</p>
+</blockquote>
+
+<h2 id="pac">如何获得PAC</h2>
+<ol>
+  <li>SwitchSharp里导出</li>
+  <li>从站点<a href="https://autoproxy2pac.appspot.com/">AutoProxy2PAC</a>定制下载或者直接引用</li>
+  <li>使用工具将gfwlist转换成PAC，如<a href="https://github.com/JinnLynn/GenPAC">JinnLynn/GenPAC</a></li>
+</ol>
+
+<h2 id="pac-1">支持多重代理的PAC</h2>
+<p>上面3中方法获得代理文件都只支持配置一种代理方法。不使用于本人上篇博文<a href="http://codelife.me/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/">iOS6里GoAgent和SSH Forwarding共用</a>里依赖的PAC文件。
+形如：</p>
+
+<pre><code>function FindProxyForURL(url, host) {
+	return "DIRECT; PROXY 192.168.1.1:3128; SOCKS5 lilinux.net:1080"; 
+} ##gfwlist2pac 在项目[JinnLynn/GenPAC]的基础上，本人编写了一个[gfwlist2pac]工具，支持如下功能：
+</code></pre>
+
+<ul>
+  <li>代理规则基于<a href="http://autoproxy-gfwlist.googlecode.com">gfwlist</a></li>
+  <li>允许通过代理获得gfwlist</li>
+  <li>支持用户自定义规则</li>
+  <li>运行配置多重代理</li>
+</ul>
+
+
+		<a href="/blog/2013/04/06/convert-gfwlist-to-pac/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/" rel="bookmark" title="iOS6里GoAgent和SSH Forwarding共用" itemprop="url">iOS6里GoAgent和SSH Forwarding共用</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-04-04T22:15:00+08:00">
+            April 04, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>入了一台iPhone5联通合约机，可惜iOS 6.1.3无法越狱了，庆幸内置系统版本6.1.2，Alfred调出evasi0n.app,果断越狱了。本文介绍在iOS6里整合Goagent和SSH forwarding两种方式翻越长城。</p>
+</blockquote>
+
+
+		<a href="/blog/2013/04/04/mixing-goagent-and-ssh-forwarding-on-iso-6/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/03/28/upgrade-goagent-daemon-in-macos-x/" rel="bookmark" title="MacOS X里升级GoAgent后台服务" itemprop="url">MacOS X里升级GoAgent后台服务</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-03-28T10:04:00+08:00">
+            March 28, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>本篇是<a href="http://codelife.me/blog/2012/09/03/goagent-run-as-deamon-in-macos-x/">MacOS X将GoAgent配置为后台服务</a>的姊妹篇，主要分享一下将GoAgent配置成随机启动的LaunchAgent后如何升级，并提供一个方便的管理脚本。</p>
+</blockquote>
+
+<h2 id="section">升级</h2>
+
+<h3 id="section-1">下载安装</h3>
+
+<p>假设GoAgent的安装目录为<code>~/Library/</code></p>
+
+<p>下载最新的GoAgent，当前版本为v2.1.14。解压后得到<code>goagent-goagent-beadcf8</code>目录,将其移动到<code>~/Library/</code>目录</p>
+
+<pre><code>mv goagent-goagent-beadcf8 ~/Library/
+</code></pre>
+
+<p>并在同目录下创建一个文件链接，</p>
+
+<pre><code>cd ~/Library/;rm goagent
+ln -sf goagent-goagent-beadcf8 goagent
+</code></pre>
+
+
+		<a href="/blog/2013/03/28/upgrade-goagent-daemon-in-macos-x/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/03/16/a-mac-os-x-quicklook-extension-for-markdown/" rel="bookmark" title="支持Markdown的Finder快速预览插件" itemprop="url">支持Markdown的Finder快速预览插件</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-03-16T12:33:00+08:00">
+            March 16, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>寻找一个可扩展的markdown parser的java或者javascript实现，wikipedia上有一个<a href="http://en.wikipedia.org/wiki/List_of_Markdown_implementations">列表</a>非常全。比较之后决定弃用<a href="http://code.google.com/p/pagedown/">pagedown</a>改用<a href="http://code.google.com/p/markdown4j">markdown4j</a>，明显后者功能更加全面，而且同样可扩展。在这个长长的列表里意外的发现了<a href="(https://github.com/toland/qlmarkdown/)">qlmarkdown</a>。</p>
+</blockquote>
+
+<p><a href="(https://github.com/toland/qlmarkdown/)">qlmarkdown</a>是一个QuickLook的扩展（在Finder里选中文件敲空格键弹出的那个窗口就是Quicklook功能）。安装了这个扩展以后就可以快速的预览markdown文件了。</p>
+
+
+		<a href="/blog/2013/03/16/a-mac-os-x-quicklook-extension-for-markdown/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/03/09/convert-amount-from-figures-to-words-by-coffeescript/" rel="bookmark" title="Coffeescript脚本将人民币金额小写转换为大写" itemprop="url">Coffeescript脚本将人民币金额小写转换为大写</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-03-09T10:43:00+08:00">
+            March 09, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>windows系统的搜狗输入法v模式可以很贴心地把人民币由小写转换为大写模式，Mac平台的输入法迄今还没有发现类似的功能。OSChina上看到一个哥们写了个java的版本的，于是依葫芦画瓢捣腾了个coffee的版本</p>
+</blockquote>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/03/02/zmodem-integration-for-iterm2/" rel="bookmark" title="在iTerm2中使用Zmodem传输文件" itemprop="url">在iTerm2中使用Zmodem传输文件</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-03-02T14:54:00+08:00">
+            March 02, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>rz,sz命令传输文件，比使用scp要方便得多，特别是在图形界面打开终端，SSH登陆到远程机器需要传输文件的时候。但是MacOS里Terminal.app并不支持Zmodel传输。好在iTerm2具备较强的扩展性可以通过简单的配置支持Zmodem传输。</p>
+</blockquote>
+
+<h3 id="zmodem">什么是Zmodem</h3>
+<p>Zmodem是针对modem的一种支持错误校验的文件传输协议。Zmodem是Ymodem的改进版，后者又是Xmodem的改进版。</p>
+
+
+		<a href="/blog/2013/03/02/zmodem-integration-for-iterm2/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/02/07/install-kuaidial-on-ios6/" rel="bookmark" title="iOS6安装KuaiDial" itemprop="url">iOS6安装KuaiDial</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-02-07T17:27:00+08:00">
+            February 07, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>iOS6 越狱程序<a href="http://evasi0n.com/">evasi0n</a>自本周一发布以来，累计被下载了170万次。果断升级了，升级以后发现KuaiDial没有用了。</p>
+</blockquote>
+
+<p>kuaidial原来的升级源http://kuaidail.googlecode.com/svn/deb没有用了，装威锋源里的kuaidial也没有用。改用<strong>第一中文源</strong>http://apt.178.com,然后安装<strong>Kuaidial iOS6 测试版</strong></p>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/02/05/ipad-play-video-from-macbook-over-upnp/" rel="bookmark" title="iPad通过uPnp协议播放MacBook里的视频文件" itemprop="url">iPad通过uPnp协议播放MacBook里的视频文件</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-02-05T00:58:00+08:00">
+            February 05, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>mac air里下载的电影通过开启upnp服务，然后iPad安装一个支持upnp服务的播放器可以直接播放电影，免去拷贝的过程。</p>
+</blockquote>
+
+<h1 id="mac-osmediatomb">Mac OS端安装Mediatomb</h1>
+<p>mediatomb是一个跨平台免费的upnp服务器，以web ui的方式管理，仅仅是一个命令行工具。</p>
+
+<pre><code>brew install mediatomb
+</code></pre>
+
+<p>安装完成以后执行命令<code>mediatomb</code>,如果遇到端口被占用的错误，需要重启一下机器。我重启两次就好了。</p>
+
+<h1 id="iosaceplayer">iOS端安装aceplayer</h1>
+
+<p><a href="https://itunes.apple.com/us/app/aceplayer-powerful-media-player/id540326056?mt=8">aceplayer</a>是一个近乎全能的播放器，支持upnp，可以直接播放或者下载upnp服务器里的视频文件。但是播放时色彩还原效果相对差一点。</p>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/01/28/using-font-awesome-in-keynote/" rel="bookmark" title="在Keynote里输入Font Awesome字符" itemprop="url">在Keynote里输入Font Awesome字符</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-01-28T23:23:00+08:00">
+            January 28, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p><a href="http://fortawesome.github.com/Font-Awesome/">Font Awesome</a>提供了200多个矢量图标的字体文件。矢量字体可以支持无线的放缩，而且体积更好，如果能放到keynote里作为幻灯片的图标素材非常不错。想法是好的，但是由于这些字体对应了一些保留的unicode编码，使用通常的输入法无法输入。</p>
+</blockquote>
+
+<h3 id="font-awesome">安装Font Awesome字体</h3>
+
+<p>下载 <a href="https://github.com/FortAwesome/Font-Awesome/zipball/master">FontAwesome-Font-Awesome.zip</a>，解压缩后，找到font/FontAwesome.otf文件，双击安装即可。</p>
+
+<h3 id="iconunicode">找到icon对应的Unicode编码</h3>
+<p>找到css/font-awesome.css文件，使用编辑器打开。可以找到许多形如</p>
+
+<p><code>css
+.icon-key:before                  { content: "\f084"; }
+</code></p>
+
+<p>其中<code>f084</code>就是icon-key图标对应的unicode编码。	
+###开启Mac OS的unicode16进制输入法
+打开“系统偏好设置\语言与文本\输入源”,在左侧”请选择要使用的输入源”列表中勾上”Unicode 十六进制输入“。然后将系统输入法切换为”Unicode输入法“。按住Option(Alt)健输入4位unicode字符即可输入.若当前字体不存在对应的unicode编码的字形会出现框框，所有输入前需要在keynote里把当前字体改为FontAwesome。</p>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2012/12/11/add-secondary-network-interface-to-vm-of-centos/" rel="bookmark" title="为CentOS虚拟机添加第二块网卡" itemprop="url">为CentOS虚拟机添加第二块网卡</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2012-12-11T18:43:00+08:00">
+            December 11, 2012
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>使用virt-install安装了一个CentOS虚拟机，安装过程未指定网络参数，默认使用内置虚拟NAT的方式上网，现在希望给虚拟机另外安装一块虚拟的网卡，然后给其分配一个外网IP地址（与宿主机处于同一网段）。</p>
+</blockquote>
+
+<h3 id="centos">安装CentOS</h3>
+
+<pre><code>$ sudo virt-install --connect qemu:///system --noautoconsole \
+-n centos -r 4096 --vcpus=4 --arch=x86_64 --os-type=linux \
+--os-variant=rhel6 --accelerate -v -l http://mirrors.163.com/centos/6.3/os/x86_64/ \
+--disk path=/var/lib/libvirt/images/centos.img,size=200 \
+--graphics vnc,password=foobar,listen=0.0.0.0,port=5901 
+</code></pre>
+
+
+		<a href="/blog/2012/12/11/add-secondary-network-interface-to-vm-of-centos/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+
+<div class="pagination">
+  
+    
+      <a href="/blog/page/4" class="btn">Previous</a>
+    
+  
+  <ul class="inline-list">
+    <li>
+      
+        <a href="/">1</a>
+      
+    </li>
+    
+      <li>
+        
+          <a href="/blog/page/2">2</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <span class="current-page">5</span>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/6">6</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/7">7</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/8">8</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/9">9</a>
+        
+      </li>
+    
+  </ul>
+  
+    <a href="/blog/page/6" class="btn">Next</a>
+  
+</div><!-- /.pagination -->
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

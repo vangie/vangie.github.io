@@ -1,0 +1,1390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Code Life</title>
+    <description>Blog of a Coder
+</description>
+    <link>http://codelife.me//</link>
+    <atom:link href="http://codelife.me//feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 03 Mar 2016 21:26:10 +0800</pubDate>
+    <lastBuildDate>Thu, 03 Mar 2016 21:26:10 +0800</lastBuildDate>
+    <generator>Jekyll v2.4.0</generator>
+    
+      <item>
+        <title>将 npm 模块注册成 bower 模块</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;npm&lt;/code&gt;是node的包管理系统，通过&lt;code&gt;package.json&lt;/code&gt;声明模块间的依赖关系。然而node采用&lt;code&gt;CommonJS&lt;/code&gt;规范组织的模块在浏览器中无法直接使用。bower是前端资源的包管理系统，通过&lt;code&gt;bower.json&lt;/code&gt;来组织js、css和图标资源。bower管理的js包，一般采用全局变量模式，或者requirejs推崇的AMD规范，亦或UMD。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;umd&quot;&gt;UMD（通用模块定义）&lt;/h3&gt;
+
+&lt;p&gt;由于现行的javascript版本中，没有原生的依赖管理实现，而随着前端和Nodejs的越来越流行，javascript的代码量越来越大，于是对依赖管理和包管理的需求越来越高，于是社区就出现了CommonJS和AMD两大依赖管理的阵营。目前CommonJS规范是Nodejs的内置支持，主要用于后端js。AMD被requirejs支持，是一种前端依赖管理的选择。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;全局变量&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// MyDependency is in your global scope
+var MyModule = function() {};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;CommonJS，Nodejs支持的规范&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var MyDependency = require(&#39;my-dependency&#39;);
+module.exports = function() {};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href=&quot;http://requirejs.org/docs/whyamd.html&quot;&gt;AMD&lt;/a&gt;， &lt;a href=&quot;http://requirejs.org/&quot;&gt;requirejs&lt;/a&gt; 支持的规范&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;define([&#39;my-dependency&#39;], function(MyDependency) {
+  return function() {};
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;a href=&quot;https://github.com/umdjs/umd&quot;&gt;UMD&lt;/a&gt;，兼容所有规范&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;(function (root, factory) {
+  if (typeof exports === &#39;object&#39;) {
+    // CommonJS
+    module.exports = factory(require(&#39;b&#39;));
+  } else if (typeof define === &#39;function&#39; &amp;amp;&amp;amp; define.amd) {
+    // AMD
+    define([&#39;b&#39;], function (b) {
+      return (root.returnExportsGlobal = factory(b));
+    });
+  } else {
+    // Global Variables
+    root.returnExportsGlobal = factory(root.b);
+  }
+}(this, function (b) {
+  // Your actual module
+  return {};
+}));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;browserify&quot;&gt;Browserify&lt;/h3&gt;
+
+&lt;p&gt;一个npm package项目，如果想同时兼容bower，可以通过 &lt;a href=&quot;http://browserify.org/&quot;&gt;Browserify&lt;/a&gt; 生成支持浏览器端的package。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install -g browserify
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;commonjs&quot;&gt;CommonJS&lt;/h4&gt;
+
+&lt;p&gt;假设有如下main.js&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var unique = require(&#39;uniq&#39;);
+
+var data = [1, 2, 2, 3, 4, 5, 5, 5, 6];
+
+console.log(unique(data));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用 npm 安装依赖包&lt;code&gt;uniq&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install uniq
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过browserify命令将其转换成bundle.js&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;browserify main.js -o bundle.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;browserify会将所有&lt;code&gt;require()&lt;/code&gt;依赖的文件都合并进bundle.js文件。然后通过&lt;code&gt;&amp;lt;script/&amp;gt;&lt;/code&gt;引入。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;script src=&quot;bundle.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;amd&quot;&gt;AMD&lt;/h4&gt;
+
+&lt;p&gt;安装&lt;a href=&quot;https://www.npmjs.com/package/deamdify&quot;&gt;deamdify&lt;/a&gt;模块 Browserify 可以转换AMD规范的JS模块。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install deamdify
+browserify -t deamdify main.js -o bundle.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;全局变量&lt;/h4&gt;
+
+&lt;p&gt;安装&lt;a href=&quot;https://www.npmjs.com/package/deglobalify&quot;&gt;deglobalify&lt;/a&gt;模块 Browserify 可以转换全局变量风格的JS模块。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install deglobalify
+browserify -t deglobalify main.js -o bundle.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;es6&quot;&gt;ES6&lt;/h4&gt;
+
+&lt;p&gt;安装&lt;a href=&quot;https://www.npmjs.com/package/es6ify&quot;&gt;es6ify&lt;/a&gt;模块 Browserify 可以转换ES6规范的JS模块。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install es6ify
+browserify -t es6ify main.js -o bundle.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;支持所有规范&lt;/h4&gt;
+
+&lt;p&gt;browserify 支持一次装载多个转换器。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install deamdify es6ify deglobalify
+browserify -t deamdify -t es6ify -t deglobalify main.js -o bundle.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;grunt&quot;&gt;与grunt集成&lt;/h3&gt;
+
+&lt;p&gt;借助grunt可以把转换集成到构建过程中，方便使用。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;npm install grunt-browserify
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Gruntfile.js&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;module.exports = function (grunt) {
+  grunt.initConfig({
+    pkg: grunt.file.readJSON(&#39;package.json&#39;),
+    browserify : {
+      app : {
+        files : { &#39;dist/index.js&#39; : [&#39;index.js&#39;] }
+      }
+    }
+  })
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;bower&quot;&gt;注册成bower模块&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;$ bower init
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;交互模式下生成如下bower.json文件，注意main属性设置成browserify生成的文件&lt;code&gt;dist/index.js&lt;/code&gt;。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &quot;name&quot;: &quot;module_name&quot;,
+  &quot;main&quot;: &quot;dist/index.js&quot;,
+  &quot;version&quot;: &quot;0.1.1&quot;,
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;将项目上传到Github，如后执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ bower register module_name git://github.com/user/module_name.git
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;bower register&lt;/code&gt;只需要执行一次，今后发布新版本只需要向Github仓库推送符合&lt;a href=&quot;http://semver.org/&quot;&gt;semver&lt;/a&gt; 规范的Git tags 即可。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;参考阅读&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://thesocietea.org/2014/08/building-javascript-with-grunt-bower-browserify/&quot;&gt;Building Javascript with Grunt, Bower, Browserify&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://bower.io/docs/creating-packages/&quot;&gt;Creating packages&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://ilikekillnerds.com/2014/11/bower-vs-browserify&quot;&gt;Bower vs Browserify&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://dontkry.com/posts/code/browserify-and-the-universal-module-definition.html&quot;&gt;Browserify and the Universal Module Definition&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Mon, 05 Jan 2015 23:25:10 +0800</pubDate>
+        <link>http://codelife.me//blog/2015/01/05/register-npm-module-as-bower-package/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2015/01/05/register-npm-module-as-bower-package/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>如何调试mocha测试用例</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;用&lt;code&gt;Mocha&lt;/code&gt; + &lt;code&gt;Chai&lt;/code&gt; 进行BDD测试，是目前较为流行的Nodejs测试方法。本文介绍&lt;code&gt;mocha&lt;/code&gt;测试用例失败时如何在非IDE环境下单步Debug找出问题。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;mocha-&quot;&gt;mocha 配置&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;$ npm install mocha
+$ mkdir test
+$ $EDITOR test/test.js
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;内容如下&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;var assert = require(&quot;assert&quot;)
+describe(&#39;Array&#39;, function(){
+  describe(&#39;#indexOf()&#39;, function(){
+    it(&#39;should return -1 when the value is not present&#39;, function(){
+      assert.equal(-1, [1,2,3].indexOf(5));
+      assert.equal(-1, [1,2,3].indexOf(0));
+    })
+  })
+})
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行如下命令开始测试&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$  mocha
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;makefile&quot;&gt;配置 Makefile&lt;/h4&gt;
+&lt;p&gt;如果你更喜欢 Make 风格，可以配置相应的&lt;code&gt;Makefile&lt;/code&gt;文件。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;test:
+    @./node_modules/.bin/mocha --reporter nyan
+
+.PHONY: test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ make test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;packagejson&quot;&gt;配置 package.json&lt;/h4&gt;
+&lt;p&gt;然后在package.json 调用&lt;code&gt;make&lt;/code&gt;命令。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+...
+  &quot;scripts&quot;: {
+    &quot;test&quot;: &quot;make test&quot;
+  },
+...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ npm test
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这里两次包装和转换，考虑到如果哪天将&lt;code&gt;mocha&lt;/code&gt;换成&lt;code&gt;Jasmine&lt;/code&gt;或者&lt;code&gt;jsUnit&lt;/code&gt;等其他的测试框架也无需更改持续集成的配置。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;debug--mocha&quot;&gt;debug 模式运行 mocha&lt;/h3&gt;
+
+&lt;p&gt;node 内置的调试器&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;node debug myscript.js
+
+&amp;lt; debugger listening on port 5858
+connecting... ok
+break in myscript.js:1
+  1 x = 5;
+  2 setTimeout(function () {
+  3       debugger;
+debug&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后使用如下指令在命令行交互模式下进行调试&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;cont, c - Continue execution&lt;/li&gt;
+  &lt;li&gt;next, n - Step next&lt;/li&gt;
+  &lt;li&gt;step, s - Step in&lt;/li&gt;
+  &lt;li&gt;out, o - Step out&lt;/li&gt;
+  &lt;li&gt;pause - Pause running code (like pause button in Developer Tools)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通过命令行进行调试不推荐，效率太低。&lt;/p&gt;
+
+&lt;p&gt;另外如果想通过外部调试工具进行调试，node 提供了两个命令参数&lt;code&gt;--debug&lt;/code&gt;和&lt;code&gt;--debug-brk&lt;/code&gt;。
+&lt;code&gt;--debug-brk&lt;/code&gt; 会在代码的第一行pause，等待用户的指令。而&lt;code&gt;--debug&lt;/code&gt;不会挂起，适合调试web服务之类的开启了循环队列的程序。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;借助浏览器的调试工具&lt;/h3&gt;
+
+&lt;p&gt;调试前端JS的浏览器端的开发工具已经非常强大，借助于&lt;code&gt;node-inspector&lt;/code&gt;可以借助浏览器调试 Nodejs 程序。&lt;/p&gt;
+
+&lt;p&gt;安装 node-inspector&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$npm install -g node-inspector
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;以 debug 模式启动应用&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ node --debug-brk myApp.js   &amp;gt;debugger listening on port 5858
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;启动 node-inspector 调试工具&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; node-inspector   &amp;gt; visit http://0.0.0.0:8080/debug?port=5858 to start debugging
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;打开web浏览器，地址栏输入 http://localhost:8080/debug?port=5858 ，将看到如下界面。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2015-01-05/node-inspector.png&quot; alt=&quot;node-inspector&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;接下来就是完全熟悉的前端JS调试模式。&lt;/p&gt;
+
+&lt;h3 id=&quot;npm&quot;&gt;通过npm启动调试模式&lt;/h3&gt;
+&lt;p&gt;mocha命令也支持–debug-brk参数，实质上mocha是传递给了node解释器。&lt;/p&gt;
+
+&lt;p&gt;Makefile&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;test_debug:
+    @./node_modules/.bin/mocha --debug-brk
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;package.json&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+...
+  &quot;scripts&quot;: {
+    &quot;test_debug&quot;: &quot;make test_debug&quot;
+  }
+...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;需要调试时，执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ npm run test_debug &amp;gt;  &amp;gt; &amp;gt; east-asian-width@0.1.1 test_debug /east-asian-width &amp;gt; &amp;gt; make test_debug &amp;gt;  &amp;gt; debugger listening on port 5858
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在另一个终端执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ node-inspector  &amp;gt; Node Inspector v0.8.1 &amp;gt; Visit http://127.0.0.1:8080/debug?port=5858 to start debugging.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后打开浏览器进行调试。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;参考阅读&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://serebrov.github.io/html/2013-12-02-node-debug-mocha.html&quot;&gt;Node.js - how to debug mocha test with node inspector&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://dailyjs.com/2013/08/22/mocha-debugger/&quot;&gt;Debugging with Mocha&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/14352608/whats-the-right-way-to-enable-the-node-debugger-with-mochas-debug-brk-switch&quot;&gt;What’s the right way to enable the node debugger with mocha’s –debug-brk switch?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://kevgriffin.com/debugging-node-js-projects/&quot;&gt;Debugging node.js Projects&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Mon, 05 Jan 2015 15:41:06 +0800</pubDate>
+        <link>http://codelife.me//blog/2015/01/05/how-to-debug-mocha-test-case/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2015/01/05/how-to-debug-mocha-test-case/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>解决 Javascript 中 atob 方法解码中文字符乱码问题</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;由于一些网络通讯协议的限制,你必须使用&lt;code&gt;window.btoa()&lt;/code&gt;方法对原数据进行编码后，才能进行发送。接收方使用相当于&lt;code&gt;window.atob()&lt;/code&gt;的方法对接受到的base64数据进行解码,得到原数据。例如，发送某些含有ASCII码表中0到31之间的控制字符的数据。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;windowbtoawindowatob&quot;&gt;&lt;code&gt;window.btoa&lt;/code&gt;与&lt;code&gt;window.atob&lt;/code&gt;不支持中文&lt;/h3&gt;
+
+&lt;p&gt;对于unicode编码的字符进行base64编码之后，通过浏览器原生的btoa方法界面中文会乱码。&lt;/p&gt;
+
+&lt;p&gt;在bash终端，将“中文”转成 base64 编码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ echo 中文 | base64
+5Lit5paHCg==
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在Chrome console通过&lt;code&gt;window.atob&lt;/code&gt;解码，结果为乱码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; window.atob(&#39;5Lit5paHCg==&#39;)
+ä¸­æ
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在Chrome console中执行&lt;code&gt;windows.btoa&lt;/code&gt;编码，报错&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; window.btoa(&#39;中文&#39;)
+Uncaught DOMException: Failed to execute &#39;btoa&#39; on &#39;Window&#39;: The string to be encoded contains characters outside of the Latin1 range.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;从错误提示看，&lt;code&gt;btoa&lt;/code&gt;仅支持 ASCII 编码。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;encodeuricomponentdecodeuricomponent&quot;&gt;借助&lt;code&gt;encodeURIComponent&lt;/code&gt;和&lt;code&gt;decodeURIComponent&lt;/code&gt;转义非中文字符&lt;/h3&gt;
+&lt;p&gt;由于&lt;code&gt;btoa&lt;/code&gt;仅支持ASCII字符序列，如果通过&lt;code&gt;encodeURIComponent&lt;/code&gt;将中文字符编码成ASCII字符序列，再通过&lt;code&gt;btoa&lt;/code&gt;进行base64编码。&lt;/p&gt;
+
+&lt;p&gt;编码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; window.btoa(encodeURIComponent(&#39;中文&#39;))
+&quot;JUU0JUI4JUFEJUU2JTk2JTg3&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;解码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; decodeURIComponent(window.atob(&#39;JUU0JUI4JUFEJUU2JTk2JTg3&#39;))
+&quot;中文&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;虽然到达了曲线救国的目的，但是由于&lt;code&gt;encodeURIComponent&lt;/code&gt;和&lt;code&gt;decodeURIComponent&lt;/code&gt;已经达到了转义控制字符的目的，使用&lt;code&gt;atob&lt;/code&gt;和&lt;code&gt;btoa&lt;/code&gt;感觉是多此一举。&lt;/p&gt;
+
+&lt;h3 id=&quot;base64&quot;&gt;第三方Base64工具&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.webtoolkit.info/javascript-base64.html&quot;&gt;webtoolkit.base64&lt;/a&gt;是一个第三方实现的Base64编码工具，完美的支持unicode编码的字符串。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;gt; Base64.encode(&#39;中文&#39;)
+&quot;5Lit5paH&quot;
+
+&amp;gt; Base64.decode(&#39;5Lit5paH&#39;);
+&quot;中文&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;另外，如果服务端为Nodejs，可用如下coffee代码进行base64的编码和解码。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;btoa: (s)-&amp;gt;
+    (new Buffer(s, &#39;utf8&#39;)).toString(&#39;base64&#39;)
+atob: (s)-&amp;gt;
+    (new Buffer(s, &#39;base64&#39;).toString(&#39;utf8&#39;))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;参考阅读&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://nelluil.postach.io/btoa-atob-zhi-yuan-zhong-wen-de-fang-fa&quot;&gt;btoa(), atob() 支援中文的方法&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/14535484/how-to-encode-utf8-characters-into-base64-in-javascript&quot;&gt;How to encode UTF8 characters into Base64 in JavaScript&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://developer.mozilla.org/zh-CN/docs/Web/API/Window.atob&quot;&gt;window.atob&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/75980/best-practice-escape-or-encodeuri-encodeuricomponent&quot;&gt;Best practice: escape, or encodeURI / encodeURIComponent&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.cnblogs.com/izhaoyang/articles/1765095.html&quot;&gt;JavaScript - code&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Tue, 02 Dec 2014 17:20:43 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>理解 Promise 的工作原理</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;Javascript 采用回调函数(callback)来处理异步编程。从同步编程到异步回调编程有一个适应的过程，但是如果出现多层回调嵌套，也就是我们常说的厄运的回调金字塔(Pyramid of Doom)，绝对是一种糟糕的编程体验。于是便有了 CommonJS 的 Promises/A 规范，用于解决回调金字塔问题。本文先介绍Promises相关规范，然后再通过解读一个迷你的 Promises 以加深理解。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;promise&quot;&gt;什么是 Promise&lt;/h3&gt;
+
+&lt;p&gt;一个 Promise 对象代表一个目前还不可用，但是在未来的某个时间点可以被解析的值。它允许你以一种同步的方式编写异步代码。例如，如果你想要使用Promise API 异步调用一个远程的服务器，你需要创建一个代表数据将会在未来由 web 服务返回的 Promise 对象。唯一的问题是目前数据还不可用。当请求完成并从服务器返回时数据将变为可用数据。在此期间，Promise 对象将扮演一个真实数据的代理角色。接下来，你可以在 Promise 对象上绑定一个回调函数，一旦真实数据变得可用这个回调函数将会被调用。&lt;/p&gt;
+
+&lt;p&gt;Promise 对象曾经以多种形式存在于许多语言中。&lt;/p&gt;
+
+&lt;h3 id=&quot;pyramid-of-doom&quot;&gt;去除厄运的回调金字塔(Pyramid of Doom)&lt;/h3&gt;
+
+&lt;p&gt;Javascript 中最常见的反模式做法是回调内部再嵌套回调。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// 回调金字塔
+asyncOperation(function(data){
+  // 处理 `data`
+  anotherAsync(function(data2){
+      // 处理 `data2`
+      yetAnotherAsync(function(){
+          // 完成
+      });
+  });
+}); &amp;lt;!--more--&amp;gt; 引入 Promises 之后的代码
+
+promiseSomething()
+.then(function(data){
+    // 处理 `data`
+    return anotherAsync();
+})
+.then(function(data2){
+    // 处理 `data2`
+    return yetAnotherAsync();
+})
+.then(function(){
+    // 完成
+});
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Promises 将嵌套的 callback，改造成一系列的&lt;code&gt;.then&lt;/code&gt;的连缀调用，去除了层层缩进的糟糕代码风格。Promises 不是一种解决具体问题的算法，而已一种更好的代码组织模式。接受新的组织模式同时，也逐渐以全新的视角来理解异步调用。&lt;/p&gt;
+
+&lt;p&gt;各个语言平台都有相应的 Promise 实现&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Java’s java.util.concurrent.Future&lt;/li&gt;
+  &lt;li&gt;Python’s Twisted deferreds and PEP-3148 futures&lt;/li&gt;
+  &lt;li&gt;F#’s Async&lt;t&gt;&lt;/t&gt;&lt;/li&gt;
+  &lt;li&gt;.Net’s Task&lt;t&gt;&lt;/t&gt;&lt;/li&gt;
+  &lt;li&gt;C++ 11’s std::future&lt;/li&gt;
+  &lt;li&gt;Dart’s Future&lt;t&gt;&lt;/t&gt;&lt;/li&gt;
+  &lt;li&gt;Javascript’s Promises/A/B/D/A+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;下面我来相信了解一下 javascript 语言环境下各个规范的一些细节。&lt;/p&gt;
+
+&lt;h3 id=&quot;promisesa-&quot;&gt;Promises/A 规范&lt;/h3&gt;
+
+&lt;p&gt;promise 表示一个最终值，该值由一个操作完成时返回。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;promise 有三种状态：&lt;strong&gt;未完成&lt;/strong&gt; (unfulfilled)，&lt;strong&gt;完成&lt;/strong&gt; (fulfilled) 和&lt;strong&gt;失败&lt;/strong&gt; (failed)。&lt;/li&gt;
+  &lt;li&gt;promise 的状态只能由&lt;strong&gt;未完成&lt;/strong&gt;转换成&lt;code&gt;完成&lt;/code&gt;，或者&lt;strong&gt;未完成&lt;/strong&gt;转换成&lt;strong&gt;失败&lt;/strong&gt; 。&lt;/li&gt;
+  &lt;li&gt;promise 的状态转换只发生一次。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;promise 有一个 then 方法，then 方法可以接受 3 个函数作为参数。前两个函数对应 promise 的两种状态 fulfilled 和 rejected 的回调函数。第三个函数用于处理进度信息（对进度回调的支持是可选的）。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;promiseSomething().then(function(fulfilled){
+        //当promise状态变成fulfilled时，调用此函数
+    },function(rejected){
+        //当promise状态变成rejected时，调用此函数
+    },function(progress){
+        //当返回进度信息时，调用此函数
+    });
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果promise支持如下连个附加方法，称之为&lt;code&gt;可交互的 promise&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;get(propertyName)
+  获得当前 promise 最终值上的一个属性，返回值是一个新的 promise。&lt;/li&gt;
+  &lt;li&gt;call(functionName, arg1, arg2, …)
+  调用当然 promise 最终值上的一个方法，返回值也是一个新的promise。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;promisesb-&quot;&gt;Promises/B 规范&lt;/h3&gt;
+
+&lt;p&gt;在 Promises/A 的基础上，Promises/B 定义了一组 promise 模块需要实现的 API&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;when(value, callback, errback_opt)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+如果 value 不是一个 promise ，那么下一事件循环callback会被调用，value 作为 callback 的传入值。如果 value 是一个 promise，promise 的状态已经完成或者变成完成时，那么下一事件循环 callback 会被调用，resolve 的值会被传入 callback；promise 的状态已经失败或者变成失败时，那么下一事件循环 errback 会被调用，reason 会作为失败的理由传入 errback。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;asap(value, callback, errback_opt)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+与 when 最大的区别，如果 value 不是一个 promise，会被立即执行，不会等到下一事件循环。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;enqueue(task Function)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+尽可能快地在接下来的事件循环调用 task 方法。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;get(object, name)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个获得对象属性的 promise。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;post(object, name, args)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个调用对象方法的 promise。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;put(object, name, value)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个修改对象属性的 promise。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;del(object, name)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个删除对象属性的 promise。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;makePromise(descriptor Object, fallback Function)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个promise对象，该对象必须是一个可调用的函数，也可能是可被实例化的构造函数。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;第一个参数接受一个描述对象，该对象结构如下，&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &amp;#x7b;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &quot;when&quot;: function(errback)&amp;#x7b;...&amp;#x7d;,
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &quot;get&quot;: function(name)&amp;#x7b;...&amp;#x7d;,
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &quot;put&quot;: function(name, value)&amp;#x7b;...&amp;#x7d;,
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &quot;post&quot;: function(name, args)&amp;#x7b;...&amp;#x7d;,
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &quot;del&quot;: function(name)&amp;#x7b;...&amp;#x7d;,
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &amp;#x7d;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;p&gt;上面每一个注册的 handle 都返回一个 resolved value或者 promise。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;第二个参数接受一个 fallback(message,…args) 函数，当没有 promise 对象没有找到对应的 handle 时该函数会被触发，返回一个 resolved value 或者 promise。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;defer()&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个对象，该对象包含一个 resolve(value) 方法和一个 promise 属性。
+当 resolve(value) 方法被第一次调用时，promise 属性的状态变成 &lt;strong&gt;完成&lt;/strong&gt;，所有之前或之后观察该 promise 的 promise 的状态都被转变成 &lt;strong&gt;完成&lt;/strong&gt;。value 参数如果不是一个 promise ，会被包装成一个 promise 的 ref。resolve 方法会忽略之后的所有调用。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;reject(reason String)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+返回一个被标记为 &lt;strong&gt;失败&lt;/strong&gt; 的 promise。
+一个失败的 promise 上被调用 when(message) 方法时，会采用如下两种方法之一
+1. 如果存在 errback，errback 会以 reason 作为参数被调用。when方法会将 errback 的返回值返回。
+2. 如果不存在 errback，when 方法返回一个新的 reject 状态的promise 对象，以同一 reason 作为参数。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;ref(value)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+如果 value 是 promise 对象，返回 value 本身。否则，返回一个resolved 的 promise，携带如下 handle。
+1. when(errback),忽略 errback，返回 resolved 值
+2. get(name)，返回 resolved 值的对应属性。
+3. put(name, value) ，设置 resolved 值的对应属性。
+4. del(name)，删除 resolved 值的对应属性。
+5. post(name, args), 调用 resolved 值的对应方法。
+6. 其他所有的调用都返回一个 reject，并携带 “Promise does not handle NAME” 的理由。&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;isPromise(value) Boolean&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+判断一个对象是否是 promise&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;&lt;code&gt;method(name String)&lt;/code&gt;&lt;/em&gt; &lt;br /&gt;
+获得一个返回 name 对应方法的 promise。返回值是 “get”, “put”, “del” 和 “post” 对应的方法，但是会在下一事件循环返回。&lt;/p&gt;
+
+&lt;h3 id=&quot;promisesd-&quot;&gt;Promises/D 规范&lt;/h3&gt;
+
+&lt;p&gt;为了增加不同 promise 实现之间的可互操作性，Promises/D 规范对promise 对象和 Promises/B 规范做了进一步的约定。以达到鸭子类型的效果（Duck-type Promise）。&lt;/p&gt;
+
+&lt;p&gt;简单来说Promises/D 规范，做了两件事情，&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;如何判断一个对象是 Promise 类型。&lt;/li&gt;
+  &lt;li&gt;对 Promises/B 规范进行细节补充。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;promise-&quot;&gt;甄别一个 Promise 对象&lt;/h4&gt;
+
+&lt;p&gt;Promise 对象必须是实现 &lt;code&gt;promiseSend&lt;/code&gt; 方法。&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在 promise 库上下文中，如果对象包含 &lt;code&gt;promiseSend&lt;/code&gt; 方法就可以甄别为promise 对象。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;promiseSend&lt;/code&gt; 方法必须接受一个操作名称，作为第一个参数。&lt;/li&gt;
+  &lt;li&gt;操作名称是一个可扩展的集合，下面是一些保留名称。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;when&lt;/code&gt;，此时第三个参数必须是 rejection 回调。&lt;/li&gt;
+  &lt;li&gt;rejection回调必须接受一个 rejection 原因(可以是任何值)作为第一个参数。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;get&lt;/code&gt;，此时第三个参数为属性名（字符串类型）。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;put&lt;/code&gt;，此时第三个参数为属性名（字符串类型）,第四个参数为新属性值。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;del&lt;/code&gt;，此时第三个参数为属性名。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;post&lt;/code&gt;，此时第三个参数为方法的属性名，接下来的变参为方法的调用参数。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;isDef&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;promiseSend&lt;/code&gt;方法的第二个参数为 resolver 方法。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;promiseSend&lt;/code&gt;方法可能接受变参。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;promiseSend&lt;/code&gt;方法必须返回&lt;code&gt;undefined&lt;/code&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;promisesb--1&quot;&gt;对 Promises/B 规范的补充&lt;/h4&gt;
+
+&lt;p&gt;Promises/D 规范中对 Promises/B 规范中定义的ref、reject、def、defer方法做了进一步细致的约束，此处略去这些细节。&lt;/p&gt;
+
+&lt;h3 id=&quot;promisesa--1&quot;&gt;Promises/A+ 规范&lt;/h3&gt;
+
+&lt;p&gt;前面提到的 Promises/A/B/D 规范都是有CommonJS组织提出的，Promises/A+是有一个自称为&lt;a href=&quot;https://github.com/promises-aplus&quot;&gt;Promises/A+ 组织&lt;/a&gt;发布的，该规范是以Promises/A作为基础进行补充和修订，旨在提高promise实现之间的可互操作性。&lt;/p&gt;
+
+&lt;p&gt;Promises/A+ 对&lt;code&gt;.then&lt;/code&gt;方法进行细致的补充，定义了细致的&lt;a href=&quot;https://promisesaplus.com/#point-45&quot;&gt;Promise Resolution Procedure&lt;/a&gt;流程，并且将&lt;code&gt;.then&lt;/code&gt;方法作为promise的对象甄别方法。&lt;/p&gt;
+
+&lt;p&gt;此外，Promises/A+ 还提供了兼容性测试工具，以确定各个实现的兼容性。&lt;/p&gt;
+
+&lt;h3 id=&quot;promise-1&quot;&gt;实现一个迷你版本的Promise&lt;/h3&gt;
+
+&lt;p&gt;上面扯了这么多规范，现在我们看看如何实现一个简单而短小的Promise。&lt;/p&gt;
+
+&lt;h4 id=&quot;section&quot;&gt;状态机&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;var PENDING = 0;
+var FULFILLED = 1;
+var REJECTED = 2;
+
+function Promise() {
+  // store state which can be PENDING, FULFILLED or REJECTED
+  var state = PENDING;
+
+  // store value or error once FULFILLED or REJECTED
+  var value = null;
+
+  // store sucess &amp;amp; failure handlers attached by calling .then or .done
+  var handlers = [];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;状态变迁&lt;/h4&gt;
+
+&lt;p&gt;仅支持两种状态变迁，fulfill和reject&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// ...
+
+function Promise() {
+    // ...
+
+  function fulfill(result) {
+    state = FULFILLED;
+    value = result;
+  }
+
+  function reject(error) {
+    state = REJECTED;
+    value = error;
+  }
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;fulfill和reject方法较为底层，通常更高级的resolve方法开放给外部。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// ...
+
+function Promise() {
+
+  // ...
+
+  function resolve(result) {
+    try {
+      var then = getThen(result);
+      if (then) {
+        doResolve(then.bind(result), resolve, reject)
+        return
+      }
+      fulfill(result);
+    } catch (e) {
+      reject(e);
+    }
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;resolve方法可以接受一个普通值或者另一个promise作为参数，如果接受一个promise作为参数，等待其完成。promise不允许被另一个promise fulfill，所以需要开放resolve方法。resolve方法依赖一些帮助方法定义如下:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/**
+ * Check if a value is a Promise and, if it is,
+ * return the `then` method of that promise.
+ *
+ * @param {Promise|Any} value
+ * @return {Function|Null}
+ */
+function getThen(value) {
+  var t = typeof value;
+  if (value &amp;amp;&amp;amp; (t === &#39;object&#39; || t === &#39;function&#39;)) {
+    var then = value.then;
+    if (typeof then === &#39;function&#39;) {
+      return then;
+    }
+  }
+  return null;
+}
+
+/**
+ * Take a potentially misbehaving resolver function and make sure
+ * onFulfilled and onRejected are only called once.
+ *
+ * Makes no guarantees about asynchrony.
+ *
+ * @param {Function} fn A resolver function that may not be trusted
+ * @param {Function} onFulfilled
+ * @param {Function} onRejected
+ */
+function doResolve(fn, onFulfilled, onRejected) {
+  var done = false;
+  try {
+    fn(function (value) {
+      if (done) return
+      done = true
+      onFulfilled(value)
+    }, function (reason) {
+      if (done) return
+      done = true
+      onRejected(reason)
+    })
+  } catch (ex) {
+    if (done) return
+    done = true
+    onRejected(ex)
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这里resolve和doResolve之间的递归很巧妙，用来处理promise的层层嵌套（promise的value是一个promise）。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;构造器&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;// ...
+
+function Promise(fn) {
+    // ...
+    doResolve(fn, resolve, reject);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;done&quot;&gt;.done方法&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;// ...
+function Promise(fn) {
+  // ...
+
+  function handle(handler) {
+    if (state === PENDING) {
+      handlers.push(handler);
+    } else {
+      if (state === FULFILLED &amp;amp;&amp;amp;
+        typeof handler.onFulfilled === &#39;function&#39;) {
+        handler.onFulfilled(value);
+      }
+      if (state === REJECTED &amp;amp;&amp;amp;
+        typeof handler.onRejected === &#39;function&#39;) {
+        handler.onRejected(value);
+      }
+    }
+  }
+
+  this.done = function (onFulfilled, onRejected) {
+    // ensure we are always asynchronous
+    setTimeout(function () {
+      handle({
+        onFulfilled: onFulfilled,
+        onRejected: onRejected
+      });
+    }, 0);
+  }
+  // ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;then&quot;&gt;.then方法&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;// ...
+function Promise(fn) {
+    // ...
+    this.then = function (onFulfilled, onRejected) {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        return self.done(function (result) {
+          if (typeof onFulfilled === &#39;function&#39;) {
+            try {
+              return resolve(onFulfilled(result));
+            } catch (ex) {
+              return reject(ex);
+            }
+          } else {
+            return resolve(result);
+          }
+        }, function (error) {
+          if (typeof onRejected === &#39;function&#39;) {
+            try {
+              return resolve(onRejected(error));
+            } catch (ex) {
+              return reject(ex);
+            }
+          } else {
+            return reject(error);
+          }
+        });
+      });
+    }
+    // ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;promise-2&quot;&gt;$.promise&lt;/h3&gt;
+
+&lt;p&gt;jQuery 1.8 之前的版本，jQuery的 then 方法只是一种可以同时调用 done 、fail 和 progress 这三种回调的速写方法，而 Promises/A 规范的 then 在行为上更像是 jQuery 的 pipe。 jQuery 1.8 修正了这个问题，使 then 成为 pipe 的同义词。不过，由于向后兼容的问题，jQuery 的 Promise 再如何对 Promises/A 示好也不太会招人待见。&lt;/p&gt;
+
+&lt;p&gt;此外，在 Promises/A 规范中，由 then 方法生成的 Promise 对象是已执行还是已拒绝，取决于由 then 方法调用的那个回调是返回值还是抛出错误。在 JQuery 的 Promise 对象的回调中抛出错误是个糟糕的主意，因为错误不会被捕获。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;小结&lt;/h3&gt;
+
+&lt;p&gt;最后一个例子揭示了，实现 Promise 的关键是实现好 doResolve 方法，在完事以后触发回调。而为了保证异步 &lt;code&gt;setTimeout(fun, 0);&lt;/code&gt; 是关键一步。&lt;/p&gt;
+
+&lt;p&gt;Promise 一直用得蛮顺手的，其很好的优化了 NodeJS 异步处理时的代码结构。但是对于其工作原理却有些懵懂和好奇。于是花了些经理查阅并翻译了Promise 的规范，以充分的理解 Promise 的细节。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-4&quot;&gt;参考阅读&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.commonjs.org/wiki/Promises/A&quot;&gt;Promises/A&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.commonjs.org/wiki/Promises/B&quot;&gt;Promises/B&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.commonjs.org/wiki/Promises/D&quot;&gt;Promises/D&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.promisejs.org/&quot;&gt;Promisejs&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://promisesaplus.com/&quot;&gt;Promises/A+&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/kriskowal/asap&quot;&gt;As soon as possible&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://gist.github.com/unscriptable/814052&quot;&gt;A minimalist implementation of a javascript promise&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/12923533/lightweight-implementation-of-promises&quot;&gt;Lightweight implementation of promises&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/17718673/how-is-a-promise-defer-library-implemented&quot;&gt;How is a promise/defer library implemented?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/23772801/basic-javascript-promise-implementation-attempt/23785244#23785244&quot;&gt;Basic Javascript promise implementation attempt&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://blog.domenic.me/youre-missing-the-point-of-promises/&quot;&gt;You’re Missing the Point of Promises&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.slideshare.net/domenicdenicola/boom-promisesa-was-born&quot;&gt;Boom! Promises/A+ Was Born&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/Futures_and_promises&quot;&gt;Futures and promises&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.html5rocks.com/zh/tutorials/es6/promises/&quot;&gt;JavaScript Promises - There and back again&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 30 Oct 2014 18:37:45 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/10/30/understanding-the-mechanism-of-promise/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/10/30/understanding-the-mechanism-of-promise/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>MacOS X中如何让nginx以服务形式启动在80端口</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;开发环境需要在本地映射域名和端口，无奈选择安装nginx。本文介绍如何将homebrew安装的nginx以符合MacOS标准的方式默认启动在80端口。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;安装nginx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;brew install nginx
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;拷贝plist文件到启动脚本目录&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo cp /usr/local/opt/nginx/homebrew.mxcl.nginx.plist /Library/LaunchDaemons/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;文件内容如下&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;
+&amp;lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&amp;gt;
+&amp;lt;plist version=&quot;1.0&quot;&amp;gt;
+  &amp;lt;dict&amp;gt;
+    &amp;lt;key&amp;gt;Label&amp;lt;/key&amp;gt;
+    &amp;lt;string&amp;gt;homebrew.mxcl.nginx&amp;lt;/string&amp;gt;
+    &amp;lt;key&amp;gt;RunAtLoad&amp;lt;/key&amp;gt;
+    &amp;lt;true/&amp;gt;
+    &amp;lt;key&amp;gt;KeepAlive&amp;lt;/key&amp;gt;
+    &amp;lt;false/&amp;gt;
+    &amp;lt;key&amp;gt;ProgramArguments&amp;lt;/key&amp;gt;
+    &amp;lt;array&amp;gt;
+        &amp;lt;string&amp;gt;/usr/local/opt/nginx/bin/nginx&amp;lt;/string&amp;gt;
+        &amp;lt;string&amp;gt;-g&amp;lt;/string&amp;gt;
+        &amp;lt;string&amp;gt;daemon off;&amp;lt;/string&amp;gt;
+    &amp;lt;/array&amp;gt;
+    &amp;lt;key&amp;gt;WorkingDirectory&amp;lt;/key&amp;gt;
+    &amp;lt;string&amp;gt;/usr/local&amp;lt;/string&amp;gt;
+  &amp;lt;/dict&amp;gt;
+&amp;lt;/plist&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;想要方便的启动和关闭nginx可以将下面两个别名添加到&lt;code&gt;$HOME/.profile&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Nginx needs to bind to port 80 so must run as /Library/LaunchDaemon with sudo
+alias start-nginx=&#39;sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.nginx.plist&#39;
+alias stop-nginx=&#39;sudo launchctl unload /Library/LaunchDaemons/homebrew.mxcl.nginx.plist&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;参考阅读&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://superuser.com/questions/304206/how-do-i-start-nginx-on-port-80-at-os-x-login&quot;&gt;How do I start nginx on port 80 at OS X login?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://coderwall.com/p/dgwwuq&quot;&gt;Installing Nginx in Mac OS X Maverick With Homebrew&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Wed, 29 Oct 2014 15:52:49 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/10/29/how-to-start-nginx-on-part-80-as-daemon-at-osx/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/10/29/how-to-start-nginx-on-part-80-as-daemon-at-osx/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>浅谈 _.throttle 和 _.debounce 的差异</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;Underscore.js是一个很精干的库，压缩后只有5.2KB。它提供了几十种函数式编程的方法，弥补了标准库的不足，大大方便了JavaScript的编程。&lt;/p&gt;
+
+  &lt;p&gt;本文仅探讨Underscore.js的两个函数方法 &lt;code&gt;_.throttle&lt;/code&gt; 和 &lt;code&gt;_.debounce&lt;/code&gt; 的原理、效果和用途。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;通常的函数（或方法）调用过程分为三个部分：请求、执行和响应。（文中“请求”与“调用”同义，“响应”与“返回”同义，为了更好的表述，刻意采用请求和响应的说法。）&lt;/p&gt;
+
+&lt;p&gt;某些场景下，比如响应鼠标移动或者窗口大小调整的事件，触发频率比较高。若稍处理函数微复杂，需要较多的运算执行时间，响应速度跟不上触发频率，往往会出现延迟，导致假死或者卡顿感。&lt;/p&gt;
+
+&lt;p&gt;在运算资源不够的时候，最直观的解决办法就是升级硬件，诚然通过购买更好的硬件可以解决部分问题，但是也需要为此付出高额的成本。特别是客户端和服务器模式，要求客户端统一升级硬件基本不可能。&lt;/p&gt;
+
+&lt;p&gt;在资源有限的前提下，处理函数无法即时响应高频调用。退而求其次，只响应部分请求是否可行呢？某些场景下的密集性请求，具备很强的同质和连续性。比如说，鼠标移动的轨迹参数。响应越及时效果越平滑，但是如果响应速度跟不上时，反而会出现卡顿感，如果适当的丢弃一些请求效果更流畅。&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;throttle&lt;/code&gt; 和 &lt;code&gt;debounce&lt;/code&gt; 是解决请求和响应速度不匹配问题的两个方案。二者的差异在于选择不同的策略。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;电梯超时&lt;/h3&gt;
+
+&lt;p&gt;想象每天上班大厦底下的电梯。把电梯完成一次运送，类比为一次函数的执行和响应。假设电梯有两种运行策略 &lt;code&gt;throttle&lt;/code&gt; 和 &lt;code&gt;debounce&lt;/code&gt; ，超时设定为15秒，不考虑容量限制。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;throttle&lt;/code&gt; 策略的电梯。保证如果电梯第一个人进来后，15秒后准时运送一次，不等待。如果没有人，则待机。&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;debounce&lt;/code&gt; 策略的电梯。如果电梯里有人进来，等待15秒。如果又人进来，15秒等待重新计时，直到15秒超时，开始运送。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;使用示例&lt;/h3&gt;
+
+&lt;h4 id=&quot;throttle-&quot;&gt;_.throttle 使用示例&lt;/h4&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scrollTop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeStamp&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 控制台记录窗口滚动事件，触发频率比你想象的要快&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scroll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 控制台记录窗口滚动事件，每250ms最多触发一次&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scroll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;throttle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;250&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;h4 id=&quot;debounce-&quot;&gt;_.debounce 使用示例&lt;/h4&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ajax_lookup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;c1&quot;&gt;// 对输入的内容$(this).val()执行 Ajax 查询&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 字符输入的频率比你预想的要快，Ajax 请求来不及回复。&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;input:text&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;keyup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ajax_lookup&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 当用户停顿250毫秒以后才开始查找&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;input:text&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;keyup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;debounce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ajax_lookup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;250&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;underscore&quot;&gt;underscore源码注解&lt;/h3&gt;
+
+&lt;p&gt;让我们来读读源码，探其究竟。基于开发版本（1.7.0）的源码，加上了一些注释以帮助理解。&lt;/p&gt;
+
+&lt;h3 id=&quot;throttle&quot;&gt;&lt;code&gt;_.throttle&lt;/code&gt;方法源码&lt;/h3&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * 频率控制 返回函数连续调用时，func 执行频率限定为 次 / wait&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * &lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;function&amp;#x7d;   func      传入函数&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;number&amp;#x7d;     wait      表示时间窗口的间隔&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;object&amp;#x7d;     options   如果想忽略开始边界上的调用，传入&amp;#x7b;leading: false&amp;#x7d;。&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; *                                如果想忽略结尾边界上的调用，传入&amp;#x7b;trailing: false&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @return &amp;#x7b;function&amp;#x7d;             返回客户调用函数   &lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; */&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;throttle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;c1&quot;&gt;// 上次执行时间点&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;16&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;c1&quot;&gt;// 延迟执行函数&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;later&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 若设定了开始边界不执行选项，上次执行时间始终为0&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;19&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;leading&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;20&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;21&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;22&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;23&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;24&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;25&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;26&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 首次执行时，如果设定了开始边界不执行选项，将上次执行时间设定为当前时间。&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;27&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;leading&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;28&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 延迟执行时间间隔&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;29&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;30&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;31&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;32&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 延迟时间间隔remaining小于等于0，表示上次执行至此所间隔时间已经超过一个时间窗口&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;33&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// remaining大于时间窗口wait，表示客户端系统时间被调整过&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;34&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;remaining&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;35&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;clearTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;36&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;37&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;previous&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;38&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;39&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;40&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;//如果延迟执行不存在，且没有设定结尾边界不执行选项&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;41&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;trailing&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;42&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;later&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;remaining&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;43&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;44&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;45&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;46&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;debounce&quot;&gt;&lt;code&gt;_.debounce&lt;/code&gt;方法源码&lt;/h3&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt;/**&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * 空闲控制 返回函数连续调用时，空闲时间必须大于或等于 wait，func 才会执行&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; *&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;function&amp;#x7d; func        传入函数&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;number&amp;#x7d;   wait        表示时间窗口的间隔&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @param  &amp;#x7b;boolean&amp;#x7d;  immediate   设置为ture时，调用触发于开始边界而不是结束边界&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; * @return &amp;#x7b;function&amp;#x7d;             返回客户调用函数&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;cm&quot;&gt; */&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;debounce&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;immediate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;later&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 据上一次触发时间间隔&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;last&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;timestamp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;16&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 上次被包装函数被调用时间间隔last小于设定时间间隔wait&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;last&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;last&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;later&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;19&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;20&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;21&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;c1&quot;&gt;// 如果设定为immediate===true，因为开始边界已经调用过了此处无需调用&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;22&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;immediate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;23&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;24&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;25&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;26&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;27&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;28&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;29&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;30&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;31&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;arguments&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;32&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;timestamp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;33&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;callNow&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;immediate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;34&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;c1&quot;&gt;// 如果延时不存在，重新设定延时&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;35&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;timeout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;later&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;wait&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;36&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;callNow&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;&amp;#x7b;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;37&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;apply&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;38&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;      &lt;span class=&quot;nx&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;39&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;p&quot;&gt;&amp;#x7d;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;40&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;41&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;42&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;43&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;p&quot;&gt;&amp;#x7d;;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;可视化演示&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://throttle-debounce.coding.io/images/screenshot.png&quot; alt=&quot;Throtte &amp;amp; Debounce 可视化演示&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;示例中每一行都以30ms的速度绘制时间轴，第一行Mousemove Events是参考基准，以50ms每次的响应频率，在时间轴上输出循环可见ASCII码字符。&lt;/p&gt;
+
+&lt;p&gt;当鼠标进入左侧方型区域（mouseenter 事件）所有行开始绘制时间轴, 鼠标晃动（mousemove 事件）会在时间轴上绘制字符块，每个字符块表示事件被触发一次。为了展现延迟触发效果，相邻字符块的演示和文字是不同的。&lt;/p&gt;
+
+&lt;p&gt;顶部的两个按钮&lt;code&gt;每100毫秒触发1次&lt;/code&gt;和&lt;code&gt;每200毫秒触发2次&lt;/code&gt;演示以固定频率匀速触发事件的效果。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;演示地址：http://throttle-debounce.coding.io/&lt;/li&gt;
+  &lt;li&gt;源码地址：https://coding.net/u/duwan/p/throttle-debounce/&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;使用场景&lt;/h3&gt;
+
+&lt;p&gt;只要牵涉到连续事件或频率控制相关的应用都可以考虑到这两个函数，比如：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;游戏射击，keydown 事件&lt;/li&gt;
+  &lt;li&gt;文本输入、自动完成，keyup 事件&lt;/li&gt;
+  &lt;li&gt;鼠标移动，mousemove 事件&lt;/li&gt;
+  &lt;li&gt;DOM 元素动态定位，window 对象的 resize 和 scroll 事件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;前两者 debounce 和 throttle 都可以按需使用；后两者肯定是用 throttle 了。如果不做过滤处理，每秒种甚至会触发数十次相应的事件。尤其是 mousemove 事件，每移动一像素都可能触发一次事件。如果是在一个画布上做一个鼠标相关的应用，过滤事件处理是必须的，否则肯定会造成糟糕的体验。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-4&quot;&gt;参考阅读&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://underscorejs.org/docs/underscore.html#section-70&quot;&gt;UNDERSCORE.JS&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.cnblogs.com/ambar/archive/2011/10/08/throttle-and-debounce.html&quot;&gt;高阶函数 debounce 和 throttle&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://benalman.com/projects/jquery-throttle-debounce-plugin/&quot;&gt;jQuery throttle / debounce: Sometimes, less is more!&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://drupalmotion.com/article/debounce-and-throttle-visual-explanation&quot;&gt;Debounce and Throttle: a visual explanation&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Tue, 21 Oct 2014 13:27:00 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>实时web的4种实现方式</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;随着互联网的飞速发展，我们在网页里完成越来越多的事情。Web应用程序开始逐渐替代传统的桌面程序，然而HTTP协议设计之初没有考虑到面向应用开发的需求，HTTP协议服务端只能被动的响应客户端（浏览器）的请求，若服务端需要实时的给客户端推送消息，HTTP协议就需要借助与轮询和长连接等变通的技术。这些技术虽然勉强能够实现，但是都有些弊端。直到websocket协议推出，才真正的意义上解决了实时数据传输问题。但是由于旧版本浏览器不兼容websocket协议，为了更好的向下兼容，社区遍有了socket.io框架，该框架能智能识别浏览器端对websocket的支持情况，对于不支持的旧版本浏览器采用长轮询的方式通讯。本文将讨论4中常见的实时Web通讯技术。
+&lt;!--more--&gt;
+### 轮询（Polling）&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2014-08-16/polling.png&quot; alt=&quot;轮询&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;浏览器端连续发送请求以寻求新信息，服务端收到请求立即响应，无论请求的新信息是否已经就绪。此方式适用场景要求轮询的时间间隔相对宽松。例如，邮件客户端通常10分钟连接一次服务器检测是否有新邮件。&lt;/p&gt;
+
+&lt;p&gt;轮询简单而且易于实现。然而如果对实时的要求提高，提升轮询的频率，这种方式就会变得低效。&lt;/p&gt;
+
+&lt;h3 id=&quot;long-polling&quot;&gt;长轮询 （Long Polling）&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2014-08-16/long_polling.png&quot; alt=&quot;长轮询&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;浏览器端连续发送请求，但是服务端并不立即响应，而是等待请求的资源准备好了才发送响应给客户端。从客户端的角度来看，和普通的轮询没有区别。从服务端的角度看这非常类似于长请求。&lt;/p&gt;
+
+&lt;p&gt;那响应端口能保持多久不关闭呢？通常浏览器被设置成5分钟超时，若网络中间存在代理超时间隔可能更短。因此即使没有新消息需要发送，长轮询请求也需要周期性的完成，以触发浏览器重新发送一个新请求。这篇 &lt;a href=&quot;http://tools.ietf.org/html/rfc6202&quot; title=&quot;Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP&quot;&gt;IETF 文档&lt;/a&gt;建议超时设置成30~120秒，但是真实值如何设置依赖于你对服务器和客户端之间的网络设备的控制程度。&lt;/p&gt;
+
+&lt;p&gt;长轮询能显著的降低请求数并保持响应的低延时，尤其是新消息以不规则的频率产生时。然而信息产生过于频繁，长轮询将接近于普通轮询。&lt;/p&gt;
+
+&lt;h3 id=&quot;streaming&quot;&gt;流推送 （Streaming）&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2014-08-16/streaming.png&quot; alt=&quot;流推送&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;浏览器端连续发送请求，当服务端有新消息时响应请求。然后不同于长轮询，服务端保持响应端口不关闭，持续发送当更多的消息到达时。这种方式不需要轮询，但是它也背离了HTTP请求响应模式的语义。例如客户端和服务端需要协调如何解释响应流，客户端可以知道两个连续消息的分割边界。而且，网络中间设备对响应的缓存会让这种方式失效。这就是为何长轮询使用的更普遍。&lt;/p&gt;
+
+&lt;h3 id=&quot;websocket&quot;&gt;WebSocket&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2014-08-16/websocket.png&quot; alt=&quot;WebSocket&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;浏览器发送一个HTTP 升级首部请求，服务端确认升级，HTTP协议升级为WebSocket协议。此后浏览器和服务器可以在TCP Socket之上双向的发送数据帧。&lt;/p&gt;
+
+&lt;p&gt;WebSocket协议被设计用来替换轮询机制，它非常适合服务端和客户端需要高频率的双向交换数据的场景。初始的基于HTTP协议的握手确保WebSocket请求可以穿透防火墙。然后，最大的挑战是仍然后很多遗留的浏览器不支持该协议。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;参考阅读&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://spring.io/blog/2012/05/08/spring-mvc-3-2-preview-techniques-for-real-time-updates/&quot;&gt;Spring MVC 3.2 Preview: Techniques for Real-time Updates&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.slideshare.net/yongboy/real-time-web-14045690&quot;&gt;Real time web实时信息流推送&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://tools.ietf.org/html/rfc6202&quot; title=&quot;Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP&quot;&gt;Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/HTTP/1.1_Upgrade_header&quot;&gt;HTTP/1.1 Upgrade header&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://en.wikipedia.org/wiki/WebSocket&quot;&gt;WebSocket&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.websocket.org/aboutwebsocket.html&quot;&gt;About HTML5 WebSockets&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/automattic/socket.io-protocol&quot;&gt;Socket.IO 1.0 Protocol&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Sat, 16 Aug 2014 20:34:05 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/08/16/4-ways-to-implement-real-time-web/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/08/16/4-ways-to-implement-real-time-web/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>Mac OS X下如何分卷压缩</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;一朋友的公司邮箱只能接受5M的附件，还世界500强企业真心落后。无奈只能分卷压缩大文件，Mac OS X下没有盗版的WinRar可用，所以只好采用ZIP格式分卷了&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;创建分卷压缩文件&lt;/h3&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;将目录分卷压缩&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;zip -s 100m -x &quot;*.DS_Store&quot; -r split-foo.zip foo/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;-s&lt;/code&gt; 切分单元的大小，可选的单位有k(kB), m(MB), g(GB), t(TB),默认为m&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;-r&lt;/code&gt; 或者 &lt;code&gt;--recurse-paths&lt;/code&gt; 递归目录&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;-x&lt;/code&gt; 或者 &lt;code&gt;--exclude&lt;/code&gt; 忽略文件&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;zip&quot;&gt;切分已有zip文件&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;zip existing.zip --out new.zip -s 50m
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;将创建&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;new.zip &lt;br /&gt;
+new.z01   &lt;br /&gt;
+new.z02 &lt;br /&gt;
+new.z03 &lt;br /&gt;
+…&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;解压分卷压缩文件&lt;/h3&gt;
+
+&lt;p&gt;还原分为两步&lt;/p&gt;
+
+&lt;p&gt;1.将切分文件合并成单一zip文件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;zip -s 0 split.zip --out single.zip
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code&gt;-s 0&lt;/code&gt; 表示合并&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;2.解压&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unzip single.zip 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;参考文献&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://superuser.com/questions/336219/how-do-i-split-a-zip-file-into-multiple-segments&quot;&gt;How do I split a .zip file into multiple segments?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.addictivetips.com/mac-os/how-to-create-a-split-zipped-archive-from-mac-os-x-terminal/&quot;&gt;How To Create A Split Zipped Archive From Mac OS X Terminal&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://apple.stackexchange.com/questions/12371/how-can-i-compress-a-folder-into-multiple-zip-files&quot;&gt;How can I compress a folder into multiple zip files?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://notepad2.blogspot.jp/2012/12/mac-os-x-createextract-split-zip.html&quot;&gt;Mac OS X: create/extract split zip archives&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Tue, 15 Jul 2014 21:22:06 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/07/15/how-to-create-split-zipped-archives-in-macosx/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/07/15/how-to-create-split-zipped-archives-in-macosx/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>在OS X Mavericks上安装gdb</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;最近帮外甥女写一段C程序作业。代码量不多，所有采用Sublime Text + gcc的方式。遇到了奇怪的&lt;code&gt;segmentation fault&lt;/code&gt;,没有显示具体错误行号，所有需要借助gdb(The GNU Project Debugger 是*nix环境下著名的调试程序)返回更多有效信息和断点调试。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;安装&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;brew install gdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;开启调试编译选项&lt;/h3&gt;
+&lt;p&gt;希望gdb调试时输出行号与堆栈等详细信息需要&lt;code&gt;gcc&lt;/code&gt;编译的时候使用&lt;code&gt;-g&lt;/code&gt;选项&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;gcc -o course_test -g -rdynamic course_test.c
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;注意 homebrew安装的gnu版本的&lt;code&gt;gcc&lt;/code&gt;在macox上不支持&lt;code&gt;-rdynamic&lt;/code&gt;选项，此处使用的是xcode提供的&lt;code&gt;gcc&lt;/code&gt;。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;调试&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;bash$ gdb course_test
+gdb&amp;gt;run
+....
+The GDB command:
+„-exec-run“ returned the error:
+„,msg=„Unable to find Mach task port for process-id 62593:
+(os/kern) failure (0x5). (please check gdb is codesigned - see taskgated(8))““
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;不出意外将会遇到上述错误。这是由于macos的安全策略，homebrew安装的gdb没有签名导致。&lt;/p&gt;
+
+&lt;h3 id=&quot;gdb&quot;&gt;签名gdb&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;打开 “钥匙串访问”，位于&lt;code&gt;/Applications/Utilities/Keychain Access.app&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;打开菜单 /钥匙串访问/证书助理/创建证书…&lt;/li&gt;
+  &lt;li&gt;在”创建您的证书”窗口设置如下
+    &lt;ul&gt;
+      &lt;li&gt;名称: gdbc&lt;/li&gt;
+      &lt;li&gt;身份类型: 自签名根证书&lt;/li&gt;
+      &lt;li&gt;证书类型: 代码签名&lt;/li&gt;
+      &lt;li&gt;勾选”让我覆盖这些默认值”&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;点击”继续”，将”有效期（天数）”设置为: 3650&lt;/li&gt;
+  &lt;li&gt;点击若干次”继续”，指导出现”指定用于该证书的位置””
+    &lt;ul&gt;
+      &lt;li&gt;钥匙串: 系统&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;点击”创建”，会弹出用户名密码输入框，输入密码，点击”修改钥匙串”&lt;/li&gt;
+  &lt;li&gt;在“系统”钥匙串找到刚才创建的”gdbc”证书，右键”显示简介”，在“信任”分类下找到“代码签名”，指定为“总是信任”。&lt;/li&gt;
+  &lt;li&gt;退出“钥匙串访问”&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;要让刚刚添加的证书生效需要重启&lt;code&gt;taskgated&lt;/code&gt;服务或者重启系统&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sudo killall taskgated
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;证书准备好了，接下来给gdb签名&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;codesign -fs gdbc /usr/local/bin/gdb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;lldb&quot;&gt;lldb&lt;/h3&gt;
+&lt;p&gt;即使给签名gdb以后，在执行gdb调试仍然无法显示行号（行号显示为 ??），新版本的macox已经和gdb不兼容了，lldb是gdb的替代者。使用lldb调试可以显示错误发生位置的行号。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;参考阅读&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://blog.panks.me/posts/2013/11/install-gdb-on-os-x-mavericks-from-source/&quot;&gt;Install GDB on OS X Mavericks from source&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://wiki.lazarus.freepascal.org/GDB_on_OS_X_Mavericks_and_Xcode_5&quot;&gt;GDB on OS X Mavericks and Xcode 5&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/13913818/how-to-get-a-codesigned-gdb-on-osx&quot;&gt;How to get a “codesigned” gdb on OSX?&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Mon, 14 Jul 2014 00:19:21 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/07/14/install-gdb-on-osx-mavericks/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/07/14/install-gdb-on-osx-mavericks/</guid>
+        
+        
+      </item>
+    
+      <item>
+        <title>当元素滚动出可视区域后固定漂浮在底部</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;页面底部放置了几个功能按钮，当页面长度超过窗口高度时需要滚动到底部才能操作。点击按钮前多了一步滚动操作，多少有些不方便。如果元素位于可视区域之外时，可以固定漂浮于窗口底部就可以解决这种不便。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/post/2014-06-22/fixed-floating.png&quot; alt=&quot;不在可视区域内时固定漂浮于底部&quot; /&gt;&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;figure class=&quot;code-highlight-figure&quot;&gt;&lt;div class=&quot;code-highlight&quot;&gt;&lt;pre class=&quot;code-highlight-pre&quot;&gt;&lt;div data-line=&quot;1&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;#声明全局top变量，记录元素里页面顶部高度值&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;2&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nv&quot;&gt;top = &lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;3&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;4&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# 计算top值&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;5&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nv&quot;&gt;calcTop = &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;-&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;6&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nv&quot;&gt;$ff_container = &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;form:visible .panel-footer&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;7&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;8&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nv&quot;&gt;top = &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$ff_container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;top&lt;/span&gt; 
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;9&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;10&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;unless&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;jQuery&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;browser&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;mobile&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;11&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;top&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$ff_container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;outerHeight&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;12&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;13&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# 判断是否需要固定漂浮&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;14&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nv&quot;&gt;floating = &lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;-&amp;gt;&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;15&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nv&quot;&gt;y = &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$win&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scrollTop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$win&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;16&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;nv&quot;&gt;$ff_container = &lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;form:visible .panel-footer&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;17&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;top&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;18&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;$ff_container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;removeClass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;fixed&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;19&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;  &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;20&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;    &lt;span class=&quot;nx&quot;&gt;$ff_container&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;addClass&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;fixed&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;21&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;22&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# 窗口滚动时计算是否需要漂浮&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;23&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$win&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;scroll&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;24&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# 调整窗口大小时计算是否需要漂浮&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;25&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$win&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;resize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;floating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;26&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# 在手机屏幕滚动时计算是否需要漂浮&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;27&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;body&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;bind&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;touchmove&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;floating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;28&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt; &lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;29&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;calcTop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/div&gt;&lt;/div&gt;&lt;div data-line=&quot;30&quot; class=&quot;code-highlight-row numbered&quot;&gt;&lt;div class=&quot;code-highlight-line&quot;&gt;&lt;span class=&quot;nx&quot;&gt;floating&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/figure&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;参考阅读&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://jqueryfordesigners.com/fixed-floating-elements/&quot;&gt;Fixed Floating Elements&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/8644248/jquery-fix-div-when-browser-scrolls-to-it&quot;&gt;jQuery: Fix div when browser scrolls to it&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://stackoverflow.com/questions/18753367/jquery-live-scroll-event-on-mobile-work-around&quot;&gt;jQuery: Fix div when browser scrolls to it&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Sun, 22 Jun 2014 00:28:05 +0800</pubDate>
+        <link>http://codelife.me//blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/</link>
+        <guid isPermaLink="true">http://codelife.me//blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/</guid>
+        
+        
+      </item>
+    
+  </channel>
+</rss>

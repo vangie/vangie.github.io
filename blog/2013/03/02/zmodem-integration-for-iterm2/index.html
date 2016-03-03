@@ -1,0 +1,294 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>在iTerm2中使用Zmodem传输文件 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在iTerm2中使用Zmodem传输文件">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/03/02/zmodem-integration-for-iterm2/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/03/02/zmodem-integration-for-iterm2/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">在iTerm2中使用Zmodem传输文件</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>rz,sz命令传输文件，比使用scp要方便得多，特别是在图形界面打开终端，SSH登陆到远程机器需要传输文件的时候。但是MacOS里Terminal.app并不支持Zmodel传输。好在iTerm2具备较强的扩展性可以通过简单的配置支持Zmodem传输。</p>
+</blockquote>
+
+<h3 id="zmodem">什么是Zmodem</h3>
+<p>Zmodem是针对modem的一种支持错误校验的文件传输协议。Zmodem是Ymodem的改进版，后者又是Xmodem的改进版。</p>
+
+<!--more-->
+
+<h4 id="xmodem">Xmodem</h4>
+<p><a href="http://en.wikipedia.org/wiki/XMODEM">Xmodem</a>是一个简单的文件传输协议，是由Ward Christensen于1977年为他的MODEM.ASM终端程序开发。在早期的BBS系统非常的流行。</p>
+
+<p>像许多文件传输协议一样，Xmodem把文件切分成有序的数据包。并在数据包上加上一些附件的信息允许接受方确定数据包是否在传输中损坏。</p>
+
+<h5 id="section">数据包的结构</h5>
+<p>包头：宝开始（SOH），包编号和包编号补码</p>
+
+<p>数据：固定的128字节</p>
+
+<p>包尾：校验和
+##### 传输过程
+XModem工作时，先由收方发出NAK，然后等待发方的包开始SOH。收到SOH后，即 将整个包收完，检查是否有错。如出错，则向发方发出一个NAK，请求发方重发； 否则发出ACK,表示接收正确，请发下个包。XModem检查包编号和checksum来确定 该包是否传送有问题。编号是发方送得出包的顺序。当XModem发送完最后一个包 时，收方会收到文件结束符(EOT)，此时，收方会送出一个ACK通知发方传送结束。</p>
+
+<h4 id="ymodem">Ymodem</h4>
+<p><a href="http://en.wikipedia.org/wiki/YMODEM">Ymodem</a>是Chuck Forsberg开发的Xmodem的改进版，1985年被Xmodem的开发者Ward Christensen称之为“Ymodem”。</p>
+
+<p>相对于Xmodem的主要改进是在发送方发送真实数据块前，先发送一个称之为“block 0”的数据块（真实的数据块是从1开始计数），改数据块包含文件名，大小和时间戳。文件大小解决了Xmodem文件尾部剩余填充的问题。</p>
+
+<h4 id="zmodem-1">Zmodem</h4>
+<p><a href="http://en.wikipedia.org/wiki/ZMODEM">Zmodem</a>是Chuck Forsberg于1986年发布的Ymodem的改进版本。关键的改进是引进了<strong>滑动窗口协议</strong>(<a href="http://en.wikipedia.org/wiki/Sliding_window">Sliding window protocol</a>)改进了传输的性能。</p>
+
+<p>在Xmodem或者Ymodem传输时发送方需要等待接收方放的ACK或者NAK响应才继续发送下一个数据包。Zmodem把这个同步的确认过程改成了异步的，发送方可以不断的方式数据包，然后异步的接收ACK或者NAK包，过一段时候后再决定是否需要重新发送数据包。这种方式解决了确认包网络延迟造成对传输速率的影响。</p>
+
+<h3 id="zmodem-2">安装Zmodem的实现</h3>
+
+<pre><code>brew install lrzsz
+</code></pre>
+
+<h3 id="section-1">创建脚本</h3>
+
+<p>将下面两个脚本创建到<code>/usr/local/bin</code>目录</p>
+
+<p>item2-send-zmodem.sh</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c">#!/bin/bash</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># Author: Matt Mastracci (matthew@mastracci.com)</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># AppleScript from http://stackoverflow.com/questions/4309087/cancel-button-on-osascript-in-a-bash-script</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># licensed under cc-wiki with attribution required </span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># Remainder of script public domain</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">FILE</span><span class="o">=</span><span class="sb">`</span>osascript -e <span class="s1">&#39;tell application &quot;iTerm&quot; to activate&#39;</span> -e <span class="s1">&#39;tell application &quot;iTerm&quot; to set thefile to choose file with prompt &quot;Choose a file to send&quot;&#39;</span> -e <span class="s2">&quot;do shell script (\&quot;echo \&quot;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&quot;\&quot;)&quot;</span><span class="sb">`</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">if</span> <span class="o">[[</span> <span class="nv">$FILE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo </span>Cancelled.
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="c"># Send ZModem cancel</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> -e <span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="se">\#</span> Cancelled transfer
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">else</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="nv">$FILE</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">	/usr/local/bin/sz <span class="s2">&quot;$FILE&quot;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="se">\#</span> Received <span class="nv">$FILE</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">fi</span></div></div></pre></div></figure>
+
+<p>iterm2-recv-zmodem.sh</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c">#!/bin/bash</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># Author: Matt Mastracci (matthew@mastracci.com)</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># AppleScript from http://stackoverflow.com/questions/4309087/cancel-button-on-osascript-in-a-bash-script</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># licensed under cc-wiki with attribution required </span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c"># Remainder of script public domain</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">FILE</span><span class="o">=</span><span class="sb">`</span>osascript -e <span class="s1">&#39;tell application &quot;iTerm&quot; to activate&#39;</span> -e <span class="s1">&#39;tell application &quot;iTerm&quot; to set thefile to choose folder with prompt &quot;Choose a folder to place received files in&quot;&#39;</span> -e <span class="s2">&quot;do shell script (\&quot;echo \&quot;&amp;(quoted form of POSIX path of thefile as Unicode text)&amp;\&quot;\&quot;)&quot;</span><span class="sb">`</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">if</span> <span class="o">[[</span> <span class="nv">$FILE</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo </span>Cancelled.
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="c"># Send ZModem cancel</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> -e <span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18<span class="se">\\</span>x18
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="se">\#</span> Cancelled transfer
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">else</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="nv">$FILE</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">cd</span> <span class="s2">&quot;$FILE&quot;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">	/usr/local/bin/rz 
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span> <span class="se">\#</span> Received <span class="nv">$FILE</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">	<span class="nb">echo</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">fi</span></div></div></pre></div></figure>
+
+<h3 id="iterm2">设置iTerm2</h3>
+<p>修改iTerm2的default trigger（iTerm偏好设置-&gt; Profiles -&gt; Default -&gt; Advanced -&gt; Triggers的Edit按钮</p>
+
+<pre><code>Regular expression: \*\*B0100 
+Action: Run Silent Coprocess 
+Parameters: /usr/local/bin/iterm2-send-zmodem.sh
+
+  
+Regular expression: \*\*B00000000000000 
+Action: Run Silent Coprocess 
+Parameters: /usr/local/bin/iterm2-recv-zmodem.sh
+</code></pre>
+
+<h3 id="section-2">发送文件到远端服务器</h3>
+<ol>
+  <li>在远端服务器执行<code>rz</code></li>
+  <li>本地选择文件传输</li>
+  <li>等待传输指示消失</li>
+</ol>
+
+<h3 id="section-3">接收远端服务器的文件</h3>
+<ol>
+  <li>再远端服务器执行<code>sz filename1 filename2 … filenameN</code></li>
+  <li>本地选择目录保存</li>
+  <li>等待传输指示消失</li>
+</ol>
+
+<h3 id="section-4">参考文献</h3>
+<ol>
+  <li><a href="http://openexz.sinaapp.com/2012/08/29/%E5%9C%A8iterm2%E4%B8%AD%E4%BD%BF%E7%94%A8zmodem%E7%9A%84%E6%96%B9%E6%B3%95/">在iTerm2中使用Zmodem的方法</a></li>
+  <li><a href="https://github.com/mmastrac/iterm2-zmodem">ZModem integration for iTerm 2</a></li>
+  <li><a href="http://docstore.mik.ua/orelly/linux/run/apph_01.htm">Appendix H. Zmodem File Transfer</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/03/02/zmodem-integration-for-iterm2/';
+        var disqus_url = 'http://codelife.me/blog/2013/03/02/zmodem-integration-for-iterm2/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

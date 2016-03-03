@@ -1,0 +1,578 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code Life">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/page/2/index.html">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/page/2/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+    
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/" rel="bookmark" title="纯Javascirpt实现页面二维码" itemprop="url">纯Javascirpt实现页面二维码</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-06-20T11:39:03+08:00">
+            June 20, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>页面采用响应式布局可以在移动设备上有较好的展现效果，但移动设备输入长长的URL地址有些麻烦。URL<strong>二维码</strong>结合<strong>微信扫一扫</strong>可以较好的解决输入不便的问题。通常二维码是一张黑白相间的图片，网上可以找到很多二维码的生成工具和生成服务。所以二维码通常采用预生成或者临时请求第三方服务生成的方式引入到页面中，本文介绍一种通过js动态生成二维码的实现方法，并附带交互上的特效。动态生成可以方便的适应URL的变化。js动态生成可以去除对第三方服务的依赖，在隔绝内网下也可以使用。</p>
+</blockquote>
+
+<p><img src="/images/post/2014-06-20/qrcode.png" alt="页面二维码效果图" /></p>
+
+
+		<a href="/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/05/20/db-migrate-all-app-by-capistrano/" rel="bookmark" title="Capistrano在每台应用服务器上都执行数据库迁移" itemprop="url">Capistrano在每台应用服务器上都执行数据库迁移</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-05-20T23:47:44+08:00">
+            May 20, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Capistrano发布Rails app到远端服务器时，只在primary db服务器上执行db:migrate。对于每个app都使用独立的本地Sqlite数据库的场景不适用。</p>
+</blockquote>
+
+<p>通过添加如下task，在每台app服务器上执行db:migrate</p>
+
+<pre><code>#lib/capistrano/task/migrate_all.rake
+
+desc 'Runs rake db:migrate on all app server'
+task :migrate_all =&gt; [:set_rails_env] do
+	on roles(:app), in: :parallel do
+		within release_path do
+			with rails_env: fetch(:rails_env) do
+				execute :rake, "db:migrate"
+			end
+		end
+	end
+end
+
+after :updated, :migrate_all
+</code></pre>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/05/17/rails-app-authenticate-by-jwt-between-master-and-agent/" rel="bookmark" title="Master-Agent模式的Rails应用借助JWT Token验证" itemprop="url">Master-Agent模式的Rails应用借助JWT Token验证</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-05-17T17:35:50+08:00">
+            May 17, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>一对Master-Agent模式Rails应用，Agent需要验证Master。通常考虑采用HTTP基础认证或者HTTP摘要认证。这里Agent不需要多用户支持，所以只要一个加密口令即可，无需用户名。本文介绍采用JWT实现基于Token验证，结合Rails 4.1的新特性，装载secrets.yml文件里的密钥，作为JWT Token的计算密钥，应用于Rails应用。</p>
+</blockquote>
+
+<h3 id="agent">Agent端配置</h3>
+
+<h4 id="jwt-gem">安装jwt Gem</h4>
+
+<p>Gemfile添加如下行</p>
+
+<p><code>
+gem 'jwt'
+</code></p>
+
+<p>然后执行<code>bundle install</code></p>
+
+
+		<a href="/blog/2014/05/17/rails-app-authenticate-by-jwt-between-master-and-agent/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/05/17/using-git-commit-version-as-version-number-of-rails-app/" rel="bookmark" title="将Git提交版本号作为Rails应用版本号" itemprop="url">将Git提交版本号作为Rails应用版本号</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-05-17T14:02:04+08:00">
+            May 17, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>应用的版本管理和代码的版本管理通常是分开的，作为两套独立的版本系统来维护。对于小型应用来说有些浪费精力。最早在<a href="https://www.gitlab.com/">GitLab</a>这款开源软件上看到其使用Git的提交版本号作为版本号，本文将借鉴这种做法。</p>
+</blockquote>
+
+<h3 id="git">获得Git版本号</h3>
+<ol>
+  <li>开发环境，当前的工作目录里包含了<code>.git</code>目录，直接执行下面的命令<code>git describe --always</code>。该命令通常返回形如<code>1f36a3b</code>的SHA-1短序列，但是如果该提交版本有对应的Tag的话，将返回该Tag名称。真实应用发布场景显得非常有用，毕竟随机序列不如自定义的有意义的名称便于记忆、沟通和传播。</li>
+  <li>对于<a href="http://capistranorb.com/">Capistrano</a>工具发布的生产环境，应用根目录不包含<code>.git</code>目录，所以如果通过<code>git</code>命令直接获得代码版本号，好在Capistrano发布时会自动生成<code>REVISION</code>文件，其内容为代码版本号。</li>
+</ol>
+
+<p>综合两种情况的代码如下</p>
+
+<pre><code>if File.exist? 'REVISION' then `cat REVISION`.chomp else `git describe --always` end
+</code></pre>
+
+
+		<a href="/blog/2014/05/17/using-git-commit-version-as-version-number-of-rails-app/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/03/26/token-based-authentication-and-claims-based-identity/" rel="bookmark" title="基于Token的认证和基于声明的标识" itemprop="url">基于Token的认证和基于声明的标识</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-03-26T14:12:05+08:00">
+            March 26, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>OpenID解决跨站点的认证问题，OAuth解决跨站点的授权问题。认证和授权是密不可分的。而OpenID和OAuth这两套协议出自两个不同的组织，协议上有相似和重合的之处，所以想将二者整合有些难度。好在OpenID Connect作为OpenID的下一版本，在OAuth 2.0的协议基础上进行扩展，很好的解决了认证和授权的统一，给开发者带来的便利。在学习和研究OpenID Connect协议时，遇上两个概念基于Token的认证（token based authentication）和基于声明的标识（claims based identity）。本文就这两个概念展开讨论，为了更好的理解OpenID Connect协议的原理。</p>
+</blockquote>
+
+<h3 id="cookietoken">基于Cookie的认证和基于Token的认证</h3>
+
+<p>有两种不同的方法实现服务端的认证</p>
+
+<ul>
+  <li>常见方式是<strong>基于Cookie的认证</strong>,每个请求中携带Cookie信息以便于服务端识别</li>
+  <li>另一种新方法，<strong>基于Token的认证</strong>，在每个请求中携带被签名过Token信息传送到服务端</li>
+</ul>
+
+<p><a href="https://docs.google.com/drawings/d/1IPgSFz2loaOIrnIKinGyrSoRm54slHFi8d_oRJ7BGPc/edit?usp=sharing"><img src="/images/post/2014-03-26/cookie-based-auth-vs-token-based-auth.png" alt="Cookie-based Auth vs Token-based Auth" /></a></p>
+
+
+		<a href="/blog/2014/03/26/token-based-authentication-and-claims-based-identity/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/" rel="bookmark" title="Java泛型让声明方法返回子类型" itemprop="url">Java泛型让声明方法返回子类型</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-03-05T11:11:45+08:00">
+            March 05, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>泛型典型的使用场景是集合。考虑到大多数情况下集合是同质的（同一类型），通过声明参数类型，可免去类型转换的麻烦。本文将讨论本人阅读Spring Security源码时遇到的一个关于<strong><em>泛型递归模式</em></strong>的问题。</p>
+</blockquote>
+
+<h3 id="section">声明方法返回子类型</h3>
+
+<p>在Spring Security的源码里有一个<code>ProviderManagerBuilder</code>接口，声明如下</p>
+
+<pre><code>public interface ProviderManagerBuilder&lt;B extends ProviderManagerBuilder&lt;B&gt;&gt; extends SecurityBuilder&lt;AuthenticationManager&gt; {
+    B authenticationProvider(AuthenticationProvider authenticationProvider);
+}
+</code></pre>
+
+<p>其实现类<code>AuthenticationManagerBuilder</code></p>
+
+<pre><code>public class AuthenticationManagerBuilder extends AbstractConfiguredSecurityBuilder&lt;AuthenticationManager, AuthenticationManagerBuilder&gt; implements ProviderManagerBuilder&lt;AuthenticationManagerBuilder&gt; {
+
+    //...
+    
+	public AuthenticationManagerBuilder authenticationProvider(
+        AuthenticationProvider authenticationProvider) {
+    	this.authenticationProviders.add(authenticationProvider);
+    	return this;
+	}
+	
+    //...
+
+}
+</code></pre>
+
+<p>上面有很多干扰项，我们来简化一下</p>
+
+
+		<a href="/blog/2014/03/05/returning-subtype-of-declared-type-from-method-by-java-generics/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/02/23/sql-select-and-relational-operations/" rel="bookmark" title="SQL Select和关系操作" itemprop="url">SQL Select和关系操作</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-02-23T19:55:31+08:00">
+            February 23, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>没有系统的学习过关系数据库，所以对SQL Select的理解有些浅薄，特别是group by和having语句。<a href="http://book.douban.com/subject/7061934/">《SQLite 权威指南（第二版）》</a>的第三章SQLite中的SQL，让我对Select，乃至SQL语言和关系数据库有了全新的认识。一时间激起了对关系数据库和理论的兴趣，到豆瓣上淘了一本绝版的<a href="http://book.douban.com/subject/2122940/">《深度探索关系数据库》</a>，可惜基础太差，读了一半实在读不下去了，作罢。</p>
+</blockquote>
+
+<p>最大的收获和发现莫过于下面这幅图了，</p>
+
+<p><img src="/images/post/2014-02-23/select.png" alt="select处理过程" /></p>
+
+
+		<a href="/blog/2014/02/23/sql-select-and-relational-operations/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/02/03/modify-source-of-the-gemfile-template/" rel="bookmark" title="将Gemfile模板文件的source改成淘宝源" itemprop="url">将Gemfile模板文件的source改成淘宝源</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-02-03T21:54:20+08:00">
+            February 03, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>由于国内网络原因（你懂的），导致rubygems.org存放在Amazon S3上面的资源文件间歇性连接失败。所有你会遇到<code>gem install rack</code>或<code>bundle install</code>的时候半天没有响应。将默认源改成国内的淘宝源(http://ruby.taobao.org)可以解决该问题。</p>
+</blockquote>
+
+<p>对于Rails项目通常需要将Gemfile的第一行改为</p>
+
+<pre><code>	source 'http://ruby.taobao.org/'
+</code></pre>
+
+<p>但是通过<code>rails new my_project</code>创建项目时，由于Gemfile生成以后立即执行<code>bundle install</code>，此时source尚未修改，所以项目创建的过程仍然很慢。</p>
+
+<p>解决rails new 卡住的问题，有如下两种方法</p>
+
+
+		<a href="/blog/2014/02/03/modify-source-of-the-gemfile-template/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/12/21/raspberry-pi-as-time-capsule/" rel="bookmark" title="将树莓派配置成时间胶囊" itemprop="url">将树莓派配置成时间胶囊</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-12-21T21:00:00+08:00">
+            December 21, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>MacBookAir的SSD坏了两次以后，发现TimeMachine真的很有必要。外插个尿袋子真的不方便。AirPort Time Capsule 2T版本价格买到了$299，觉得有些不值。$25的树莓派+一块移动硬盘DIY一个Time Capsule即经济又有趣。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-21/raspberry-pi-as-time-capsule.png" alt="Raspberry Pi as TimeCapsule" /></p>
+
+
+		<a href="/blog/2013/12/21/raspberry-pi-as-time-capsule/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/12/19/beginner-of-pcduino/" rel="bookmark" title="pcDuino上手记" itemprop="url">pcDuino上手记</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-12-19T15:05:00+08:00">
+            December 19, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>感谢刘博士送的这块pcDuino板。入Raspberry Pi前，优先考虑过pcDuino。在OSChina源创会上海站被刘博士打动过。买Raspberry Pi是为了DIY一个Mac的Time Capsule。随便Google了一下，找到了Raspberry实现Time Capsule的相关资料，而pcDuino的相关资料没有找到，于是作罢。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-19/pcduinov2.jpg" alt="pcDuino V2" /></p>
+
+<p>由于Raspberry Pi的先入为主，上手pcDuino碰到写问题，下面一一列出</p>
+
+
+		<a href="/blog/2013/12/19/beginner-of-pcduino/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+
+<div class="pagination">
+  
+    
+      <a href="/" class="btn">Previous</a>
+    
+  
+  <ul class="inline-list">
+    <li>
+      
+        <a href="/">1</a>
+      
+    </li>
+    
+      <li>
+        
+          <span class="current-page">2</span>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/5">5</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/6">6</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/7">7</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/8">8</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/9">9</a>
+        
+      </li>
+    
+  </ul>
+  
+    <a href="/blog/page/3" class="btn">Next</a>
+  
+</div><!-- /.pagination -->
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

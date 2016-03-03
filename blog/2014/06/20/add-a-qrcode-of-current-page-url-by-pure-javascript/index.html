@@ -1,0 +1,232 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>纯Javascirpt实现页面二维码 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="纯Javascirpt实现页面二维码">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">纯Javascirpt实现页面二维码</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>页面采用响应式布局可以在移动设备上有较好的展现效果，但移动设备输入长长的URL地址有些麻烦。URL<strong>二维码</strong>结合<strong>微信扫一扫</strong>可以较好的解决输入不便的问题。通常二维码是一张黑白相间的图片，网上可以找到很多二维码的生成工具和生成服务。所以二维码通常采用预生成或者临时请求第三方服务生成的方式引入到页面中，本文介绍一种通过js动态生成二维码的实现方法，并附带交互上的特效。动态生成可以方便的适应URL的变化。js动态生成可以去除对第三方服务的依赖，在隔绝内网下也可以使用。</p>
+</blockquote>
+
+<p><img src="/images/post/2014-06-20/qrcode.png" alt="页面二维码效果图" /></p>
+
+<!--more-->
+
+<p>Jade</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nt">a</span><span class="nc">.p-qrcode-link</span>(<span class="na">href=</span><span class="s">&#39;#&#39;</span>)
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">span</span><span class="nc">.icon-qrcode</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nc">.p-qrcode</span></div></div></pre></div></figure>
+
+<p>Stylus</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nc">.p-qrcode-link</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">position</span> <span class="nt">relative</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">padding-top</span> <span class="nt">11px</span> <span class="o">!</span><span class="nt">important</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">padding-bottom</span> <span class="nt">10px</span> <span class="o">!</span><span class="nt">important</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">padding-right</span> <span class="nt">2px</span> <span class="o">!</span><span class="nt">important</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">font-size</span> <span class="nt">2em</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nc">.icon-qrcode</span><span class="nd">:before</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nt">margin-right</span> <span class="nt">-15px</span> <span class="o">!</span><span class="nt">important</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nc">.p-qrcode</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">position</span> <span class="nt">absolute</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">top</span> <span class="nt">10px</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">right</span> <span class="nt">-13px</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">z-index</span> <span class="nt">5</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">display</span> <span class="nt">none</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">cursor</span><span class="o">:</span> <span class="nt">url</span><span class="o">(</span><span class="s1">&#39;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjbQg61aAAAADUlEQVQYV2P4//8/IwAI/QL/+TZZdwAAAABJRU5ErkJggg==&#39;</span><span class="o">),</span><span class="nt">url</span><span class="o">(../</span><span class="nt">img</span><span class="o">/</span><span class="nt">blank</span><span class="nc">.cur</span><span class="o">),</span><span class="nt">none</span> <span class="o">!</span><span class="nt">important</span><span class="o">;</span></div></div></pre></div></figure>
+
+<p>Coffeescript</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">base_url = </span><span class="nf">-&gt;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">arr = </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="s">&quot;</span><span class="si">#&#x7b;</span><span class="nx">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">&#x7d;</span><span class="s">//</span><span class="si">#&#x7b;</span><span class="nx">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">&#x7d;</span><span class="s">&quot;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">#qrcode</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">$</span><span class="p">(</span><span class="s">&#39;.p-qrcode&#39;</span><span class="p">).</span><span class="nx">qrcode</span><span class="p">(&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">rendeer : </span><span class="s">&#39;table&#39;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">width   : </span><span class="mi">128</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">height  : </span><span class="mi">128</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">foreground: </span><span class="s">&quot;#777777&quot;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">text    : </span><span class="nx">base_url</span><span class="p">()</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">#toggle</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="s">&#39;.p-qrcode-link&#39;</span><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s">&#39;mouseenter&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">$</span><span class="p">(</span><span class="s">&#39;.p-qrcode&#39;</span><span class="p">).</span><span class="nx">show</span><span class="p">()</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">).</span><span class="nx">on</span><span class="p">(</span><span class="s">&#39;mouseleave&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">$</span><span class="p">(</span><span class="s">&#39;.p-qrcode&#39;</span><span class="p">).</span><span class="nx">hide</span><span class="p">()</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">)</span></div></div></pre></div></figure>
+
+<h3 id="section">参考阅读</h3>
+<ol>
+  <li><a href="https://github.com/jeromeetienne/jquery-qrcode">jquery.qrcode.js</a></li>
+  <li><a href="http://stackoverflow.com/questions/2636068/hide-cursor-in-chrome-and-ie">Hide cursor in Chrome (and IE)</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/';
+        var disqus_url = 'http://codelife.me/blog/2014/06/20/add-a-qrcode-of-current-page-url-by-pure-javascript/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

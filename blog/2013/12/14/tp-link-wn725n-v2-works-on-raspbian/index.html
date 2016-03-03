@@ -1,0 +1,338 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Raspbian成功驱动TP-Link TL-WN725N V2版无线网卡 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Raspbian成功驱动TP-Link TL-WN725N V2版无线网卡">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/12/14/tp-link-wn725n-v2-works-on-raspbian/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/12/14/tp-link-wn725n-v2-works-on-raspbian/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Raspbian成功驱动TP-Link TL-WN725N V2版无线网卡</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>淘宝双12搞活动，225入了一台英国产2代B型512M RaspBerry Pi，英国产的相对便宜，但是不带外壳，另外加12块，搞了个带固定螺丝的亚克力外壳。话说这个外壳裁剪的相对不错，花了老半天才装好。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-14/4-items.jpg" alt="配件合集" /></p>
+
+<p><img src="/images/post/2013-12-14/raspberry.jpg" alt="组装成品" /></p>
+
+<p><img src="/images/post/2013-12-14/pi-with-tl-wn725n.jpg" alt="TP-Link TL-WN725N V2" /></p>
+
+<!--more-->
+
+<h3 id="sd">如何选SD卡</h3>
+
+<p>先罗嗦一段SD卡的选取过程。其实想买开树莓的板子很长时间了，但是如何选SD卡一直犹豫不决。主要考虑两个因素：</p>
+
+<ul>
+  <li>SD卡的兼容性，某些SD卡树莓派无法识别；</li>
+  <li>SD卡的读写速度，市面上的Class 10卡从20M/s到UHS-I卡95M/s的价格相差很大。</li>
+</ul>
+
+<p>一开始很想选 <a href="http://item.jd.com/530220.html">闪迪（SanDisk）至尊超极速SDHC存储卡 8G-Class10-95MB/s</a> 查了<a href="http://elinux.org/RPi_SD_cards">树莓的SD卡兼容列表</a>显示可以识别，但159元的价格让我犹豫了。</p>
+
+<p>研究了一段时间，发现有网友称树莓派对UHS-I类型的SD支持不好，目前树莓的控制器读取SD卡速度也就20-30M/s。后来选了 <a href="http://item.jd.com/679771.html">闪迪（SanDisk）至尊高速MicroSDHC（TF）存储卡 8G-Class10-30MB/s</a>， 39元搞定。</p>
+
+<h3 id="rtl8188eu">安装rtl8188eu驱动模块</h3>
+
+<p>现在进入正题，安装这块无线网卡的驱动是个痛苦的精力，虽然树莓派的官方论坛已经有几篇关于驱动TL-WN725N的帖子：</p>
+
+<ul>
+  <li><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=66&amp;t=55779&amp;sid=946c22c3b95fea0e73539828e33018b1">Getting TL-WN725N working</a></li>
+  <li><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=28&amp;t=52932">TL-WN725N V2, raspbian driver update</a></li>
+  <li><a href="http://www.raspberrypi.org/phpBB3/viewtopic.php?f=91&amp;t=29752">TP-Link TL-WN725N V2 works out of the box on Raspbian</a></li>
+</ul>
+
+<p>但由于Raspbian的版本在不断的升级，生搬帖子上的步骤不起效果。</p>
+
+<p>因为我的这个 <a href="http://item.jd.com/618066.html">TP-LINK TL-WN725N 微型150M无线USB网卡</a> 是先于树莓派购买闲置的。如果买新的话，强烈建议买免驱的无线网卡，省得折腾。比如说这款 <a href="http://item.jd.com/509932.html">EDUP EP-N8508GS黄金版 迷你USB无线网卡</a>.这里有一份<a href="http://elinux.org/RPi_USB_Wi-Fi_Adapters">树莓派支持的无线网卡清单</a></p>
+
+<p>下的步骤是综合了上面的帖子及其引用，不断试错总结出来的步骤。</p>
+
+<h4 id="section">确定网卡的版本</h4>
+
+<p>TP-LINK TL-WN725N分<a href="http://wikidevi.com/wiki/TP-LINK_TL-WN725N_v1">V1</a>, <a href="http://wikidevi.com/wiki/TP-LINK_TL-WN725N_v2">V2</a>版本。 <br />
+<img src="/images/post/2013-12-14/tl-wn725n.jpg" alt="" /></p>
+
+<p>将无线网卡插上树莓的USB接口，执行<code>lsusb</code>返回如下
+&gt;Bus 001 Device 004: ID 0bda:8179 Realtek Semiconductor Corp.</p>
+
+<p>因为V1和V2的ID代号分别是0bda:8176、0bda:8179。</p>
+
+<p>本文只针对V2版本，V1版本未经测试。</p>
+
+<h4 id="section-1">升级内核</h4>
+
+<pre><code>sudo rpi-update
+</code></pre>
+
+<p>升级后执行<code>uname -a</code>的结果是
+&gt;Linux raspberrypi 3.10.24+ #610 PREEMPT Thu Dec 12 13:12:09 GMT 2013 armv6l GNU/Linux</p>
+
+<h4 id="section-2">编辑驱动模块</h4>
+
+<pre><code>git clone --depth 1 git://github.com/raspberrypi/linux.git rpi-linux
+
+git clone --depth 1 git://github.com/raspberrypi/firmware.git rpi-firmware
+
+git clone git://github.com/lwfinger/rtl8188eu.git rtl8188eu
+
+cd rpi-linux
+
+make mrproper
+
+zcat /proc/config.gz &gt; .config
+
+make modules_prepare
+
+cp ../rpi-firmware/extra/Module.symvers .
+
+cd ../rtl8188eu
+
+CONFIG_RTL8188EU=m make -C ../rpi-linux M=`pwd`
+
+sudo cp rtl8188eufw.bin /lib/firmware/rtlwifi
+
+sudo install -p -m 644 8188eu.ko /lib/modules/`uname -r`/kernel/drivers/net/wireless
+
+sudo insmod /lib/modules/`uname -r`/kernel/drivers/net/wireless/8188eu.ko
+
+sudo depmod -a
+</code></pre>
+
+<h4 id="section-3">验证网卡是否识别</h4>
+
+<p>若上面的命令执行过程没有报错，执行<code>iwconfig</code>的结果如下</p>
+
+<pre><code>wlan0     IEEE 802.11bgn  ESSID:"22_1707"  Nickname:"&lt;WIFI@REALTEK&gt;"
+          Mode:Managed  Frequency:2.457 GHz  Access Point: D4:EE:07:04:0D:E6
+          Bit Rate:150 Mb/s   Sensitivity:0/0
+          Retry:off   RTS thr:off   Fragment thr:off
+          Power Management:off
+ 	         Link Quality=0/100  Signal level=15/100  Noise level=0/100
+ 	         Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+ 	         Tx excessive retries:0  Invalid misc:0   Missed beacon:0
+
+lo        no wireless extensions.
+
+eth0      no wireless extensions.
+</code></pre>
+
+<p>证明无线网卡已被识别，下面我们来配置网络参数。</p>
+
+<h4 id="section-4">配置无线网络参数</h4>
+
+<p>打开/etc/wpa_supplicant/wpa_supplicant.conf文件，添加如下内容</p>
+
+<pre><code>ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="NETWORK_NAME"
+    psk="NETWORK_PASSWORD"
+}
+</code></pre>
+
+<p>上面的方法psk是明文，如果觉得敏感，可以使用下面的命令生成密文</p>
+
+<pre><code>wpa_passphrase ssid pass_phrase
+</code></pre>
+
+<p>输出如下</p>
+
+<pre><code>network={
+        ssid="myrouter"
+        #psk="thisisalongpassphrasenobodycanguess"
+        psk=fd50e5fb2b66493702338dd5175241d2e8dd7dd42fc292bbb7c56b01f9e9fdc0
+} 将输出结果添加到/etc/wpa_supplicant/wpa_supplicant.conf文件。
+</code></pre>
+
+<p>重启网络服务<code>sudo service networking reload</code>后</p>
+
+<p>执行<code>ifconfig</code>，如果wlan0获得IP就可以使用了</p>
+
+<pre><code>wlan0     Link encap:Ethernet  HWaddr 14:cf:92:b5:59:6d
+          inet addr:192.168.199.109  Bcast:192.168.199.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:8805 errors:0 dropped:15 overruns:0 frame:0
+          TX packets:600 errors:0 dropped:0 overruns:0 carrier:0
+ 	      collisions:0 txqueuelen:1000
+          RX bytes:2542242 (2.4 MiB)  TX bytes:82318 (80.3 KiB)
+</code></pre>
+
+<h3 id="section-5">参考阅读</h3>
+<ol>
+  <li><a href="http://smhaziq.blogspot.co.at/2013/06/compiling-tp-link-wn725n-v2-driver-in.html">Compiling TP-LINK WN725N V2 driver in Raspbmc with 3.6.11 kernel</a></li>
+  <li><a href="https://github.com/liwei/rpi-rtl8188eu">Linux driver for tplink-wn725n nano wireless adapter</a></li>
+  <li><a href="http://blog.pi3g.com/2013/10/easy-tp-link-tl-wn725-driver-installation/">Easy TP-Link TL-WN725 driver installation</a></li>
+  <li><a href="http://www.fars-robotics.net/">Fars Robotics Website</a></li>
+  <li><a href="http://undiff.com/2008/08/wireless-with-wpa_supplicant-easier-then-you-think/">Wireless with wpasupplicant easier then you think</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/12/14/tp-link-wn725n-v2-works-on-raspbian/';
+        var disqus_url = 'http://codelife.me/blog/2013/12/14/tp-link-wn725n-v2-works-on-raspbian/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

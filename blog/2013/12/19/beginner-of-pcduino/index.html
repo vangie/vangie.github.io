@@ -1,0 +1,290 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>pcDuino上手记 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pcDuino上手记">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/12/19/beginner-of-pcduino/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/12/19/beginner-of-pcduino/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">pcDuino上手记</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>感谢刘博士送的这块pcDuino板。入Raspberry Pi前，优先考虑过pcDuino。在OSChina源创会上海站被刘博士打动过。买Raspberry Pi是为了DIY一个Mac的Time Capsule。随便Google了一下，找到了Raspberry实现Time Capsule的相关资料，而pcDuino的相关资料没有找到，于是作罢。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-19/pcduinov2.jpg" alt="pcDuino V2" /></p>
+
+<p>由于Raspberry Pi的先入为主，上手pcDuino碰到写问题，下面一一列出</p>
+
+<!--more-->
+
+<h3 id="tf">选什么TF卡</h3>
+<p>关于如何选购Raspberry Pi的SD卡，我好生下了功夫，最后还是有不好收获的。没有话冤枉钱买极速的。</p>
+
+<p><strong>兼容列表</strong> <br />
+pcDuino支持哪些TF卡，网上找不到兼容列表。可能是都支持吧，不需要。</p>
+
+<p><strong>读写速度</strong> <br />
+最大支持到少读写速度也找不到资料。</p>
+
+<p>后来得知板载的2G闪存里内置了ubuntu系统，于是TF卡的问题就先悬着吧，等搞清楚再做决定。</p>
+
+<h3 id="pcduino">启动pcDuino</h3>
+<p>插上网线，pcDuino的网线口比Raspberry Pi的要小巧，但是有些过紧，拔出网线时候要小心，别弄断了。
+插上电源线，指示灯亮了。</p>
+
+<p>没有显示器，IP地址默认应该是DHCP的，先要找到IP地址。</p>
+
+<p><strong>找到IP地址</strong></p>
+
+<pre><code>arp-scan --localnet
+</code></pre>
+
+<p>如果发现主机名ubuntu，那就是了。要是没有就找Unknow的逐个ssh测试，能连接上的就是。</p>
+
+<h3 id="section">初始化系统</h3>
+<p>ssh登录系统以后先执行系统初始化</p>
+
+<pre><code>sudo board-config.sh
+</code></pre>
+
+<h3 id="vim">安装Vim</h3>
+<p>一直不习惯原生的vi，对方向键支持不好。</p>
+
+<pre><code>sudo apt-get install vim
+</code></pre>
+
+<p>安装不成功，返回如下</p>
+
+<pre><code>Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+
+....省去若干行
+
+Failed to fetch http://ports.ubuntu.com/ubuntu-ports/pool/main/p/python2.7/libpython2.7_2.7.3-0ubuntu3.2_armhf.deb  404  Not Found
+E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+</code></pre>
+
+<p>一大堆404，提示先<code>apt-get update</code>,好吧</p>
+
+<pre><code>sudo apt-get update
+</code></pre>
+
+<p>返回如下</p>
+
+<pre><code>....省去若干行
+
+Get:20 http://ports.ubuntu.com precise-updates/universe Translation-en [132 kB]
+Fetched 2681 kB in 21s (123 kB/s)
+Reading package lists... Done
+W: Conflicting distribution: http://www.wiimu.com pcduino Release (expected pcduino but got )
+</code></pre>
+
+<p>编辑器打开<code>/etc/apt/sources.list</code>,注释掉最后两行</p>
+
+<pre><code>#deb http://www.wiimu.com:8020/pcduino/ pcuino main
+#deb-src http://www.wimu.com:8020/pcduion/ pcduino main
+</code></pre>
+
+<p>然后在<code>sudo apt-get update</code>就正常了。</p>
+
+<h3 id="vnc">VNC远程桌面</h3>
+
+<h4 id="vnc-1">设置vnc密码</h4>
+
+<pre><code>sudo x11vnc -storepasswd
+sudo x11vnc -storepasswd in /etc/x11vnc.pass
+sudo cp .vnc/passwd /etc/x11vnc.pass
+</code></pre>
+
+<h4 id="section-1">启动桌面</h4>
+
+<pre><code>sudo start lightdm
+</code></pre>
+
+<h4 id="section-2">连接</h4>
+
+<p>在mac终端敲入</p>
+
+<pre><code>open vnc://&lt;ip_of_pcduino&gt;
+</code></pre>
+
+<h4 id="section-3">已知问题</h4>
+
+<p><code>sudo stop lightdm</code>再次<code>sudo start lightdm</code>启动后，客户端无法连接上VNC服务器。</p>
+
+<h3 id="section-4">参考阅读</h3>
+<ol>
+  <li><a href="http://www.cnblogs.com/iscode/p/3200503.html">pcDuino 刷系统-卡刷</a></li>
+  <li><a href="http://www.cnblogs.com/iscode/p/3200558.html">pcDuino无显示器刷机与使用</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/12/19/beginner-of-pcduino/';
+        var disqus_url = 'http://codelife.me/blog/2013/12/19/beginner-of-pcduino/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

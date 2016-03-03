@@ -1,0 +1,325 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Eclipse插件通过Maven依赖第三方jar包 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Eclipse插件通过Maven依赖第三方jar包">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/09/05/eclipse-plugin-depend-thirdparty-jars-by-maven/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/09/05/eclipse-plugin-depend-thirdparty-jars-by-maven/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Eclipse插件通过Maven依赖第三方jar包</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>Osgi和Maven都分别提供了依赖管理的机制，在Osgi世界可以被依赖的单元称之为Bundle(一种特殊格式的jar)，在Maven世界称之为POM。各自的领域中都是优雅的技术，但是当两者结合在一起，就不那么美好了。</p>
+</blockquote>
+
+<h3 id="tychopluginmaven">tycho让plugin和maven结合在一起</h3>
+
+<p><a href="http://www.eclipse.org/tycho/" title="Building Eclipse plug-ins with maven">tycho</a>可以让一个eclipse plugin项目变成一个maven项目，把maven的自动构建和自动测试的优势带到了plugin项目。但是maven的另一个优势依赖管理并没有能够和plugin项目结合。</p>
+
+<!--more-->
+
+<h3 id="osgi">OSGI如何处理依赖</h3>
+
+<p>先简单介绍一下plugin项目不与maven结合的时候如何处理依赖问题。Eclipse plugin是构建在Osgi技术之上的，或者说Eclipse是Osgi规范的一种实现。</p>
+
+<p>Osgi里每个独立的项目或者jar称之为Bundle，Bundle有生命周期，Osgi平台负责管理Bundle的生命周期状态和依赖关系。和Maven Repository类似，Osgi也有所谓的仓库，<a href="http://ebr.springsource.com/repository/app/" title="Bundle Repository for OSGI">SpringSource Enterprise Bundle Repository</a>和<a href="http://download.eclipse.org/eclipse/updates/4.2/" title="The software repository for the Eclipse Project">Eclipse Project Juno Software Repository</a>就是<a href="http://www.springsource.org/osgi" title="Spring Dynamic Modules">Spring DM</a>和Eclipse为各自的OSGI实现提供的官方仓库。</p>
+
+<p>使用Maven的时候常常会发现总有几个包是仓库里找不到的。Osgi环境下也类似，通常有两种做法：</p>
+
+<ul>
+  <li>通过工具直接把jar包转换成Bundle，Peter Kriens开发的<a href="http://www.aqute.biz/Bnd/Bnd" title="the Swiss army knife of OSGi">Bnd</a>是OSGI里的瑞士军刀。</li>
+  <li>把许多第三方jar嵌入到某个Bundle里，通过Osgi的<code>Export-Package</code>机制，将这些jar包里的类开放出来</li>
+</ul>
+
+<p>Eclipse plugin开发常用后一种方法。但是这些第三方jar包需要单独去下载，对于用惯maven的开发者来说，很难接受。</p>
+
+<p>下面就介绍如何使用maven技术来构建这个jar包集bundle,我们将使用一个由<a href="http://felix.apache.org">Apache Felix</a>项目提供的maven插件<a href="http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html" title="Bundle Plugin for Maven">maven-bundle-plugin</a></p>
+
+<h3 id="maven-bundle-pluginbundle">通过maven-bundle-plugin包含第三方依赖的Bundle</h3>
+
+<p><a href="http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html" title="Bundle Plugin for Maven">maven-bundle-plugin</a>提供了详尽的文档和示例关于如何使用该maven插件，这里就不啰嗦了，直接贴出好用的pom文件片段吧</p>
+
+<pre><code>&lt;project 
+xmlns="http://maven.apache.org/POM/4.0.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+	
+	...
+
+	&lt;dependencies&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;com.fasterxml.jackson.core&lt;/groupId&gt;
+			&lt;artifactId&gt;jackson-databind&lt;/artifactId&gt;
+			&lt;version&gt;2.0.5&lt;/version&gt;
+		&lt;/dependency&gt;	
+	&lt;/dependencies&gt;
+
+
+	&lt;build&gt;
+		&lt;plugins&gt;
+			&lt;plugin&gt;
+				&lt;groupId&gt;org.apache.felix&lt;/groupId&gt;
+				&lt;artifactId&gt;maven-bundle-plugin&lt;/artifactId&gt;
+				&lt;version&gt;2.1.0&lt;/version&gt;
+				&lt;extensions&gt;true&lt;/extensions&gt;
+				&lt;configuration&gt;
+					&lt;manifestLocation&gt;META-INF&lt;/manifestLocation&gt;
+					&lt;instructions&gt;
+						&lt;Bundle-SymbolicName&gt;${project.artifactId}&lt;/Bundle-SymbolicName&gt;
+						&lt;Bundle-RequiredExecutionEnvironment&gt;
+							J2SE-1.5
+						&lt;/Bundle-RequiredExecutionEnvironment&gt;
+						&lt;Embed-Dependency&gt;
+							*;scope=compile|runtime;inline=false
+						&lt;/Embed-Dependency&gt;
+						&lt;_exportcontents&gt;
+							com.fasterxml.jackson.core.*,
+							com.fasterxml.jackson.databind.*,
+							com.fasterxml.jackson.annotation.*
+						&lt;/_exportcontents&gt;
+						&lt;Bundle-ClassPath&gt;.,{maven-dependencies}&lt;/Bundle-ClassPath&gt;
+						&lt;Embed-Transitive&gt;true&lt;/Embed-Transitive&gt;
+						&lt;Embed-Directory&gt;jars&lt;/Embed-Directory&gt;
+						&lt;Embed-StripGroup&gt;true&lt;/Embed-StripGroup&gt;
+						&lt;_failok&gt;true&lt;/_failok&gt;
+						&lt;_nouses&gt;true&lt;/_nouses&gt;
+					&lt;/instructions&gt;
+				&lt;/configuration&gt;
+			&lt;/plugin&gt;
+			&lt;plugin&gt;
+				&lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+				&lt;executions&gt;
+		
+					&lt;execution&gt;
+						&lt;id&gt;copy-dependencies&lt;/id&gt;
+						&lt;phase&gt;package&lt;/phase&gt;
+						&lt;goals&gt;
+							&lt;goal&gt;copy-dependencies&lt;/goal&gt;
+						&lt;/goals&gt;
+						&lt;configuration&gt;
+							&lt;outputDirectory&gt;jars&lt;/outputDirectory&gt;
+						&lt;/configuration&gt;
+					&lt;/execution&gt;
+				&lt;/executions&gt;
+			&lt;/plugin&gt;
+		&lt;/plugins&gt;
+		&lt;pluginManagement&gt;
+			&lt;plugins&gt;
+				&lt;!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. --&gt;
+				&lt;plugin&gt;
+					&lt;groupId&gt;org.eclipse.m2e&lt;/groupId&gt;
+					&lt;artifactId&gt;lifecycle-mapping&lt;/artifactId&gt;
+					&lt;version&gt;1.0.0&lt;/version&gt;
+					&lt;configuration&gt;
+						&lt;lifecycleMappingMetadata&gt;
+							&lt;pluginExecutions&gt;
+								&lt;pluginExecution&gt;
+									&lt;pluginExecutionFilter&gt;
+										&lt;groupId&gt;
+											org.apache.maven.plugins
+										&lt;/groupId&gt;
+										&lt;artifactId&gt;
+											maven-dependency-plugin
+										&lt;/artifactId&gt;
+										&lt;versionRange&gt;
+											[2.1,)
+										&lt;/versionRange&gt;
+										&lt;goals&gt;
+											&lt;goal&gt;
+												copy-dependencies
+											&lt;/goal&gt;
+										&lt;/goals&gt;
+									&lt;/pluginExecutionFilter&gt;
+									&lt;action&gt;
+										&lt;execute&gt;&lt;/execute&gt;
+									&lt;/action&gt;
+								&lt;/pluginExecution&gt;
+							&lt;/pluginExecutions&gt;
+						&lt;/lifecycleMappingMetadata&gt;
+					&lt;/configuration&gt;
+				&lt;/plugin&gt;
+			&lt;/plugins&gt;
+		&lt;/pluginManagement&gt;
+	&lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>一些说明，这个pom会生成Osgi的描述文件<code>META-INF/MANIFEST.MF</code>,但是不会将jars目录下的jar加到<code>Referenced Libraries</code>里去，虽然<code>Maven Dependencies</code>里有，但是仍然会导致PDE编辑器对<code>Export-Package</code>段的校验报错。所以需要在PDE编辑器<code>Runtime-&gt;Classpath</code>里把jar全部删掉，再重新添加一次。</p>
+
+<h4 id="section">参考文献</h4>
+
+<ol>
+  <li><a href="http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html">Bundle Plugin for Maven</a></li>
+  <li><a href="http://maxrohde.com/2010/12/02/%E2%80%9Cno-required-execution-environment-has-been-set%E2%80%9D-from-maven-bundle-plugin/">No required execution environment has been set” from Maven Bundle Plugin</a></li>
+  <li><a href="http://maven.apache.org/plugins/maven-dependency-plugin/copy-dependencies-mojo.html">Maven Dependency plugin &gt; dependency:copy-dependencies</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/09/05/eclipse-plugin-depend-thirdparty-jars-by-maven/';
+        var disqus_url = 'http://codelife.me/blog/2012/09/05/eclipse-plugin-depend-thirdparty-jars-by-maven/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

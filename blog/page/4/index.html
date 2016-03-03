@@ -1,0 +1,660 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code Life">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/page/4/index.html">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/page/4/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+    
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/09/16/how-to-create-temporary-random-file-name-in-bash/" rel="bookmark" title="Bash如何创建随机文件名" itemprop="url">Bash如何创建随机文件名</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-09-16T23:50:00+08:00">
+            September 16, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>本文介绍3种不同的方法创建随机缓存文件名。在编写需要创建唯一的缓存文件的脚本时非常有用。</p>
+</blockquote>
+
+<h3 id="random-shell">1.使用$RANDOM shell变量</h3>
+
+<p>在控制台执行如下命令</p>
+
+<pre><code>echo $RANDOM
+</code></pre>
+
+<p>每次都获得一个随机数，借用这个变量可用来生成一个随机的文件名</p>
+
+<pre><code>#!/bin/bash
+echo "List of temporary files : "
+for i  in 1 2 3 4 5
+do
+   		FILE="/tmp/$(basename $0).$RANDOM.txt"
+   		echo $FILE # show file name
+   		&gt; $FILE # create files
+done 
+</code></pre>
+
+<h3 id="section">2.使用$$变量</h3>
+<p>这是一个经典的方法，$$变量返回当前进程的进程号，对于整个系统来说这是一个唯一数字。</p>
+
+<pre><code>#!/bin/bash
+TFILE="/tmp/$(basename $0).$$.tmp"
+ls &gt; $TFILE
+echo "See diretory listing in $TFILE"
+</code></pre>
+
+<h3 id="mktemptempfile">3.使用mktemp和tempfile命令</h3>
+<p>通过mktemp和tempfile命令是最佳的方式</p>
+
+<pre><code>$ mktemp
+</code></pre>
+
+<p>输出</p>
+
+<pre><code>/tmp/tmp.IAnO5O
+</code></pre>
+
+<p>或者</p>
+
+<pre><code>$ tempfile
+</code></pre>
+
+<p>输出</p>
+
+<pre><code>/tmp/IAnO5O
+</code></pre>
+
+<p>当然还能生成随机文件夹</p>
+
+<pre><code>$ mktemp -d
+$ tempfile -d
+</code></pre>
+
+<h3 id="section-1">参考阅读</h3>
+<ol>
+  <li><a href="http://www.cyberciti.biz/tips/shell-scripting-bash-how-to-create-temporary-random-file-name.html">Shell scripting (BASH) : How to create temporary random file name</a></li>
+</ol>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/09/12/reverse-proxy-for-a-subdirectory-in-nginx/" rel="bookmark" title="Nginx反向代理映射成子路径" itemprop="url">Nginx反向代理映射成子路径</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-09-12T17:41:00+08:00">
+            September 12, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>终于搞定了困扰已久的nginx反向代理子路径映射问题</p>
+</blockquote>
+
+<p>多个web应用共享一个域名和端口时，可以考虑把不同的web应用映射成不同的子路径，这个子路径在Java EE里称作ContextPath。下面的配置片段解决nginx作为前端，反向代理多个tomcat主机，通过不同子路径共享一个域名的情况。</p>
+
+<pre><code>server {
+    listen       80;
+    server_name  _;
+    index index.html index.htm index.php;
+    root /home/dashboard;
+
+    location /dashboard {
+     	rewrite /dashboard/(.*) /$1 break;
+      	rewrite ^/dashboard$ /dashboard/ permanent;
+      	proxy_pass http://127.0.0.1:9082;
+      	proxy_redirect off;
+      	proxy_set_header Host $host;
+      	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	}
+}
+</code></pre>
+
+<h3 id="section">参考阅读</h3>
+
+<ol>
+  <li><a href="http://wiki.apache.org/couchdb/Nginx_As_a_Reverse_Proxy">Nginx_As_a_Reverse_Proxy</a></li>
+  <li><a href="http://superuser.com/questions/603373/how-do-i-reverse-proxy-etherpad-lite-with-nginx-to-a-subdirectory">How do I reverse proxy etherpad-lite with nginx to a subdirectory</a></li>
+</ol>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/09/02/extend-Backbone.Router-to-support-window.history.back/" rel="bookmark" title="扩展Backbone.Router以支持window.history.back" itemprop="url">扩展Backbone.Router以支持window.history.back</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-09-02T21:37:00+08:00">
+            September 02, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>web应用程序重要的功能的URL通过需要达到可访问，可收藏和可分享的需求。Backbone.Router正是检测客户端url变化触发相应动作和事件的实现框架。对于没有实现HTML5 History API的浏览器，Router提供了优雅和透明的兼容实现，通过控制hash的变化。</p>
+</blockquote>
+
+<h3 id="route">Route的例子</h3>
+
+<pre><code>var Workspace = Backbone.Router.extend({
+</code></pre>
+
+  		routes: {
+<pre><code>		"help":                 "help",    // #help
+		"search/:query":        "search",  // #search/kiwis
+		"search/:query/p:page": "search"   // #search/kiwis/p7
+  		},
+</code></pre>
+
+  		help: function() {
+<pre><code>		...
+  		},
+</code></pre>
+
+  		search: function(query, page) {
+<pre><code>		...
+  		}
+
+});
+</code></pre>
+
+
+		<a href="/blog/2013/09/02/extend-Backbone.Router-to-support-window.history.back/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/" rel="bookmark" title="在backbonejs里使用coffeescript实现mixin" itemprop="url">在backbonejs里使用coffeescript实现mixin</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-07-26T09:08:00+08:00">
+            July 26, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Mixin和Inheritance是两种主要的代码复用和封装的方式。Java流行的时候，大家都努力的把javascript写得像java，各大框架努力给javascript加上类继承的特性。当下是Ruby春暖花开的日子，coffeescript让开发者可以以更ruby的方式写js。javascript在不同的时期能适应潮流，足以见得原型链继承型语言的强大之处。</p>
+</blockquote>
+
+<h3 id="coffeescriptmixin">用coffeescript实现Mixin</h3>
+<p>Coffescript原生并不支持Mixin，《CoffeeScript小书》第三章提到一种Mixin的实现方式</p>
+
+<p>```coffeescript
+moduleKeywords = [‘extended’, ‘included’]</p>
+
+<p>class Module
+  @extend: (obj) -&gt;
+    for key, value of obj when key not in moduleKeywords
+      @[key] = value</p>
+
+<pre><code>obj.extended?.apply(@)
+this
+</code></pre>
+
+<p>@include: (obj) -&gt;
+    for key, value of obj when key not in moduleKeywords
+      # Assign properties to the prototype
+      @::[key] = value</p>
+
+<pre><code>obj.included?.apply(@)
+this ```
+</code></pre>
+
+
+		<a href="/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/07/01/making-eclipse-most-recently-used-tab-visible/" rel="bookmark" title="让Eclipse最近使用的标签页显示在标签栏" itemprop="url">让Eclipse最近使用的标签页显示在标签栏</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-07-01T14:00:00+08:00">
+            July 01, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>当打开文件数量很多时，Eclipse编辑器的标签栏右边会出现一个菜单，把标签栏显示不下的标签页放到一个下拉菜单里，这是一个不错的设计，解决了标签页过多以后标签栏显示不下的问题。（Chrome 的标签页显示采用了另外一种方式，缩写标签页的宽度，以容纳更多的标签页，这种方式对于eclipse不可取，因为网页标签可以借助favicon来区分，而文件标签依赖文件名区分，文件名往往比图标长得多。） Indigo之前版本的eclipse显示标签页采用MRU（Most recently Used）算法来决定标签页的顺序，效果是最近使用过的标签页相对排在前面，显示在标签栏上，很久没有使用过的标签页显示在菜单里。从Eclipse Juno开始标签页的排序算法变了，找到最近打开的标签页变得不方便。</p>
+</blockquote>
+
+<p>Eclipse Juno的界面样式引入了CSS样式表，SWT的界面元素也可以像网页元素一样，方便的通过CSS进行调整。SWT在CSS规范的基础上进行了一下扩展，引入了一些“swt-”为前缀的属性，用于精细化调整界面里控件元素的显示样式。</p>
+
+<p>其中，<code>swt-mru-visible</code>就是一个可以开启MRU算法排序的样式。</p>
+
+
+		<a href="/blog/2013/07/01/making-eclipse-most-recently-used-tab-visible/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/06/25/upgrade-git-on-centos-6-4/" rel="bookmark" title="CentOS 6.4升级Git" itemprop="url">CentOS 6.4升级Git</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-06-25T23:42:00+08:00">
+            June 25, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>GitHub和许多Git服务依赖的Git版本不低于1.7.10，而CentOS 6.4通过epel安装的git版本为1.7.1。rpmforge源里的二进制包比epel更新，本文介绍如果通过epel源升级git到1.7.11版本。</p>
+</blockquote>
+
+<h3 id="rpmforge">安装rpmforge源</h3>
+
+<pre><code># rpm -i http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+</code></pre>
+
+<p>安装证书</p>
+
+<pre><code># rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt
+</code></pre>
+
+<p>更新rpmforge-extra源</p>
+
+<pre><code># yum --enablerepo=rpmforge-extras update
+</code></pre>
+
+
+		<a href="/blog/2013/06/25/upgrade-git-on-centos-6-4/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/06/25/setup-pptp-vpn-client-in-centos-6/" rel="bookmark" title="CentOS 6下配置PPTP VPN客户端" itemprop="url">CentOS 6下配置PPTP VPN客户端</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-06-25T21:34:00+08:00">
+            June 25, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>国内网络环境下载rubygems那叫一个痛苦，最近把https改成http也不好用了。百般无耐，考虑在服务器环境下装个PPTP Client连接国外的PPTPD服务。</p>
+</blockquote>
+
+<h3 id="pptppptp-setup">安装pptp和pptp-setup</h3>
+<p>pptp就不用解释了，pptp-setup是一个设置脚本，通过该脚本可以使用方便地进行初始化设置，生成配置文件。</p>
+
+<pre><code># yum install pptp pptp-setup
+</code></pre>
+
+<h3 id="section">创建配置</h3>
+
+<pre><code># pptpsetup --create codelife --server vpn.codelife.me \
+--username codelife --password me --encrypt
+</code></pre>
+
+
+		<a href="/blog/2013/06/25/setup-pptp-vpn-client-in-centos-6/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/06/20/jailbreak-kindle-paperwhite-and-install-koreader/" rel="bookmark" title="Kindle Paperwhite越狱和安装KOReader" itemprop="url">Kindle Paperwhite越狱和安装KOReader</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-06-20T00:42:00+08:00">
+            June 20, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>亚马逊中国的kindle paperwhite开卖了，与之前坊间谣传的500块的价格相比，849元真的很不给力。正好碰上有个朋友去日本，托人捎了台过来，￥7980，是日元，折合人民币550左右。kindle paperwhite的屏幕已经比较细腻了，翻页时屏幕依然闪烁，电子墨水的通病。但是这个版本的kindle已经内置了光源，一个非常人性化的功能，这么多年以后才加有，不知道亚马逊怎么想的。亚马逊的用户体验那个差呀，不知道是不是老外的思维和我们不一样，反正个人觉得京东和淘宝的页面看上去要顺眼得多。</p>
+</blockquote>
+
+<p>Kindle支持阅读PDF文档，只是效果不怎么好，特别显示扫描版本时。Kindle PaperWhite可以安装第三方的KOReader阅读器改进PDF文档的阅读体验，KOReader支持多种电子书格式，包括DJVU，FB2，EPUB，TXT，CBZ，HTML。在PDF显示方面KOreader得益于开源项目<a href="http://www.willus.com/k2pdfopt/">K2pdfopt</a>。</p>
+
+<p>K2pdfopt也是为了解决PDF文档在小屏幕Kindle上阅读的排版问题而开发的。与其它PDF预处理软件相比，它有很多独一无二的特性，比如自动化程度很高，能够自动识别多栏排版的文档进行分栏，自动去除页面白边，自动对扫描文档进行水平校正，以及最重要的基于图像分割的重排版算法。</p>
+
+<p>K2pdfopt使用完全基于图像处理的方法对文字重新排版，软件处理时会把原始PDF/DJVU页面放大再分割成以词为单位的像素区域，把这些像素区域重新排列到目标宽度的页面中，所以理论上只要能够读取文档的页面像素就可以对其中的文字进行重新排版。这个算法的前提是页面中的文字之间需要有一定的空隙，以提供分割像素区域的位点。</p>
+
+<p>K2pdfopt被移植到Koreader/Kindlepdfviewer以后就可以在阅读时让PDF重新排版。实时重排可以省去电脑上处理PDF的步骤，并且可以在kindle上交互式地微调排版参数，尽可能地生成满意的排版。使用Koreader的重排模式阅读时，软件会自动把当前页和下一页重排版成适应屏幕的尺寸。</p>
+
+<p>安装KOrader需要先越狱，然后安装KPVBooklet。具体步骤如下</p>
+
+
+		<a href="/blog/2013/06/20/jailbreak-kindle-paperwhite-and-install-koreader/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/06/13/needham-schroeder-protocol/" rel="bookmark" title="Needham-Schroeder协议" itemprop="url">Needham-Schroeder协议</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-06-13T22:23:00+08:00">
+            June 13, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>最近学习了一些账户登录和验证相关的知识，了解了OpenId机制的一些技术细节，发现OpenId的验证机制和某些基于Web的SSO验证机制非常类似，但不知道这些验证机制的原型和出处，于是开始转向学习Kerberos - Unix平台上一个老牌的单点登录验证系统。在《Kerberos权威指南》里找到了“Needham-Schroeder协议”,虽然不知道这个协议与其后出现的Web SSO和OpenId有没有渊源，但是学习这个协议对于理解SSO非常有帮助。</p>
+</blockquote>
+
+<h3 id="section">借助受信任的第三方相互验证</h3>
+
+<p>《在大型计算机网络中使用加密身份验证》是Roger Needham和Michael Schroeder 1978年在施乐帕罗奥多研究中心（当年乔布斯偷师的地方）工作时发表的一篇论文。该论文讨论了在非安全网络环境下，通讯双方如果借助一个共同信任的第三方相互验证的方法。</p>
+
+<p>协议假设有三方参与，一个客户机，一个应用服务器和一个验证服务器。客户机可以是某台请求验证的机器，通常是个人电脑。服务器提供客户机希望访问的服务，比如邮件服务。而验证服务器是一台专门的服务器，用于存储网络上用户和服务器的密钥（受信任的第三方）。</p>
+
+
+		<a href="/blog/2013/06/13/needham-schroeder-protocol/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/" rel="bookmark" title="使用NodeJs开发微信公众平台账号" itemprop="url">使用NodeJs开发微信公众平台账号</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2013-04-23T16:25:00+08:00">
+            April 23, 2013
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>微信越来越火，信息、语音短信、视频电话等非常实用OTT业务加上QQ好友和通讯录的导入一时间吸引了大量的用户。前段时间各大运营商开始吵着要收微信的费用。所谓“发现即晚期”，当运营商发现苗条不对的时候，已经来不及了。微信除了提供了好用的通讯替代功能，还是一个可扩展的平台，比如：微信公众平台，一种账号层面的扩展，可以理解为一种微信的公众账号区别于个人账号，通常可作为一种的资讯发布渠道，也可被实现成机器人程序与用户互动。本文介绍如何基于微信公众平台的Open API使用NodeJs开发一个HelloWord程序。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-04-23/nodejs_weichat.png" alt="Nodejs + WeiChat" /></p>
+
+
+		<a href="/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+
+<div class="pagination">
+  
+    
+      <a href="/blog/page/3" class="btn">Previous</a>
+    
+  
+  <ul class="inline-list">
+    <li>
+      
+        <a href="/">1</a>
+      
+    </li>
+    
+      <li>
+        
+          <a href="/blog/page/2">2</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <span class="current-page">4</span>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/5">5</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/6">6</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/7">7</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/8">8</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/9">9</a>
+        
+      </li>
+    
+  </ul>
+  
+    <a href="/blog/page/5" class="btn">Next</a>
+  
+</div><!-- /.pagination -->
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

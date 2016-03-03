@@ -1,0 +1,253 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>java.util.zip & Servlet实现动态打包网络传输 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java.util.zip & Servlet实现动态打包网络传输">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2006/03/24/servlet-response-zip-outputstream/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2006/03/24/servlet-response-zip-outputstream/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">java.util.zip & Servlet实现动态打包网络传输</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>建space以来来,第一次写技术文章,见笑</p>
+</blockquote>
+
+<h3 id="section">问题</h3>
+<p>我在写一个基于jsp/servlet的web应用程序,其中客户有一个需求,批量下载文件,当然首先需要先用java.util.zip打包(除了打包,没想到其他方法).
+由于是事先不知道客户要下哪个目录下的文件,并且文件目录下的文件也是会变的,所有要求动态的打包.</p>
+
+<h3 id="section-1">方案</h3>
+<p>有两种方案</p>
+
+<ol>
+  <li>先将选定的的文件,打包放入临时文件夹,再让用户下载.</li>
+  <li>将选定的文件,边打包,边下载.</li>
+</ol>
+
+<h3 id="section-2">难点</h3>
+<ol>
+  <li>由于基于http协议的web是无连接的,将文件提供给用户下载,用户什么时候下载完成,服务器无法知道.而临时文件夹空间也是有限的,所以web服务器要把生成的zip文件删除.但要捕获到用户下载完成比较难.特别是文件传输中,用户突然把浏览器关闭.</li>
+  <li>平常我们用zip类都是通过FileOutPutStream向磁盘写文件,没有通过网络向客户端写文件的,当然也不是说不可以,think in java中文第二版438页就说到”GZIP和ZIP程序库并非只能用来处理文件的压缩－他们当然可以压缩任何形式的数据，包括即将被传送至网络连线的数据。”,遗憾的是Bruce Eckel没有留下事例代码.</li>
+</ol>
+
+<h3 id="section-3">解决</h3>
+<ol>
+  <li>其实要删除文件也不是没有方法,用Session Tracking,实现HttpSessionBindingListener接口的valueUnbound方法在移除session对象的时候web服务器会自动调用这个方法,可以在这里删除临时生成的文件.(由于比较烦琐,所以没有实现,改用第二种方案)</li>
+  <li>通过HttpServletResponse的getOutputStream()方法获得ServletOutputStream,然后再得到ZipOutputStream对象就可以了,其他的和普通的文件读写一样. <br />
+源代码:</li>
+</ol>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">package</span> <span class="n">done</span><span class="o">.</span><span class="na">servlet</span><span class="o">;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">java.util.zip.*</span><span class="o">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">javax.servlet.*</span><span class="o">;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kn">import</span> <span class="nn">javax.servlet.http.*</span><span class="o">;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ZipDownLoad</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="cm">/**</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * Handles GET requests</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> */</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//设置响应头,MIMEtype告诉浏览器传送的文件类型</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">response</span><span class="o">.</span><span class="na">setContentType</span><span class="o">(</span> <span class="s">&quot;application/x-zip-compressed&quot;</span> <span class="o">);</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//inline;参数让浏览器弹出下载窗口,而不是在网页中打开文件.filename设定文件名</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">response</span><span class="o">.</span><span class="na">setHeader</span><span class="o">(</span> <span class="s">&quot;Content-Disposition&quot;</span> <span class="o">,</span> <span class="s">&quot;inline; filename=download.zip&quot;</span> <span class="o">);</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//通过response获得ServletOutputStream对象</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">ServletOutputStream</span> <span class="n">sos</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">();</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//获得ZipOutputStream对象</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">ZipOutputStream</span> <span class="n">out</span><span class="o">=</span><span class="k">new</span> <span class="nf">ZipOutputStream</span><span class="o">(</span><span class="k">new</span> <span class="nf">BufferedOutputStream</span><span class="o">(</span><span class="n">sos</span><span class="o">));</span>  
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//得到要下载的文件对象</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">BufferedInputStream</span> <span class="n">in</span><span class="o">=</span><span class="k">new</span> <span class="nf">BufferedInputStream</span><span class="o">(</span><span class="k">new</span> <span class="nf">FileInputStream</span><span class="o">(</span><span class="s">&quot;c:\\grub.exe&quot;</span><span class="o">));</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//在zip文件中新建一个grub.exe文件</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">out</span><span class="o">.</span><span class="na">putNextEntry</span><span class="o">(</span><span class="k">new</span> <span class="nf">ZipEntry</span><span class="o">(</span><span class="s">&quot;grub.exe&quot;</span><span class="o">));</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">//逐字读出写入</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kt">int</span> <span class="n">c</span><span class="o">;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">while</span><span class="o">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">read</span><span class="o">())!=-</span><span class="mi">1</span><span class="o">)&#x7b;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">   <span class="n">out</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">c</span><span class="o">);</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="o">&#x7d;</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">in</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span> <span class="c1">//这里一句一定要,要不就会打开文件出错</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="o">&#x7d;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="cm">/**</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * Handles POST requests</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> */</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">response</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span><span class="o">,</span> <span class="n">IOException</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">this</span><span class="o">.</span><span class="na">doGet</span><span class="o">(</span><span class="n">request</span><span class="o">,</span><span class="n">response</span><span class="o">);</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="o">&#x7d;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="cm">/**</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * Destroy the servlet</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> */</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="kd">public</span> <span class="kt">void</span>  <span class="nf">destroy</span> <span class="o">()</span> <span class="o">&#x7b;</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line"> <span class="o">&#x7d;</span>
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="o">&#x7d;</span></div></div></pre></div></figure>
+<p>### 参考
+1. <a href="http://www.it023.com/software/develop/program/java/2004-04-06/1081241135d12639.html">使用Java实现网络传输数据的压缩</a>
+2. <a href="http://www.dwww.cn/new/2006391954281269.html">jspSmartUpload上传组件</a>
+3. Thinking in Java 中文第二版</p>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2006/03/24/servlet-response-zip-outputstream/';
+        var disqus_url = 'http://codelife.me/blog/2006/03/24/servlet-response-zip-outputstream/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

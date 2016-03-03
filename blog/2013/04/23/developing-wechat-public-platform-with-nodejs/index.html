@@ -1,0 +1,330 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>使用NodeJs开发微信公众平台账号 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用NodeJs开发微信公众平台账号">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">使用NodeJs开发微信公众平台账号</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>微信越来越火，信息、语音短信、视频电话等非常实用OTT业务加上QQ好友和通讯录的导入一时间吸引了大量的用户。前段时间各大运营商开始吵着要收微信的费用。所谓“发现即晚期”，当运营商发现苗条不对的时候，已经来不及了。微信除了提供了好用的通讯替代功能，还是一个可扩展的平台，比如：微信公众平台，一种账号层面的扩展，可以理解为一种微信的公众账号区别于个人账号，通常可作为一种的资讯发布渠道，也可被实现成机器人程序与用户互动。本文介绍如何基于微信公众平台的Open API使用NodeJs开发一个HelloWord程序。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-04-23/nodejs_weichat.png" alt="Nodejs + WeiChat" /></p>
+
+<!--more-->
+<p>### 开启开发模式</p>
+
+<p>前往http://mp.weixin.qq.com 注册一个公众平台账号，注册过程与通常无异。激活并登录账号，前往【高级功能】开启【开发模式】（开启之前要确保头像已上传）。</p>
+
+<h4 id="section">接口配置信息</h4>
+<p>接口配置信息用于公众平台与应用程序之间相互验证。
+假设配置信息如下</p>
+
+<pre><code>URL:	http://mydomain.com/weixin
+Tokan:	balabala
+</code></pre>
+
+<p>在提交该信息之前需要先保证该URL已经可访问，</p>
+
+<h3 id="expressjswebserver">使用ExpressJs编写一个WebServer</h3>
+
+<h4 id="serverjs">server.js</h4>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">//setup Dependencies</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">connect</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;connect&#39;</span><span class="p">)</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">,</span> <span class="nx">express</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;express&#39;</span><span class="p">)</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">,</span> <span class="nx">io</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;socket.io&#39;</span><span class="p">)</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">,</span> <span class="nx">weixin</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./lib/weixin&#39;</span><span class="p">)</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">,</span> <span class="nx">xmlBodyParser</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./lib/xmlBodyParser&#39;</span><span class="p">)</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">,</span> <span class="nx">port</span> <span class="o">=</span> <span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORT</span> <span class="o">||</span> <span class="mi">80</span><span class="p">);</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">//Setup Express</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">createServer</span><span class="p">();</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">server</span><span class="p">.</span><span class="nx">configure</span><span class="p">(</span><span class="kd">function</span><span class="p">()&#x7b;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">connect</span><span class="p">.</span><span class="nx">bodyParser</span><span class="p">());</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">xmlBodyParser</span><span class="p">);</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">connect</span><span class="p">.</span><span class="nx">bodyParser</span><span class="p">());</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">cookieParser</span><span class="p">());</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">session</span><span class="p">(&#x7b;</span> <span class="nx">secret</span><span class="o">:</span> <span class="s2">&quot;shhhhhhhhh!&quot;</span><span class="p">&#x7d;));</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">connect</span><span class="p">.</span><span class="kr">static</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/static&#39;</span><span class="p">));</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">server</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">server</span><span class="p">.</span><span class="nx">router</span><span class="p">);</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="s1">&#39;mydomain.com&#39;</span><span class="p">);</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">//Setup Socket.IO</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">io</span> <span class="o">=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">server</span><span class="p">);</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">io</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;connection&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">socket</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Client Connected&#39;</span><span class="p">);</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">socket</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;server_message&#39;</span><span class="p">,</span><span class="nx">data</span><span class="p">);</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="s1">&#39;server_message&#39;</span><span class="p">,</span><span class="nx">data</span><span class="p">);</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">socket</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;disconnect&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()&#x7b;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Client Disconnected.&#39;</span><span class="p">);</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;);</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;);</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">server</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/weixin&#39;</span><span class="p">,</span> <span class="nx">weixin</span><span class="p">.</span><span class="nx">doGet</span><span class="p">);</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">server</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/weixin&#39;</span><span class="p">,</span> <span class="nx">weixin</span><span class="p">.</span><span class="nx">doPost</span><span class="p">);</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Listening on http://mydomain.com:&#39;</span> <span class="o">+</span> <span class="nx">port</span> <span class="p">);</span></div></div></pre></div></figure>
+
+<h4 id="libxmlbodyparserjs">lib/xmlBodyParser.js</h4>
+<p>这是一个处理xml请求的工具包，expressJs默认值不解析MIME类型为text/xml类型的请求。</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">xml2js</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;xml2js&#39;</span><span class="p">);</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">function</span> <span class="nx">mime</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">str</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;content-type&#39;</span><span class="p">]</span> <span class="o">||</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">str</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">xmlBodyParser</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">_body</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">||</span> <span class="p">&#x7b;&#x7d;;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// ignore GET</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;GET&#39;</span> <span class="o">==</span> <span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="o">||</span> <span class="s1">&#39;HEAD&#39;</span> <span class="o">==</span> <span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="p">)</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// check Content-Type</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;text/xml&#39;</span> <span class="o">!=</span> <span class="nx">mime</span><span class="p">(</span><span class="nx">req</span><span class="p">))</span> <span class="k">return</span> <span class="nx">next</span><span class="p">();</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// flag as parsed</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">req</span><span class="p">.</span><span class="nx">_body</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// parse</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">buf</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">req</span><span class="p">.</span><span class="nx">setEncoding</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">chunk</span><span class="p">)&#x7b;</span> <span class="nx">buf</span> <span class="o">+=</span> <span class="nx">chunk</span> <span class="p">&#x7d;);</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">req</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()&#x7b;</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="kd">var</span> <span class="nx">parseString</span> <span class="o">=</span> <span class="nx">xml2js</span><span class="p">.</span><span class="nx">parseString</span><span class="p">;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">parseString</span><span class="p">(</span><span class="nx">buf</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">json</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">err</span><span class="p">.</span><span class="nx">status</span> <span class="o">=</span> <span class="mi">400</span><span class="p">;</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">next</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span> <span class="k">else</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">req</span><span class="p">.</span><span class="nx">body</span> <span class="o">=</span> <span class="nx">json</span><span class="p">;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">                <span class="nx">next</span><span class="p">();</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">&#x7d;</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;);</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;);</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span></div></div></pre></div></figure>
+
+<h4 id="libweixinjs">lib/weixin.js</h4>
+<p>处理来自微信公众平台的get和post请求。</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">almanac</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./almanac&#39;</span><span class="p">),</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">crypto</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;crypto&#39;</span><span class="p">),</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">util</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;util&#39;</span><span class="p">),</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">xmlbuilder</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;xmlbuilder&#39;</span><span class="p">);</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">exports</span><span class="p">.</span><span class="nx">doGet</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">checkSource</span><span class="p">(</span><span class="nx">req</span><span class="p">))&#x7b;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span><span class="p">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">echostr</span><span class="p">);</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">exports</span><span class="p">.</span><span class="nx">doPost</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">checkSource</span><span class="p">(</span><span class="nx">req</span><span class="p">))&#x7b;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">xml</span> <span class="o">=</span> <span class="nx">buildXml</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">FromUserName</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">ToUserName</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">xml</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">return</span> <span class="nx">xml</span><span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;Content&#39;</span><span class="p">)</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">            <span class="p">.</span><span class="nx">dat</span><span class="p">(</span><span class="s1">&#39;hello world&#39;</span><span class="p">);</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;);</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">xml</span><span class="p">);</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">res</span><span class="p">.</span><span class="nx">contentType</span><span class="p">(</span><span class="s1">&#39;text/xml&#39;</span><span class="p">);</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">xml</span><span class="p">,</span> <span class="mi">200</span><span class="p">);</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">function</span> <span class="nx">checkSource</span><span class="p">(</span><span class="nx">req</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">signature</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">signature</span><span class="p">,</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">timestamp</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">timestamp</span><span class="p">,</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">nonce</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">nonce</span><span class="p">,</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">shasum</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">),</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;balabala&#39;</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">,</span> <span class="nx">nonce</span><span class="p">];</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">shasum</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">arr</span><span class="p">.</span><span class="nx">sort</span><span class="p">().</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">),</span><span class="s1">&#39;utf-8&#39;</span><span class="p">);</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">shasum</span><span class="p">.</span><span class="nx">digest</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="nx">signature</span><span class="p">;</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span>
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">function</span> <span class="nx">buildXml</span><span class="p">(</span><span class="nx">to</span><span class="p">,</span> <span class="nx">from</span><span class="p">,</span> <span class="nx">msgType</span><span class="p">,</span> <span class="nx">funFlag</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)&#x7b;</span>
+</div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">xml</span> <span class="o">=</span> <span class="nx">xmlbuilder</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="s1">&#39;xml&#39;</span><span class="p">)</span>
+</div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;ToUserName&#39;</span><span class="p">)</span>
+</div></div><div data-line="49" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">dat</span><span class="p">(</span><span class="nx">to</span><span class="p">)</span>
+</div></div><div data-line="50" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">up</span><span class="p">()</span>
+</div></div><div data-line="51" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;FromUserName&#39;</span><span class="p">)</span>
+</div></div><div data-line="52" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">dat</span><span class="p">(</span><span class="nx">from</span><span class="p">)</span>
+</div></div><div data-line="53" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">up</span><span class="p">()</span>
+</div></div><div data-line="54" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;CreateTime&#39;</span><span class="p">)</span>
+</div></div><div data-line="55" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">txt</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">getMilliseconds</span><span class="p">())</span>
+</div></div><div data-line="56" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">up</span><span class="p">()</span>
+</div></div><div data-line="57" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;MsgType&#39;</span><span class="p">)</span>
+</div></div><div data-line="58" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">dat</span><span class="p">(</span><span class="nx">msgType</span><span class="p">)</span>
+</div></div><div data-line="59" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">.</span><span class="nx">up</span><span class="p">();</span>
+</div></div><div data-line="60" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">xml</span> <span class="o">=</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">xml</span><span class="p">);</span>
+</div></div><div data-line="61" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">xml</span><span class="p">.</span><span class="nx">ele</span><span class="p">(</span><span class="s1">&#39;FuncFlag&#39;</span><span class="p">,&#x7b;&#x7d;,</span><span class="nx">funFlag</span><span class="p">).</span><span class="nx">end</span><span class="p">(&#x7b;</span><span class="nx">pretty</span><span class="o">:</span><span class="kc">true</span><span class="p">&#x7d;);</span>
+</div></div><div data-line="62" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<h3 id="section-1">参阅</h3>
+
+<ol>
+  <li><a href="http://www.tfan.org/using-xml2js-for-express-body-parser/">如何让 Node-express 支持 XML 形式的 POST 请求？</a></li>
+  <li><a href="https://gist.github.com/davidkrisch/2210498">Express-Node: Accepting POST with Content-Type: application/xml</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/';
+        var disqus_url = 'http://codelife.me/blog/2013/04/23/developing-wechat-public-platform-with-nodejs/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

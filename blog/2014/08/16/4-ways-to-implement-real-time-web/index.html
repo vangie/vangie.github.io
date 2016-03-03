@@ -1,0 +1,225 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>实时web的4种实现方式 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实时web的4种实现方式">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/08/16/4-ways-to-implement-real-time-web/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/08/16/4-ways-to-implement-real-time-web/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">实时web的4种实现方式</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>随着互联网的飞速发展，我们在网页里完成越来越多的事情。Web应用程序开始逐渐替代传统的桌面程序，然而HTTP协议设计之初没有考虑到面向应用开发的需求，HTTP协议服务端只能被动的响应客户端（浏览器）的请求，若服务端需要实时的给客户端推送消息，HTTP协议就需要借助与轮询和长连接等变通的技术。这些技术虽然勉强能够实现，但是都有些弊端。直到websocket协议推出，才真正的意义上解决了实时数据传输问题。但是由于旧版本浏览器不兼容websocket协议，为了更好的向下兼容，社区遍有了socket.io框架，该框架能智能识别浏览器端对websocket的支持情况，对于不支持的旧版本浏览器采用长轮询的方式通讯。本文将讨论4中常见的实时Web通讯技术。
+<!--more-->
+### 轮询（Polling）</p>
+</blockquote>
+
+<p><img src="/images/post/2014-08-16/polling.png" alt="轮询" /></p>
+
+<p>浏览器端连续发送请求以寻求新信息，服务端收到请求立即响应，无论请求的新信息是否已经就绪。此方式适用场景要求轮询的时间间隔相对宽松。例如，邮件客户端通常10分钟连接一次服务器检测是否有新邮件。</p>
+
+<p>轮询简单而且易于实现。然而如果对实时的要求提高，提升轮询的频率，这种方式就会变得低效。</p>
+
+<h3 id="long-polling">长轮询 （Long Polling）</h3>
+
+<p><img src="/images/post/2014-08-16/long_polling.png" alt="长轮询" /></p>
+
+<p>浏览器端连续发送请求，但是服务端并不立即响应，而是等待请求的资源准备好了才发送响应给客户端。从客户端的角度来看，和普通的轮询没有区别。从服务端的角度看这非常类似于长请求。</p>
+
+<p>那响应端口能保持多久不关闭呢？通常浏览器被设置成5分钟超时，若网络中间存在代理超时间隔可能更短。因此即使没有新消息需要发送，长轮询请求也需要周期性的完成，以触发浏览器重新发送一个新请求。这篇 <a href="http://tools.ietf.org/html/rfc6202" title="Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP">IETF 文档</a>建议超时设置成30~120秒，但是真实值如何设置依赖于你对服务器和客户端之间的网络设备的控制程度。</p>
+
+<p>长轮询能显著的降低请求数并保持响应的低延时，尤其是新消息以不规则的频率产生时。然而信息产生过于频繁，长轮询将接近于普通轮询。</p>
+
+<h3 id="streaming">流推送 （Streaming）</h3>
+
+<p><img src="/images/post/2014-08-16/streaming.png" alt="流推送" /></p>
+
+<p>浏览器端连续发送请求，当服务端有新消息时响应请求。然后不同于长轮询，服务端保持响应端口不关闭，持续发送当更多的消息到达时。这种方式不需要轮询，但是它也背离了HTTP请求响应模式的语义。例如客户端和服务端需要协调如何解释响应流，客户端可以知道两个连续消息的分割边界。而且，网络中间设备对响应的缓存会让这种方式失效。这就是为何长轮询使用的更普遍。</p>
+
+<h3 id="websocket">WebSocket</h3>
+
+<p><img src="/images/post/2014-08-16/websocket.png" alt="WebSocket" /></p>
+
+<p>浏览器发送一个HTTP 升级首部请求，服务端确认升级，HTTP协议升级为WebSocket协议。此后浏览器和服务器可以在TCP Socket之上双向的发送数据帧。</p>
+
+<p>WebSocket协议被设计用来替换轮询机制，它非常适合服务端和客户端需要高频率的双向交换数据的场景。初始的基于HTTP协议的握手确保WebSocket请求可以穿透防火墙。然后，最大的挑战是仍然后很多遗留的浏览器不支持该协议。</p>
+
+<h3 id="section">参考阅读</h3>
+<ol>
+  <li><a href="http://spring.io/blog/2012/05/08/spring-mvc-3-2-preview-techniques-for-real-time-updates/">Spring MVC 3.2 Preview: Techniques for Real-time Updates</a></li>
+  <li><a href="http://www.slideshare.net/yongboy/real-time-web-14045690">Real time web实时信息流推送</a></li>
+  <li><a href="http://tools.ietf.org/html/rfc6202" title="Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP">Known Issues and Best Practices for the Use of Long Polling and Streaming in Bidirectional HTTP</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/HTTP/1.1_Upgrade_header">HTTP/1.1 Upgrade header</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a></li>
+  <li><a href="https://www.websocket.org/aboutwebsocket.html">About HTML5 WebSockets</a></li>
+  <li><a href="https://github.com/automattic/socket.io-protocol">Socket.IO 1.0 Protocol</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/08/16/4-ways-to-implement-real-time-web/';
+        var disqus_url = 'http://codelife.me/blog/2014/08/16/4-ways-to-implement-real-time-web/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

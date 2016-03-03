@@ -1,0 +1,362 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Kindle PaperWhite作为树莓派的命令终端 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kindle PaperWhite作为树莓派的命令终端">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/12/17/kindle-pw-as-a-terminal-connect-to-raspberry-pi/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/12/17/kindle-pw-as-a-terminal-connect-to-raspberry-pi/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Kindle PaperWhite作为树莓派的命令终端</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>网上有大牛把Kindle作为树莓派的显示屏，外带一个Mac蓝牙键盘，实用移动电源供给。一个台低功耗的可移动主机，酷极了。手上真好有一台Kindle PaperWhite，于是开始折腾。</p>
+</blockquote>
+
+<p><img src="/images/post/2013-12-17/kindle-berry.png" alt="KindleBerry" /></p>
+
+<h3 id="section">准备工作</h3>
+
+<ol>
+  <li>Raspberry Pi 一台</li>
+  <li>Kindle PaperWhite 一台（已<a href="http://www.mobileread.com/forums/showthread.php?t=198446">越狱</a>）</li>
+  <li>USB转microUSB数据线2根，一根给Raspberry Pi供电，一根作为Kindle和Raspberry Pi的连接线</li>
+</ol>
+
+<!--more-->
+
+<h3 id="usbnetwork">安装USBNetwork</h3>
+
+<p><a href="http://www.mobileread.com/forums/showthread.php?t=186645">USBNetwork</a>工具可以通过usb数据线连接kindle和另一台电脑，实现ssh登录。</p>
+
+<p>安装步骤如下</p>
+
+<ol>
+  <li>下载<a href="http://www.mobileread.com/forums/attachment.php?attachmentid=116323&amp;d=1386361702">Kindle-usbnet-0.1.5N.zip</a>，解压以后仔细阅读<code>README_FIRST.txt</code>文件</li>
+  <li>将update_usbnet_0.15.N_install_touch_pw.bin拷贝到Kindle根目录</li>
+  <li>
+    <p>Kindle里工具栏菜单[设置]-&gt; 工具栏菜单[更新您的Kindle]，安装完成后会重启</p>
+
+    <p><img src="/images/post/2013-12-17/kindle_install_sw.png" alt="安装Kindle应用" /></p>
+  </li>
+  <li>安装完成以后Kindle更目录会多出一个<code>usbnet</code>目录和<code>extensions\usbnet</code>目录</li>
+  <li>
+    <p>编辑<code>usbnet\etc\config</code>文件，修改如下</p>
+
+    <pre><code> USE_WIFI="true"
+ USE_OPENSSH="true"
+</code></pre>
+  </li>
+</ol>
+
+<p><strong>开关USBNetwork模式</strong></p>
+
+<blockquote>
+  <p>在Kindle的搜索框内，输入<code>;usbnetwork</code>或者<code>;un</code>。再输入一个可以切换。</p>
+</blockquote>
+
+<p><strong>查看网络状态</strong></p>
+
+<blockquote>
+  <p>在Kindle的搜索框内，输入<code>;711</code>。可以查到当前无线网卡的IP地址</p>
+</blockquote>
+
+<h4 id="macusbkindle">Mac通过USB线登录Kindle</h4>
+
+<ol>
+  <li>用USB线连接Mac和Kindle</li>
+  <li>默认Kindle会被挂载成存储设备，先弹出该设备</li>
+  <li>然后开启Kindle的USBNetwork模式</li>
+  <li>
+    <p>Mac[系统偏好设置]-&gt;[网络] 新建一个RNDIS/Ethernet Gadget链接配置如下</p>
+
+    <pre><code> ip:		192.168.15.201
+ mask:	255.255.255.0
+ router:	192.168.15.244  * 如果无法创建RNDIS连接，可能需要安装[HoRNDIS](http://joshuawise.com/horndis)     * router的地址要Kindle的`/usbnet/etc/config`文件里`KINDLE_IP`项一致
+</code></pre>
+  </li>
+  <li>
+    <p>终端SSH连接</p>
+
+    <pre><code> ssh root@192.168.15.244
+</code></pre>
+  </li>
+</ol>
+
+<h4 id="wifikindle">通过WiFi登录Kindle</h4>
+<ol>
+  <li>在Kindle的搜索框内，输入<code>;711</code>查找Kindle无线网卡IP</li>
+  <li>通过终端SSH连接即可</li>
+</ol>
+
+<p>到此Kindle的Network算配置完毕，下来我们来配置Kindle的Kterm</p>
+
+<h3 id="kualkterm">安装KUAL和Kterm</h3>
+
+<h4 id="kual">KUAL</h4>
+<p><a href="http://www.mobileread.com/forums/showthread.php?t=203326">KUAL</a>是Kindle Unified Application Launcher的缩写，其作用是为越狱的Kindle启动第三方应用。简单的说通过一本特殊的书籍来统一实现启动触发器。</p>
+
+<ol>
+  <li>下载<a href="http://www.mobileread.com/forums/attachment.php?attachmentid=115571&amp;d=1385111909">prerequisites-all-supported-devices.zip</a></li>
+  <li>解压后将update_kindlet-dev-20130710-k5-ALL_install.bin文件拷贝到Kindle根目录，Kindle安装.bin文件的方法都是一样的，Kindle里点击[更新您的Kindle],然后会显示安装进度，自动重启后完成。</li>
+  <li>下载<a href="http://www.mobileread.com/forums/attachment.php?attachmentid=109526&amp;d=1376691043">KUAL.V.2.2.zip</a></li>
+  <li>解压后将KindleLauncher-2.0.azw2文件拷贝到Kindle的<code>/documents</code>目录</li>
+  <li>断开连接后Kindle里多了一本《Kindle Launcher》的书，点开有一排可以启动的应用列表。 <br />
+ <img src="/images/post/2013-12-17/kindle_launcher.png" alt="Kindle Launcher" /><img src="/images/post/2013-12-17/kindle_launcher_opened.png" alt="Kindle Launcher打开以后的效果" /></li>
+</ol>
+
+<h4 id="extend">Extend</h4>
+<p><code>Extend</code>是一组扩展的预编译好的linux命令行工具，让Kindle可以运行一些常用的linux命令，如：openssh，nano，screen，irssi，php，bash，rsync等。</p>
+
+<ol>
+  <li>下载<a href="http://ge.tt/9Qoa9YD/v/0?c">optware_img_60m.zip</a>和<a href="http://ge.tt/9Qoa9YD/v/2?c">kindle_extend-1.1.zip</a></li>
+  <li>解压kindle_extend-1.1.zip到kindle_extend-1.1目录</li>
+  <li>解压optware_img_60m.zip将<code>optware.img</code>文件替换<code>kindle_extend-1.1/extend/optware.img</code>文件</li>
+  <li>将<code>kindle_extend-1.1</code>目录下的<code>extend</code>和<code>extensions</code>子目录拷贝到Kindle更目录</li>
+  <li>
+    <p>然后通过SSH登录Kindle执行如下命令</p>
+
+    <pre><code> mntroot rw
+ mkdir /mnt/us/circles
+ cp /mnt/us/extend/mountd /mnt/us/circles
+ ln -s /mnt/us/circles/mountd /etc/rc5.d/S101mountd
+ mntroot ro
+ /mnt/us/install.sh
+ /mnt/us/mount.sh
+</code></pre>
+  </li>
+</ol>
+
+<h4 id="kterm">Kterm</h4>
+<p><a href="http://www.fabiszewski.net/kindle-terminal/">Kterm</a>是一个内置虚拟键盘的GTK+的Kindle终端模拟器</p>
+
+<p><img src="/images/post/2013-12-17/kterm.gif" alt="Kterm效果图" /></p>
+
+<ol>
+  <li>下载<a href="http://www.fabiszewski.net/kindle-terminal/kterm-0.7.zip">Kerm 0.7</a></li>
+  <li>解压后将<a href="https://dl.dropbox.com/s/tagzqiz06fbdltz/kterm-landscape-enabled.zip?token_hash=AAH5k68xlwcYqi065-n5Bu5XaoiEXB12zCDjj50udrRg_w&amp;dl=1">此文件</a>替换<code>kterm/bin/kterm</code>文件。具体看<a href="https://github.com/bfabiszewski/kterm/issues/2#issuecomment-14204814">这里</a></li>
+  <li>然后将<code>kterm</code>文件夹拷贝到Kindle的<code>extensions</code>目录下</li>
+  <li>断开Kindle与电脑的链接，通过KUAL打开Kterm，随便Ping台机器试试。</li>
+</ol>
+
+<h3 id="raspberry-piusb">配置Raspberry Pi的USB网络连接</h3>
+
+<p>安装了USBNetwork，Kindle已经可以通过数据线和Mac电脑连网，接下来配置Raspberry Pi的USB网络链接，使Kindle插入Raspberry Pi以后可以自动建立网络连接。</p>
+
+<pre><code>sudo vim /etc/network/interfaces
+</code></pre>
+
+<p>添加如下内容</p>
+
+<pre><code>#USB tethering
+allow-hotplug usb0
+iface usb0 inet static
+	address 192.168.15.1
+	netmask 255.255.255.0
+	broadcast 192.168.15.255
+	up iptables -I INPUT 1 -s 192.168.15.1 -j ACCEPT
+	up eject /dev/sda1
+</code></pre>
+
+<ul>
+  <li><code>allow-hotplug usb0</code>表示插入USB后自动加载网络配置</li>
+  <li><code>up eject /dev/sda1</code>表示弹出Kindle自动挂载的磁盘分区</li>
+</ul>
+
+<p>重启网络</p>
+
+<pre><code>sudo service networking reload
+</code></pre>
+
+<h3 id="section-1">见证奇迹的时刻</h3>
+
+<ol>
+  <li>使用数据线连接Kindle和Raspberry Pi</li>
+  <li>开启USBNetwork模式，Kindle的搜索框内，输入<code>;un</code>然后回车</li>
+  <li>
+    <p>打开Kterm键入</p>
+
+    <p>ssh pi@192.168.15.1</p>
+  </li>
+</ol>
+
+<p>若提示输入密码或者保存密钥指纹，说明大功告成。</p>
+
+<p><strong>Kindle作为跳板机</strong></p>
+
+<p>Kindle和Raspberry Pi顺利创建连接之后，Mac OS可以通过Kindle的Wifi连接SSH登录进Kindle，然后再次SSH登录进入Raspberry Pi。</p>
+
+<h3 id="section-2">参考阅读</h3>
+<ol>
+  <li><a href="http://www.ponnuki.net/2012/09/kindleberry-pi/">KindleBerry Pi</a></li>
+  <li><a href="https://gist.github.com/rvagg/5095506">Kindleberry “Paperwhite” Pi</a></li>
+  <li><a href="http://wiki.mobileread.com/wiki/Kindle_Touch_Hacking#GUI_launcher">Kindle Touch Hacking</a></li>
+  <li><a href="http://maxogden.com/kindleberry-wireless.html">Kindleberry Wireless: A Portable Outdoor Hackstation</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/12/17/kindle-pw-as-a-terminal-connect-to-raspberry-pi/';
+        var disqus_url = 'http://codelife.me/blog/2013/12/17/kindle-pw-as-a-terminal-connect-to-raspberry-pi/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

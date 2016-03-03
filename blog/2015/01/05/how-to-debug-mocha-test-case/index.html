@@ -1,0 +1,337 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>如何调试mocha测试用例 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何调试mocha测试用例">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2015/01/05/how-to-debug-mocha-test-case/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2015/01/05/how-to-debug-mocha-test-case/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">如何调试mocha测试用例</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>用<code>Mocha</code> + <code>Chai</code> 进行BDD测试，是目前较为流行的Nodejs测试方法。本文介绍<code>mocha</code>测试用例失败时如何在非IDE环境下单步Debug找出问题。</p>
+</blockquote>
+
+<h3 id="mocha-">mocha 配置</h3>
+
+<pre><code>$ npm install mocha
+$ mkdir test
+$ $EDITOR test/test.js
+</code></pre>
+
+<p>内容如下</p>
+
+<pre><code>var assert = require("assert")
+describe('Array', function(){
+  describe('#indexOf()', function(){
+    it('should return -1 when the value is not present', function(){
+      assert.equal(-1, [1,2,3].indexOf(5));
+      assert.equal(-1, [1,2,3].indexOf(0));
+    })
+  })
+})
+</code></pre>
+
+<p>执行如下命令开始测试</p>
+
+<pre><code>$  mocha
+</code></pre>
+
+<h4 id="makefile">配置 Makefile</h4>
+<p>如果你更喜欢 Make 风格，可以配置相应的<code>Makefile</code>文件。</p>
+
+<pre><code>test:
+    @./node_modules/.bin/mocha --reporter nyan
+
+.PHONY: test
+</code></pre>
+
+<p>然后执行</p>
+
+<pre><code>$ make test
+</code></pre>
+
+<h4 id="packagejson">配置 package.json</h4>
+<p>然后在package.json 调用<code>make</code>命令。</p>
+
+<pre><code>{
+...
+  "scripts": {
+    "test": "make test"
+  },
+...
+}
+</code></pre>
+
+<p>然后执行</p>
+
+<pre><code>$ npm test
+</code></pre>
+
+<p>这里两次包装和转换，考虑到如果哪天将<code>mocha</code>换成<code>Jasmine</code>或者<code>jsUnit</code>等其他的测试框架也无需更改持续集成的配置。</p>
+
+<!--more-->
+
+<h3 id="debug--mocha">debug 模式运行 mocha</h3>
+
+<p>node 内置的调试器</p>
+
+<pre><code>node debug myscript.js
+
+&lt; debugger listening on port 5858
+connecting... ok
+break in myscript.js:1
+  1 x = 5;
+  2 setTimeout(function () {
+  3       debugger;
+debug&gt;
+</code></pre>
+
+<p>然后使用如下指令在命令行交互模式下进行调试</p>
+
+<ul>
+  <li>cont, c - Continue execution</li>
+  <li>next, n - Step next</li>
+  <li>step, s - Step in</li>
+  <li>out, o - Step out</li>
+  <li>pause - Pause running code (like pause button in Developer Tools)</li>
+</ul>
+
+<p>通过命令行进行调试不推荐，效率太低。</p>
+
+<p>另外如果想通过外部调试工具进行调试，node 提供了两个命令参数<code>--debug</code>和<code>--debug-brk</code>。
+<code>--debug-brk</code> 会在代码的第一行pause，等待用户的指令。而<code>--debug</code>不会挂起，适合调试web服务之类的开启了循环队列的程序。</p>
+
+<h3 id="section">借助浏览器的调试工具</h3>
+
+<p>调试前端JS的浏览器端的开发工具已经非常强大，借助于<code>node-inspector</code>可以借助浏览器调试 Nodejs 程序。</p>
+
+<p>安装 node-inspector</p>
+
+<pre><code>$npm install -g node-inspector
+</code></pre>
+
+<p>以 debug 模式启动应用</p>
+
+<pre><code>$ node --debug-brk myApp.js   &gt;debugger listening on port 5858
+</code></pre>
+
+<p>启动 node-inspector 调试工具</p>
+
+<pre><code>&gt; node-inspector   &gt; visit http://0.0.0.0:8080/debug?port=5858 to start debugging
+</code></pre>
+
+<p>打开web浏览器，地址栏输入 http://localhost:8080/debug?port=5858 ，将看到如下界面。</p>
+
+<p><img src="/images/post/2015-01-05/node-inspector.png" alt="node-inspector" /></p>
+
+<p>接下来就是完全熟悉的前端JS调试模式。</p>
+
+<h3 id="npm">通过npm启动调试模式</h3>
+<p>mocha命令也支持–debug-brk参数，实质上mocha是传递给了node解释器。</p>
+
+<p>Makefile</p>
+
+<pre><code>test_debug:
+    @./node_modules/.bin/mocha --debug-brk
+</code></pre>
+
+<p>package.json</p>
+
+<pre><code>{
+...
+  "scripts": {
+    "test_debug": "make test_debug"
+  }
+...
+}
+</code></pre>
+
+<p>需要调试时，执行</p>
+
+<pre><code>$ npm run test_debug &gt;  &gt; &gt; east-asian-width@0.1.1 test_debug /east-asian-width &gt; &gt; make test_debug &gt;  &gt; debugger listening on port 5858
+</code></pre>
+
+<p>在另一个终端执行</p>
+
+<pre><code>$ node-inspector  &gt; Node Inspector v0.8.1 &gt; Visit http://127.0.0.1:8080/debug?port=5858 to start debugging.
+</code></pre>
+
+<p>然后打开浏览器进行调试。</p>
+
+<h3 id="section-1">参考阅读</h3>
+
+<ol>
+  <li><a href="http://serebrov.github.io/html/2013-12-02-node-debug-mocha.html">Node.js - how to debug mocha test with node inspector</a></li>
+  <li><a href="http://dailyjs.com/2013/08/22/mocha-debugger/">Debugging with Mocha</a></li>
+  <li><a href="http://stackoverflow.com/questions/14352608/whats-the-right-way-to-enable-the-node-debugger-with-mochas-debug-brk-switch">What’s the right way to enable the node debugger with mocha’s –debug-brk switch?</a></li>
+  <li><a href="http://kevgriffin.com/debugging-node-js-projects/">Debugging node.js Projects</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2015/01/05/how-to-debug-mocha-test-case/';
+        var disqus_url = 'http://codelife.me/blog/2015/01/05/how-to-debug-mocha-test-case/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

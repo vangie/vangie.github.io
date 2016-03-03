@@ -1,0 +1,271 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>基于Token的认证和基于声明的标识 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Token的认证和基于声明的标识">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/03/26/token-based-authentication-and-claims-based-identity/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/03/26/token-based-authentication-and-claims-based-identity/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">基于Token的认证和基于声明的标识</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>OpenID解决跨站点的认证问题，OAuth解决跨站点的授权问题。认证和授权是密不可分的。而OpenID和OAuth这两套协议出自两个不同的组织，协议上有相似和重合的之处，所以想将二者整合有些难度。好在OpenID Connect作为OpenID的下一版本，在OAuth 2.0的协议基础上进行扩展，很好的解决了认证和授权的统一，给开发者带来的便利。在学习和研究OpenID Connect协议时，遇上两个概念基于Token的认证（token based authentication）和基于声明的标识（claims based identity）。本文就这两个概念展开讨论，为了更好的理解OpenID Connect协议的原理。</p>
+</blockquote>
+
+<h3 id="cookietoken">基于Cookie的认证和基于Token的认证</h3>
+
+<p>有两种不同的方法实现服务端的认证</p>
+
+<ul>
+  <li>常见方式是<strong>基于Cookie的认证</strong>,每个请求中携带Cookie信息以便于服务端识别</li>
+  <li>另一种新方法，<strong>基于Token的认证</strong>，在每个请求中携带被签名过Token信息传送到服务端</li>
+</ul>
+
+<p><a href="https://docs.google.com/drawings/d/1IPgSFz2loaOIrnIKinGyrSoRm54slHFi8d_oRJ7BGPc/edit?usp=sharing"><img src="/images/post/2014-03-26/cookie-based-auth-vs-token-based-auth.png" alt="Cookie-based Auth vs Token-based Auth" /></a></p>
+
+<!--more-->
+<p>相比Cookie，基于Token的认证有如下好处：</p>
+
+<ul>
+  <li><strong>跨域</strong>: cookies在跨域场景表现并不好。基于Token的方法允许你向任何不同域名的服务器发送Ajax请求，因为你可以通过HTTP头传递用户信息。</li>
+  <li><strong>无状态</strong>（或者 服务端可扩展）：无须再存储Session，由于Token已经自包含了所有的用户信息。</li>
+  <li><strong>内容分发</strong>：你可以将所有的静态资源（例如：脚本，HTML，图片等）分发到CDN服务上，你的服务器仅仅提供API。<a href="http://www.internap.com/cdn-services-content-delivery-network/cdn-user-authentication/">某些CDN服务商</a>提供了基于Token验证的安全服务。</li>
+  <li><strong>解耦</strong>：无须被绑定在一个特定的验证方案。</li>
+  <li><strong>移动支持</strong>：在移动设备的原生平台，使用cookie作为安全认证并不是好主意。采用基于Token的方法会简单得多。</li>
+  <li><strong>跨站点脚本攻击</strong>：由于没有基于cookie技术，你不再需要考虑跨站点请求的安全性问题。</li>
+  <li><strong>性能</strong>：虽然没有做严格的性能测试，但是还原session所做的数据库查询往返的性能损耗要大于<code>HMACSH256</code>算法验证和解析Token。</li>
+  <li><strong>基于标准</strong>：JWT(<a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token">JSON Web Token</a>)作为Token的标准已经被广泛的接受。主流语言（.NET, Ruby, Java, Python, PHP）都有相应支持JWT标准的工具包。</li>
+</ul>
+
+<h3 id="jwt">JWT格式</h3>
+<p><abbr title="JSON Web Token">JWT</abbr>是一种紧凑的URL安全表示格式，适用于空格受限制的场景，比如HTTP授权头部和请求参数。JWT使用JSON格式表示一组声明，该JSON被编码成<abbr title="JSON Web Signature">JWS</abbr>或<abbr title="JSON Web Encryption">JWE</abbr>结构。</p>
+
+<p>JWT是一段被base64url编码过的字符序列（去除了尾部的“=”），并用点号分隔。</p>
+
+<p>下面是一个JWT头部的</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">headers.json</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&quot;typ&quot;</span><span class="p">:</span> <span class="s2">&quot;JWT&quot;</span><span class="p">,</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<p>使用base64url编码以后</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">header_encoded</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9</div></div></pre></div></figure>
+
+<p>下面是一个JWT的消息体其中包含声明集合</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">payload.json</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<p>使用base64url编码以后</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">payload_encoded</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">eyJ1c2VyX2lkIjogMX0</div></div></pre></div></figure>
+
+<p>将上面编码过的JWS头部和JWS消息体使用HMAC SHA-256算法，并结合私钥计算得到的MAC，再经过base64url编码获得的字符序列成为JWS签名</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">signature</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">BSf1w1blYKcbxVlyOtUogUsozH2clY34xxYPd8lQIlQ</div></div></pre></div></figure>
+
+<p>将编码过的头部，消息体和JWS签名通过’.’号连接起来，就获得JWT</p>
+<figure class="code-highlight-figure"><figcaption class="code-highlight-caption"><span class="code-highlight-caption-title">jwt</span><a class="code-highlight-caption-link" href="https://gist.github.com/9976068">link</a></figcaption><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VyX2lkIjogMX0.BSf1w1blYKcbxVlyOtUogUsozH2clY34xxYPd8lQIlQ</div></div></pre></div></figure>
+
+<p>关于JWT的更多技术细节，请阅读<a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token">JWT规范</a>.</p>
+
+<h3 id="section">基于声明的标识</h3>
+<p>Cookie在请求和响应之间反复传递，对于无状态的HTTP协议，在Cookie里加入一个会话ID，以标识一组请求和响应属于同一会话。通常会话与用户是多对一关系，也就是说一个会话只会属于一个用户。所以通过Cookie技术就可以标识出用户。通常Cookie里也会携带一些额外的信息，但是考虑Cookie容易被截获和篡改，所以Cookie里并不适合放置用户的基本信息。</p>
+
+<p>Token其实和Cookie类似是一段序列化字符串，作为HTTP请求头的一部分，发送到服务端。但是Token加入了签名机制，可以防篡改。所以Token可以包含用户信息发送给不同域的应用服务作为身份标识，只要相应的应用服务能识别其有效性。</p>
+
+<p>Token仅仅是某种信息的承载形式，基于Token的认证有一个更宽泛的概念：基于声明的标识</p>
+
+<p><a href="https://docs.google.com/drawings/d/1bSBW-rNfOUA4jsWVABXyuJklNY-hXI8QRMRtarh5Ek4/edit?usp=sharing"><img src="/images/post/2014-03-26/claims-based-identity.png" alt="Claims based Identity" /></a></p>
+
+<p>基于声明的标识其实无处不在，举个我们很熟悉的例子。</p>
+
+<p>每次机场登机前过安检时，你不能简单地走到门口，并出示身份证。相反，必须先办理登机手续柜台。如果出国，还需要出示护照。安检人员先验证证件头像与你本人是否一致，然后核实您的信息，并确认您已经购买了机票。假设一切顺利，您将获得登机牌。</p>
+
+<p>登机牌上包括知道您的姓名，航班号和座位号等常规信息。安检人员可以从登机牌上获得足够的信息以配合他们的工作。</p>
+
+<p>登机牌上还有一些特殊信息，包含在条形码和背面的磁条里，以证明该登机牌是由航空公司签发的，而不是伪造的。</p>
+
+<p>从本质上说，登机牌是一个由航空公司签发的关于你的一组信息。它表明你被允许某时登上某飞机坐在某个座位。当然，安检人员不必深入地理解这些。他们只需验证您的登机牌，读取其中的信息，然后让你登机。</p>
+
+<p>同样值得注意的是，可能有不止一种方法获得您的登机牌。可能去机场售票柜台领取，或者在家里从航空公司网站下载并打印。安检人员不在乎的登机牌是如何获得的 。他们只关心登机牌是否真实的。</p>
+
+<p>登机牌就是一张包含了一组声明信息的卡片，是Token的一种实体形式。</p>
+
+<h3 id="section-1">参考阅读</h3>
+<ol>
+  <li><a href="http://book.douban.com/subject/5303216/">《A Guide to Claims-Based Identity and Access Control》</a></li>
+  <li><a href="http://dotnetcodr.com/2014/01/20/introduction-to-oauth2-json-web-tokens/">Introduction to OAuth2: Json Web Tokens</a></li>
+  <li><a href="http://www.layer7tech.com/blogs/index.php/give-me-a-jwt-ill-give-you-an-access-token/">Give Me a JWT, I’ll Give You an Access Token</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/Claims-based_identity">Claims-based identity</a></li>
+  <li><a href="http://blog.auth0.com/2014/01/07/angularjs-authentication-with-cookies-vs-token/">Cookies vs Tokens. Getting auth right with Angular.JS</a></li>
+  <li><a href="http://jpadilla.com/post/73791304724/auth-with-json-web-tokens">Auth with JSON Web Tokens</a></li>
+  <li><a href="http://openid.net/specs/draft-jones-json-web-token-07.html">JSON Web Token (JWT) draft-jones-json-web-token-07</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/03/26/token-based-authentication-and-claims-based-identity/';
+        var disqus_url = 'http://codelife.me/blog/2014/03/26/token-based-authentication-and-claims-based-identity/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

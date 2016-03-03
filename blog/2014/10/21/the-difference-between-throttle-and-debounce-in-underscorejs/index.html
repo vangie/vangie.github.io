@@ -1,0 +1,357 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>浅谈 _.throttle 和 _.debounce 的差异 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈 _.throttle 和 _.debounce 的差异">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">浅谈 _.throttle 和 _.debounce 的差异</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>Underscore.js是一个很精干的库，压缩后只有5.2KB。它提供了几十种函数式编程的方法，弥补了标准库的不足，大大方便了JavaScript的编程。</p>
+
+  <p>本文仅探讨Underscore.js的两个函数方法 <code>_.throttle</code> 和 <code>_.debounce</code> 的原理、效果和用途。</p>
+</blockquote>
+
+<p>通常的函数（或方法）调用过程分为三个部分：请求、执行和响应。（文中“请求”与“调用”同义，“响应”与“返回”同义，为了更好的表述，刻意采用请求和响应的说法。）</p>
+
+<p>某些场景下，比如响应鼠标移动或者窗口大小调整的事件，触发频率比较高。若稍处理函数微复杂，需要较多的运算执行时间，响应速度跟不上触发频率，往往会出现延迟，导致假死或者卡顿感。</p>
+
+<p>在运算资源不够的时候，最直观的解决办法就是升级硬件，诚然通过购买更好的硬件可以解决部分问题，但是也需要为此付出高额的成本。特别是客户端和服务器模式，要求客户端统一升级硬件基本不可能。</p>
+
+<p>在资源有限的前提下，处理函数无法即时响应高频调用。退而求其次，只响应部分请求是否可行呢？某些场景下的密集性请求，具备很强的同质和连续性。比如说，鼠标移动的轨迹参数。响应越及时效果越平滑，但是如果响应速度跟不上时，反而会出现卡顿感，如果适当的丢弃一些请求效果更流畅。</p>
+
+<p><code>throttle</code> 和 <code>debounce</code> 是解决请求和响应速度不匹配问题的两个方案。二者的差异在于选择不同的策略。</p>
+
+<h3 id="section">电梯超时</h3>
+
+<p>想象每天上班大厦底下的电梯。把电梯完成一次运送，类比为一次函数的执行和响应。假设电梯有两种运行策略 <code>throttle</code> 和 <code>debounce</code> ，超时设定为15秒，不考虑容量限制。</p>
+
+<ul>
+  <li><code>throttle</code> 策略的电梯。保证如果电梯第一个人进来后，15秒后准时运送一次，不等待。如果没有人，则待机。</li>
+  <li><code>debounce</code> 策略的电梯。如果电梯里有人进来，等待15秒。如果又人进来，15秒等待重新计时，直到15秒超时，开始运送。</li>
+</ul>
+
+<!--more-->
+
+<h3 id="section-1">使用示例</h3>
+
+<h4 id="throttle-">_.throttle 使用示例</h4>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">function</span> <span class="nx">log</span><span class="p">(</span> <span class="nx">event</span> <span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">scrollTop</span><span class="p">(),</span> <span class="nx">event</span><span class="p">.</span><span class="nx">timeStamp</span> <span class="p">);</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// 控制台记录窗口滚动事件，触发频率比你想象的要快</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">scroll</span><span class="p">(</span> <span class="nx">log</span> <span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// 控制台记录窗口滚动事件，每250ms最多触发一次</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">scroll</span><span class="p">(</span> <span class="nx">_</span><span class="p">.</span><span class="nx">throttle</span><span class="p">(</span> <span class="nx">log</span><span class="p">,</span> <span class="mi">250</span> <span class="p">)</span> <span class="p">);</span></div></div></pre></div></figure>
+
+<h4 id="debounce-">_.debounce 使用示例</h4>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">function</span> <span class="nx">ajax_lookup</span><span class="p">(</span> <span class="nx">event</span> <span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">// 对输入的内容$(this).val()执行 Ajax 查询</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// 字符输入的频率比你预想的要快，Ajax 请求来不及回复。</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;input:text&#39;</span><span class="p">).</span><span class="nx">keyup</span><span class="p">(</span> <span class="nx">ajax_lookup</span> <span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// 当用户停顿250毫秒以后才开始查找</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">$</span><span class="p">(</span><span class="s1">&#39;input:text&#39;</span><span class="p">).</span><span class="nx">keyup</span><span class="p">(</span> <span class="nx">_</span><span class="p">.</span><span class="nx">debounce</span><span class="p">(</span> <span class="nx">ajax_lookup</span><span class="p">,</span> <span class="mi">250</span> <span class="p">)</span> <span class="p">);</span></div></div></pre></div></figure>
+
+<h3 id="underscore">underscore源码注解</h3>
+
+<p>让我们来读读源码，探其究竟。基于开发版本（1.7.0）的源码，加上了一些注释以帮助理解。</p>
+
+<h3 id="throttle"><code>_.throttle</code>方法源码</h3>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm">/**</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * 频率控制 返回函数连续调用时，func 执行频率限定为 次 / wait</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * </span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;function&#x7d;   func      传入函数</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;number&#x7d;     wait      表示时间窗口的间隔</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;object&#x7d;     options   如果想忽略开始边界上的调用，传入&#x7b;leading: false&#x7d;。</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> *                                如果想忽略结尾边界上的调用，传入&#x7b;trailing: false&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @return &#x7b;function&#x7d;             返回客户调用函数   </span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> */</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">_</span><span class="p">.</span><span class="nx">throttle</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">func</span><span class="p">,</span> <span class="nx">wait</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">result</span><span class="p">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">timeout</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">// 上次执行时间点</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">previous</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">)</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">&#x7b;&#x7d;;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="c1">// 延迟执行函数</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">later</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 若设定了开始边界不执行选项，上次执行时间始终为0</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">previous</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">leading</span> <span class="o">===</span> <span class="kc">false</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="nx">_</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">timeout</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">result</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">timeout</span><span class="p">)</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">args</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 首次执行时，如果设定了开始边界不执行选项，将上次执行时间设定为当前时间。</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">previous</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">leading</span> <span class="o">===</span> <span class="kc">false</span><span class="p">)</span> <span class="nx">previous</span> <span class="o">=</span> <span class="nx">now</span><span class="p">;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 延迟执行时间间隔</span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">remaining</span> <span class="o">=</span> <span class="nx">wait</span> <span class="o">-</span> <span class="p">(</span><span class="nx">now</span> <span class="o">-</span> <span class="nx">previous</span><span class="p">);</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">context</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">args</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">;</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 延迟时间间隔remaining小于等于0，表示上次执行至此所间隔时间已经超过一个时间窗口</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// remaining大于时间窗口wait，表示客户端系统时间被调整过</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="nx">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">remaining</span> <span class="o">&gt;</span> <span class="nx">wait</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">clearTimeout</span><span class="p">(</span><span class="nx">timeout</span><span class="p">);</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">timeout</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">previous</span> <span class="o">=</span> <span class="nx">now</span><span class="p">;</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">result</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">timeout</span><span class="p">)</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">args</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">//如果延迟执行不存在，且没有设定结尾边界不执行选项</span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">timeout</span> <span class="o">&amp;&amp;</span> <span class="nx">options</span><span class="p">.</span><span class="nx">trailing</span> <span class="o">!==</span> <span class="kc">false</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">timeout</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">later</span><span class="p">,</span> <span class="nx">remaining</span><span class="p">);</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="44" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span></div></div></pre></div></figure>
+
+<h3 id="debounce"><code>_.debounce</code>方法源码</h3>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm">/**</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * 空闲控制 返回函数连续调用时，空闲时间必须大于或等于 wait，func 才会执行</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> *</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;function&#x7d; func        传入函数</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;number&#x7d;   wait        表示时间窗口的间隔</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @param  &#x7b;boolean&#x7d;  immediate   设置为ture时，调用触发于开始边界而不是结束边界</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> * @return &#x7b;function&#x7d;             返回客户调用函数</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="cm"> */</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">_</span><span class="p">.</span><span class="nx">debounce</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">func</span><span class="p">,</span> <span class="nx">wait</span><span class="p">,</span> <span class="nx">immediate</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">timeout</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">timestamp</span><span class="p">,</span> <span class="nx">result</span><span class="p">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">var</span> <span class="nx">later</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 据上一次触发时间间隔</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">last</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="nx">timestamp</span><span class="p">;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 上次被包装函数被调用时间间隔last小于设定时间间隔wait</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="nx">last</span> <span class="o">&lt;</span> <span class="nx">wait</span> <span class="o">&amp;&amp;</span> <span class="nx">last</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">timeout</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">later</span><span class="p">,</span> <span class="nx">wait</span> <span class="o">-</span> <span class="nx">last</span><span class="p">);</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span> <span class="k">else</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">timeout</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="c1">// 如果设定为immediate===true，因为开始边界已经调用过了此处无需调用</span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">immediate</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nx">result</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">timeout</span><span class="p">)</span> <span class="nx">context</span> <span class="o">=</span> <span class="nx">args</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">context</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">args</span> <span class="o">=</span> <span class="nx">arguments</span><span class="p">;</span>
+</div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">timestamp</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">now</span><span class="p">();</span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">callNow</span> <span class="o">=</span> <span class="nx">immediate</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">timeout</span><span class="p">;</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// 如果延时不存在，重新设定延时</span>
+</div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">timeout</span><span class="p">)</span> <span class="nx">timeout</span> <span class="o">=</span> <span class="nx">setTimeout</span><span class="p">(</span><span class="nx">later</span><span class="p">,</span> <span class="nx">wait</span><span class="p">);</span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">(</span><span class="nx">callNow</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">result</span> <span class="o">=</span> <span class="nx">func</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">context</span><span class="p">,</span> <span class="nx">args</span><span class="p">);</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">context</span> <span class="o">=</span> <span class="nx">args</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="43" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span></div></div></pre></div></figure>
+
+<h3 id="section-2">可视化演示</h3>
+
+<p><img src="http://throttle-debounce.coding.io/images/screenshot.png" alt="Throtte &amp; Debounce 可视化演示" /></p>
+
+<p>示例中每一行都以30ms的速度绘制时间轴，第一行Mousemove Events是参考基准，以50ms每次的响应频率，在时间轴上输出循环可见ASCII码字符。</p>
+
+<p>当鼠标进入左侧方型区域（mouseenter 事件）所有行开始绘制时间轴, 鼠标晃动（mousemove 事件）会在时间轴上绘制字符块，每个字符块表示事件被触发一次。为了展现延迟触发效果，相邻字符块的演示和文字是不同的。</p>
+
+<p>顶部的两个按钮<code>每100毫秒触发1次</code>和<code>每200毫秒触发2次</code>演示以固定频率匀速触发事件的效果。</p>
+
+<ul>
+  <li>演示地址：http://throttle-debounce.coding.io/</li>
+  <li>源码地址：https://coding.net/u/duwan/p/throttle-debounce/</li>
+</ul>
+
+<h3 id="section-3">使用场景</h3>
+
+<p>只要牵涉到连续事件或频率控制相关的应用都可以考虑到这两个函数，比如：</p>
+
+<ul>
+  <li>游戏射击，keydown 事件</li>
+  <li>文本输入、自动完成，keyup 事件</li>
+  <li>鼠标移动，mousemove 事件</li>
+  <li>DOM 元素动态定位，window 对象的 resize 和 scroll 事件</li>
+</ul>
+
+<p>前两者 debounce 和 throttle 都可以按需使用；后两者肯定是用 throttle 了。如果不做过滤处理，每秒种甚至会触发数十次相应的事件。尤其是 mousemove 事件，每移动一像素都可能触发一次事件。如果是在一个画布上做一个鼠标相关的应用，过滤事件处理是必须的，否则肯定会造成糟糕的体验。</p>
+
+<h3 id="section-4">参考阅读</h3>
+<ol>
+  <li><a href="http://underscorejs.org/docs/underscore.html#section-70">UNDERSCORE.JS</a></li>
+  <li><a href="http://www.cnblogs.com/ambar/archive/2011/10/08/throttle-and-debounce.html">高阶函数 debounce 和 throttle</a></li>
+  <li><a href="http://benalman.com/projects/jquery-throttle-debounce-plugin/">jQuery throttle / debounce: Sometimes, less is more!</a></li>
+  <li><a href="http://drupalmotion.com/article/debounce-and-throttle-visual-explanation">Debounce and Throttle: a visual explanation</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/';
+        var disqus_url = 'http://codelife.me/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

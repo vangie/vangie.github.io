@@ -1,0 +1,246 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>第一个WM_SIZE消息(SDK学习笔记) &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="第一个WM_SIZE消息(SDK学习笔记)">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2006/05/13/the-first-wm-size-message/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2006/05/13/the-first-wm-size-message/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">第一个WM_SIZE消息(SDK学习笔记)</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <p>昨天在学习在sdk下创建状态栏，
+在《windows程序设计》中没有相关内容，
+只好求助于msdn，
+我装的是6.0中文版的，不过翻译的很不完全，还不如不翻译。
+在Platform SDk/User Interface Services/Common Controls/Status Bars
+中我找到了相关介绍，
+庆幸的是还有示例代码，如下：</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// DoCreateStatusBar – creates a status bar and divides it into </span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">//     the specified number of parts. </span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// Returns the handle to the status bar. </span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// hwndParent – parent window for the status bar. </span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// nStatusID – child window identifier. </span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// hinst – handle to the application instance. </span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1">// nParts – number of parts into which to divide the status bar. </span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="n">HWND</span> <span class="nf">DoCreateStatusBar</span><span class="p">(</span><span class="n">HWND</span> <span class="n">hwndParent</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nStatusID</span><span class="p">,</span> 
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">HINSTANCE</span> <span class="n">hinst</span><span class="p">,</span> <span class="kt">int</span> <span class="n">nParts</span><span class="p">)</span> 
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7b;</span> 
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">HWND</span> <span class="n">hwndStatus</span><span class="p">;</span> 
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">RECT</span> <span class="n">rcClient</span><span class="p">;</span> 
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">HLOCAL</span> <span class="n">hloc</span><span class="p">;</span> 
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">LPINT</span> <span class="n">lpParts</span><span class="p">;</span> 
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">nWidth</span><span class="p">;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Ensure that the common control DLL is loaded. </span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">InitCommonControls</span><span class="p">();</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Create the status bar. </span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">hwndStatus</span> <span class="o">=</span> <span class="n">CreateWindowEx</span><span class="p">(</span> 
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="mi">0</span><span class="p">,</span>                       <span class="c1">// no extended styles </span>
+</div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">STATUSCLASSNAME</span><span class="p">,</span>         <span class="c1">// name of status bar class </span>
+</div></div><div data-line="23" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">(</span><span class="n">LPCTSTR</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">,</span>          <span class="c1">// no text when first created </span>
+</div></div><div data-line="24" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">SBARS_SIZEGRIP</span> <span class="o">|</span>         <span class="c1">// includes a sizing grip </span>
+</div></div><div data-line="25" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">WS_CHILD</span><span class="p">,</span>                <span class="c1">// creates a child window </span>
+</div></div><div data-line="26" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>              <span class="c1">// ignores size and position </span>
+</div></div><div data-line="27" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">hwndParent</span><span class="p">,</span>              <span class="c1">// handle to parent window </span>
+</div></div><div data-line="28" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">(</span><span class="n">HMENU</span><span class="p">)</span> <span class="n">nStatusID</span><span class="p">,</span>       <span class="c1">// child window identifier </span>
+</div></div><div data-line="29" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="n">hinst</span><span class="p">,</span>                   <span class="c1">// handle to application instance </span>
+</div></div><div data-line="30" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="nb">NULL</span><span class="p">);</span>                   <span class="c1">// no window creation data</span>
+</div></div><div data-line="31" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="32" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Get the coordinates of the parent window’s client area. </span>
+</div></div><div data-line="33" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">GetClientRect</span><span class="p">(</span><span class="n">hwndParent</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rcClient</span><span class="p">);</span>
+</div></div><div data-line="34" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="35" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Allocate an array for holding the right edge coordinates. </span>
+</div></div><div data-line="36" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">hloc</span> <span class="o">=</span> <span class="n">LocalAlloc</span><span class="p">(</span><span class="n">LHND</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="o">*</span> <span class="n">nParts</span><span class="p">);</span> 
+</div></div><div data-line="37" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">lpParts</span> <span class="o">=</span> <span class="n">LocalLock</span><span class="p">(</span><span class="n">hloc</span><span class="p">);</span>
+</div></div><div data-line="38" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="39" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Calculate the right edge coordinate for each part, and </span>
+</div></div><div data-line="40" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// copy the coordinates to the array. </span>
+</div></div><div data-line="41" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">nWidth</span> <span class="o">=</span> <span class="n">rcClient</span><span class="p">.</span><span class="n">right</span> <span class="o">/</span> <span class="n">nParts</span><span class="p">;</span> 
+</div></div><div data-line="42" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nParts</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">&#x7b;</span> 
+</div></div><div data-line="43" class="code-highlight-row numbered marked-line start-marked-line"><div class="code-highlight-line">        <span class="n">lpParts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">nWidth</span><span class="p">;</span> 
+</div></div><div data-line="44" class="code-highlight-row numbered marked-line end-marked-line"><div class="code-highlight-line">        <span class="n">nWidth</span> <span class="o">+=</span> <span class="n">nWidth</span><span class="p">;</span> 
+</div></div><div data-line="45" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span> 
+</div></div><div data-line="46" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="47" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Tell the status bar to create the window parts. </span>
+</div></div><div data-line="48" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">SendMessage</span><span class="p">(</span><span class="n">hwndStatus</span><span class="p">,</span> <span class="n">SB_SETPARTS</span><span class="p">,</span> <span class="p">(</span><span class="n">WPARAM</span><span class="p">)</span> <span class="n">nParts</span><span class="p">,</span> 
+</div></div><div data-line="49" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">(</span><span class="n">LPARAM</span><span class="p">)</span> <span class="n">lpParts</span><span class="p">);</span>
+</div></div><div data-line="50" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="51" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="c1">// Free the array, and return. </span>
+</div></div><div data-line="52" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">LocalUnlock</span><span class="p">(</span><span class="n">hloc</span><span class="p">);</span> 
+</div></div><div data-line="53" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="n">LocalFree</span><span class="p">(</span><span class="n">hloc</span><span class="p">);</span> 
+</div></div><div data-line="54" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="n">hwndStatus</span><span class="p">;</span> 
+</div></div><div data-line="55" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;</span></div></div></pre></div></figure>
+
+<p>注意到上面43-44行
+程序的本意是想等分状态栏成nParts，
+但lpParts[i]，每等分的起始位置，却在循环中呈2的倍数增长。
+当nParts==4时，实际效果只有3块。
+于是我改了一下，
+    for (i = 0; i &lt; nParts; i++) { 
+        lpParts[i] = nWidth*(i+1);
+    } 
+这样显示就正常了。</p>
+
+<p>另外：如要在状态栏中显示其他信息，可以通过SendMessage函数发送SB_SETTEXT消息，在WPARAM中指定状态栏的索引，LPARAM中指定将要显示的字符串。</p>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2006/05/13/the-first-wm-size-message/';
+        var disqus_url = 'http://codelife.me/blog/2006/05/13/the-first-wm-size-message/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

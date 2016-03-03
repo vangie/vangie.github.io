@@ -1,0 +1,603 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>理解 Promise 的工作原理 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解 Promise 的工作原理">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2014/10/30/understanding-the-mechanism-of-promise/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2014/10/30/understanding-the-mechanism-of-promise/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">理解 Promise 的工作原理</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>Javascript 采用回调函数(callback)来处理异步编程。从同步编程到异步回调编程有一个适应的过程，但是如果出现多层回调嵌套，也就是我们常说的厄运的回调金字塔(Pyramid of Doom)，绝对是一种糟糕的编程体验。于是便有了 CommonJS 的 Promises/A 规范，用于解决回调金字塔问题。本文先介绍Promises相关规范，然后再通过解读一个迷你的 Promises 以加深理解。</p>
+</blockquote>
+
+<h3 id="promise">什么是 Promise</h3>
+
+<p>一个 Promise 对象代表一个目前还不可用，但是在未来的某个时间点可以被解析的值。它允许你以一种同步的方式编写异步代码。例如，如果你想要使用Promise API 异步调用一个远程的服务器，你需要创建一个代表数据将会在未来由 web 服务返回的 Promise 对象。唯一的问题是目前数据还不可用。当请求完成并从服务器返回时数据将变为可用数据。在此期间，Promise 对象将扮演一个真实数据的代理角色。接下来，你可以在 Promise 对象上绑定一个回调函数，一旦真实数据变得可用这个回调函数将会被调用。</p>
+
+<p>Promise 对象曾经以多种形式存在于许多语言中。</p>
+
+<h3 id="pyramid-of-doom">去除厄运的回调金字塔(Pyramid of Doom)</h3>
+
+<p>Javascript 中最常见的反模式做法是回调内部再嵌套回调。</p>
+
+<pre><code>// 回调金字塔
+asyncOperation(function(data){
+  // 处理 `data`
+  anotherAsync(function(data2){
+      // 处理 `data2`
+      yetAnotherAsync(function(){
+          // 完成
+      });
+  });
+}); &lt;!--more--&gt; 引入 Promises 之后的代码
+
+promiseSomething()
+.then(function(data){
+    // 处理 `data`
+    return anotherAsync();
+})
+.then(function(data2){
+    // 处理 `data2`
+    return yetAnotherAsync();
+})
+.then(function(){
+    // 完成
+});
+</code></pre>
+
+<p>Promises 将嵌套的 callback，改造成一系列的<code>.then</code>的连缀调用，去除了层层缩进的糟糕代码风格。Promises 不是一种解决具体问题的算法，而已一种更好的代码组织模式。接受新的组织模式同时，也逐渐以全新的视角来理解异步调用。</p>
+
+<p>各个语言平台都有相应的 Promise 实现</p>
+
+<ul>
+  <li>Java’s java.util.concurrent.Future</li>
+  <li>Python’s Twisted deferreds and PEP-3148 futures</li>
+  <li>F#’s Async<t></t></li>
+  <li>.Net’s Task<t></t></li>
+  <li>C++ 11’s std::future</li>
+  <li>Dart’s Future<t></t></li>
+  <li>Javascript’s Promises/A/B/D/A+</li>
+</ul>
+
+<p>下面我来相信了解一下 javascript 语言环境下各个规范的一些细节。</p>
+
+<h3 id="promisesa-">Promises/A 规范</h3>
+
+<p>promise 表示一个最终值，该值由一个操作完成时返回。</p>
+
+<ul>
+  <li>promise 有三种状态：<strong>未完成</strong> (unfulfilled)，<strong>完成</strong> (fulfilled) 和<strong>失败</strong> (failed)。</li>
+  <li>promise 的状态只能由<strong>未完成</strong>转换成<code>完成</code>，或者<strong>未完成</strong>转换成<strong>失败</strong> 。</li>
+  <li>promise 的状态转换只发生一次。</li>
+</ul>
+
+<p>promise 有一个 then 方法，then 方法可以接受 3 个函数作为参数。前两个函数对应 promise 的两种状态 fulfilled 和 rejected 的回调函数。第三个函数用于处理进度信息（对进度回调的支持是可选的）。</p>
+
+<pre><code>promiseSomething().then(function(fulfilled){
+        //当promise状态变成fulfilled时，调用此函数
+    },function(rejected){
+        //当promise状态变成rejected时，调用此函数
+    },function(progress){
+        //当返回进度信息时，调用此函数
+    });
+</code></pre>
+
+<p>如果promise支持如下连个附加方法，称之为<code>可交互的 promise</code></p>
+
+<ul>
+  <li>get(propertyName)
+  获得当前 promise 最终值上的一个属性，返回值是一个新的 promise。</li>
+  <li>call(functionName, arg1, arg2, …)
+  调用当然 promise 最终值上的一个方法，返回值也是一个新的promise。</li>
+</ul>
+
+<h3 id="promisesb-">Promises/B 规范</h3>
+
+<p>在 Promises/A 的基础上，Promises/B 定义了一组 promise 模块需要实现的 API</p>
+
+<p><em><code>when(value, callback, errback_opt)</code></em> <br />
+如果 value 不是一个 promise ，那么下一事件循环callback会被调用，value 作为 callback 的传入值。如果 value 是一个 promise，promise 的状态已经完成或者变成完成时，那么下一事件循环 callback 会被调用，resolve 的值会被传入 callback；promise 的状态已经失败或者变成失败时，那么下一事件循环 errback 会被调用，reason 会作为失败的理由传入 errback。</p>
+
+<p><em><code>asap(value, callback, errback_opt)</code></em> <br />
+与 when 最大的区别，如果 value 不是一个 promise，会被立即执行，不会等到下一事件循环。</p>
+
+<p><em><code>enqueue(task Function)</code></em> <br />
+尽可能快地在接下来的事件循环调用 task 方法。</p>
+
+<p><em><code>get(object, name)</code></em> <br />
+返回一个获得对象属性的 promise。</p>
+
+<p><em><code>post(object, name, args)</code></em> <br />
+返回一个调用对象方法的 promise。</p>
+
+<p><em><code>put(object, name, value)</code></em> <br />
+返回一个修改对象属性的 promise。</p>
+
+<p><em><code>del(object, name)</code></em> <br />
+返回一个删除对象属性的 promise。</p>
+
+<p><em><code>makePromise(descriptor Object, fallback Function)</code></em> <br />
+返回一个promise对象，该对象必须是一个可调用的函数，也可能是可被实例化的构造函数。</p>
+
+<ul>
+  <li>第一个参数接受一个描述对象，该对象结构如下，</li>
+</ul>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">    &#x7b;
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">        "when": function(errback)&#x7b;...&#x7d;,
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">        "get": function(name)&#x7b;...&#x7d;,
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">        "put": function(name, value)&#x7b;...&#x7d;,
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">        "post": function(name, args)&#x7b;...&#x7d;,
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">        "del": function(name)&#x7b;...&#x7d;,
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    &#x7d;</div></div></pre></div></figure>
+
+<p>上面每一个注册的 handle 都返回一个 resolved value或者 promise。</p>
+
+<ul>
+  <li>第二个参数接受一个 fallback(message,…args) 函数，当没有 promise 对象没有找到对应的 handle 时该函数会被触发，返回一个 resolved value 或者 promise。</li>
+</ul>
+
+<p><em><code>defer()</code></em> <br />
+返回一个对象，该对象包含一个 resolve(value) 方法和一个 promise 属性。
+当 resolve(value) 方法被第一次调用时，promise 属性的状态变成 <strong>完成</strong>，所有之前或之后观察该 promise 的 promise 的状态都被转变成 <strong>完成</strong>。value 参数如果不是一个 promise ，会被包装成一个 promise 的 ref。resolve 方法会忽略之后的所有调用。</p>
+
+<p><em><code>reject(reason String)</code></em> <br />
+返回一个被标记为 <strong>失败</strong> 的 promise。
+一个失败的 promise 上被调用 when(message) 方法时，会采用如下两种方法之一
+1. 如果存在 errback，errback 会以 reason 作为参数被调用。when方法会将 errback 的返回值返回。
+2. 如果不存在 errback，when 方法返回一个新的 reject 状态的promise 对象，以同一 reason 作为参数。</p>
+
+<p><em><code>ref(value)</code></em> <br />
+如果 value 是 promise 对象，返回 value 本身。否则，返回一个resolved 的 promise，携带如下 handle。
+1. when(errback),忽略 errback，返回 resolved 值
+2. get(name)，返回 resolved 值的对应属性。
+3. put(name, value) ，设置 resolved 值的对应属性。
+4. del(name)，删除 resolved 值的对应属性。
+5. post(name, args), 调用 resolved 值的对应方法。
+6. 其他所有的调用都返回一个 reject，并携带 “Promise does not handle NAME” 的理由。</p>
+
+<p><em><code>isPromise(value) Boolean</code></em> <br />
+判断一个对象是否是 promise</p>
+
+<p><em><code>method(name String)</code></em> <br />
+获得一个返回 name 对应方法的 promise。返回值是 “get”, “put”, “del” 和 “post” 对应的方法，但是会在下一事件循环返回。</p>
+
+<h3 id="promisesd-">Promises/D 规范</h3>
+
+<p>为了增加不同 promise 实现之间的可互操作性，Promises/D 规范对promise 对象和 Promises/B 规范做了进一步的约定。以达到鸭子类型的效果（Duck-type Promise）。</p>
+
+<p>简单来说Promises/D 规范，做了两件事情，</p>
+
+<ol>
+  <li>如何判断一个对象是 Promise 类型。</li>
+  <li>对 Promises/B 规范进行细节补充。</li>
+</ol>
+
+<h4 id="promise-">甄别一个 Promise 对象</h4>
+
+<p>Promise 对象必须是实现 <code>promiseSend</code> 方法。</p>
+
+<ol>
+  <li>在 promise 库上下文中，如果对象包含 <code>promiseSend</code> 方法就可以甄别为promise 对象。</li>
+  <li><code>promiseSend</code> 方法必须接受一个操作名称，作为第一个参数。</li>
+  <li>操作名称是一个可扩展的集合，下面是一些保留名称。</li>
+  <li><code>when</code>，此时第三个参数必须是 rejection 回调。</li>
+  <li>rejection回调必须接受一个 rejection 原因(可以是任何值)作为第一个参数。</li>
+  <li><code>get</code>，此时第三个参数为属性名（字符串类型）。</li>
+  <li><code>put</code>，此时第三个参数为属性名（字符串类型）,第四个参数为新属性值。</li>
+  <li><code>del</code>，此时第三个参数为属性名。</li>
+  <li><code>post</code>，此时第三个参数为方法的属性名，接下来的变参为方法的调用参数。</li>
+  <li><code>isDef</code></li>
+  <li><code>promiseSend</code>方法的第二个参数为 resolver 方法。</li>
+  <li><code>promiseSend</code>方法可能接受变参。</li>
+  <li><code>promiseSend</code>方法必须返回<code>undefined</code>。</li>
+</ol>
+
+<h4 id="promisesb--1">对 Promises/B 规范的补充</h4>
+
+<p>Promises/D 规范中对 Promises/B 规范中定义的ref、reject、def、defer方法做了进一步细致的约束，此处略去这些细节。</p>
+
+<h3 id="promisesa--1">Promises/A+ 规范</h3>
+
+<p>前面提到的 Promises/A/B/D 规范都是有CommonJS组织提出的，Promises/A+是有一个自称为<a href="https://github.com/promises-aplus">Promises/A+ 组织</a>发布的，该规范是以Promises/A作为基础进行补充和修订，旨在提高promise实现之间的可互操作性。</p>
+
+<p>Promises/A+ 对<code>.then</code>方法进行细致的补充，定义了细致的<a href="https://promisesaplus.com/#point-45">Promise Resolution Procedure</a>流程，并且将<code>.then</code>方法作为promise的对象甄别方法。</p>
+
+<p>此外，Promises/A+ 还提供了兼容性测试工具，以确定各个实现的兼容性。</p>
+
+<h3 id="promise-1">实现一个迷你版本的Promise</h3>
+
+<p>上面扯了这么多规范，现在我们看看如何实现一个简单而短小的Promise。</p>
+
+<h4 id="section">状态机</h4>
+
+<pre><code>var PENDING = 0;
+var FULFILLED = 1;
+var REJECTED = 2;
+
+function Promise() {
+  // store state which can be PENDING, FULFILLED or REJECTED
+  var state = PENDING;
+
+  // store value or error once FULFILLED or REJECTED
+  var value = null;
+
+  // store sucess &amp; failure handlers attached by calling .then or .done
+  var handlers = [];
+}
+</code></pre>
+
+<h4 id="section-1">状态变迁</h4>
+
+<p>仅支持两种状态变迁，fulfill和reject</p>
+
+<pre><code>// ...
+
+function Promise() {
+    // ...
+
+  function fulfill(result) {
+    state = FULFILLED;
+    value = result;
+  }
+
+  function reject(error) {
+    state = REJECTED;
+    value = error;
+  }
+
+}
+</code></pre>
+
+<p>fulfill和reject方法较为底层，通常更高级的resolve方法开放给外部。</p>
+
+<pre><code>// ...
+
+function Promise() {
+
+  // ...
+
+  function resolve(result) {
+    try {
+      var then = getThen(result);
+      if (then) {
+        doResolve(then.bind(result), resolve, reject)
+        return
+      }
+      fulfill(result);
+    } catch (e) {
+      reject(e);
+    }
+  }
+}
+</code></pre>
+
+<p>resolve方法可以接受一个普通值或者另一个promise作为参数，如果接受一个promise作为参数，等待其完成。promise不允许被另一个promise fulfill，所以需要开放resolve方法。resolve方法依赖一些帮助方法定义如下:</p>
+
+<pre><code>/**
+ * Check if a value is a Promise and, if it is,
+ * return the `then` method of that promise.
+ *
+ * @param {Promise|Any} value
+ * @return {Function|Null}
+ */
+function getThen(value) {
+  var t = typeof value;
+  if (value &amp;&amp; (t === 'object' || t === 'function')) {
+    var then = value.then;
+    if (typeof then === 'function') {
+      return then;
+    }
+  }
+  return null;
+}
+
+/**
+ * Take a potentially misbehaving resolver function and make sure
+ * onFulfilled and onRejected are only called once.
+ *
+ * Makes no guarantees about asynchrony.
+ *
+ * @param {Function} fn A resolver function that may not be trusted
+ * @param {Function} onFulfilled
+ * @param {Function} onRejected
+ */
+function doResolve(fn, onFulfilled, onRejected) {
+  var done = false;
+  try {
+    fn(function (value) {
+      if (done) return
+      done = true
+      onFulfilled(value)
+    }, function (reason) {
+      if (done) return
+      done = true
+      onRejected(reason)
+    })
+  } catch (ex) {
+    if (done) return
+    done = true
+    onRejected(ex)
+  }
+}
+</code></pre>
+
+<p>这里resolve和doResolve之间的递归很巧妙，用来处理promise的层层嵌套（promise的value是一个promise）。</p>
+
+<h3 id="section-2">构造器</h3>
+
+<pre><code>// ...
+
+function Promise(fn) {
+    // ...
+    doResolve(fn, resolve, reject);
+}
+</code></pre>
+
+<h3 id="done">.done方法</h3>
+
+<pre><code>// ...
+function Promise(fn) {
+  // ...
+
+  function handle(handler) {
+    if (state === PENDING) {
+      handlers.push(handler);
+    } else {
+      if (state === FULFILLED &amp;&amp;
+        typeof handler.onFulfilled === 'function') {
+        handler.onFulfilled(value);
+      }
+      if (state === REJECTED &amp;&amp;
+        typeof handler.onRejected === 'function') {
+        handler.onRejected(value);
+      }
+    }
+  }
+
+  this.done = function (onFulfilled, onRejected) {
+    // ensure we are always asynchronous
+    setTimeout(function () {
+      handle({
+        onFulfilled: onFulfilled,
+        onRejected: onRejected
+      });
+    }, 0);
+  }
+  // ...
+}
+</code></pre>
+
+<h3 id="then">.then方法</h3>
+<pre><code>// ...
+function Promise(fn) {
+    // ...
+    this.then = function (onFulfilled, onRejected) {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        return self.done(function (result) {
+          if (typeof onFulfilled === 'function') {
+            try {
+              return resolve(onFulfilled(result));
+            } catch (ex) {
+              return reject(ex);
+            }
+          } else {
+            return resolve(result);
+          }
+        }, function (error) {
+          if (typeof onRejected === 'function') {
+            try {
+              return resolve(onRejected(error));
+            } catch (ex) {
+              return reject(ex);
+            }
+          } else {
+            return reject(error);
+          }
+        });
+      });
+    }
+    // ...
+}
+</code></pre>
+
+<h3 id="promise-2">$.promise</h3>
+
+<p>jQuery 1.8 之前的版本，jQuery的 then 方法只是一种可以同时调用 done 、fail 和 progress 这三种回调的速写方法，而 Promises/A 规范的 then 在行为上更像是 jQuery 的 pipe。 jQuery 1.8 修正了这个问题，使 then 成为 pipe 的同义词。不过，由于向后兼容的问题，jQuery 的 Promise 再如何对 Promises/A 示好也不太会招人待见。</p>
+
+<p>此外，在 Promises/A 规范中，由 then 方法生成的 Promise 对象是已执行还是已拒绝，取决于由 then 方法调用的那个回调是返回值还是抛出错误。在 JQuery 的 Promise 对象的回调中抛出错误是个糟糕的主意，因为错误不会被捕获。</p>
+
+<h3 id="section-3">小结</h3>
+
+<p>最后一个例子揭示了，实现 Promise 的关键是实现好 doResolve 方法，在完事以后触发回调。而为了保证异步 <code>setTimeout(fun, 0);</code> 是关键一步。</p>
+
+<p>Promise 一直用得蛮顺手的，其很好的优化了 NodeJS 异步处理时的代码结构。但是对于其工作原理却有些懵懂和好奇。于是花了些经理查阅并翻译了Promise 的规范，以充分的理解 Promise 的细节。</p>
+
+<h3 id="section-4">参考阅读</h3>
+
+<ol>
+  <li><a href="http://wiki.commonjs.org/wiki/Promises/A">Promises/A</a></li>
+  <li><a href="http://wiki.commonjs.org/wiki/Promises/B">Promises/B</a></li>
+  <li><a href="http://wiki.commonjs.org/wiki/Promises/D">Promises/D</a></li>
+  <li><a href="https://www.promisejs.org/">Promisejs</a></li>
+  <li><a href="https://promisesaplus.com/">Promises/A+</a></li>
+  <li><a href="https://github.com/kriskowal/asap">As soon as possible</a></li>
+  <li><a href="https://gist.github.com/unscriptable/814052">A minimalist implementation of a javascript promise</a></li>
+  <li><a href="http://stackoverflow.com/questions/12923533/lightweight-implementation-of-promises">Lightweight implementation of promises</a></li>
+  <li><a href="http://stackoverflow.com/questions/17718673/how-is-a-promise-defer-library-implemented">How is a promise/defer library implemented?</a></li>
+  <li><a href="http://stackoverflow.com/questions/23772801/basic-javascript-promise-implementation-attempt/23785244#23785244">Basic Javascript promise implementation attempt</a></li>
+  <li><a href="https://blog.domenic.me/youre-missing-the-point-of-promises/">You’re Missing the Point of Promises</a></li>
+  <li><a href="http://www.slideshare.net/domenicdenicola/boom-promisesa-was-born">Boom! Promises/A+ Was Born</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/Futures_and_promises">Futures and promises</a></li>
+  <li><a href="http://www.html5rocks.com/zh/tutorials/es6/promises/">JavaScript Promises - There and back again</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2014/10/30/understanding-the-mechanism-of-promise/';
+        var disqus_url = 'http://codelife.me/blog/2014/10/30/understanding-the-mechanism-of-promise/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>在backbonejs里使用coffeescript实现mixin &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在backbonejs里使用coffeescript实现mixin">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">在backbonejs里使用coffeescript实现mixin</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>Mixin和Inheritance是两种主要的代码复用和封装的方式。Java流行的时候，大家都努力的把javascript写得像java，各大框架努力给javascript加上类继承的特性。当下是Ruby春暖花开的日子，coffeescript让开发者可以以更ruby的方式写js。javascript在不同的时期能适应潮流，足以见得原型链继承型语言的强大之处。</p>
+</blockquote>
+
+<h3 id="coffeescriptmixin">用coffeescript实现Mixin</h3>
+<p>Coffescript原生并不支持Mixin，《CoffeeScript小书》第三章提到一种Mixin的实现方式</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">moduleKeywords = </span><span class="p">[</span><span class="s">&#39;extended&#39;</span><span class="p">,</span> <span class="s">&#39;included&#39;</span><span class="p">]</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">Module</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="vi">@extend: </span><span class="nf">(obj) -&gt;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">obj</span> <span class="k">when</span> <span class="nx">key</span> <span class="o">not</span> <span class="k">in</span> <span class="nx">moduleKeywords</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">@</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">obj</span><span class="p">.</span><span class="nx">extended</span><span class="o">?</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@</span><span class="p">)</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="vi">@include: </span><span class="nf">(obj) -&gt;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">obj</span> <span class="k">when</span> <span class="nx">key</span> <span class="o">not</span> <span class="k">in</span> <span class="nx">moduleKeywords</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="c1"># Assign properties to the prototype</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">@</span><span class="o">::</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">obj</span><span class="p">.</span><span class="nx">included</span><span class="o">?</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@</span><span class="p">)</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span></div></div></pre></div></figure>
+
+<!--more-->
+<p>上面代码定义了一个Module类型，其包含@extend和@incude两个成员方法，@include方法继承的属性可被实例访问，@extend方法继承的属性可被类访问。例如：</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">classProperties = </span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">find: </span><span class="nf">(id) -&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">create: </span><span class="nf">(attrs) -&gt;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">instanceProperties =</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">save: </span><span class="nf">-&gt;</span> 
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">User</span> <span class="k">extends</span> <span class="nx">Module</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">@extend</span> <span class="nx">classProperties</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">@include</span> <span class="nx">instanceProperties</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="c1"># Usage:</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">user = </span><span class="nx">User</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">user = </span><span class="k">new</span> <span class="nx">User</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">user</span><span class="p">.</span><span class="nx">save</span><span class="p">()</span></div></div></pre></div></figure>
+
+<h3 id="mixin">胖箭头<code>=&gt;</code>和Mixin</h3>
+<p>coffeescript里用<code>-&gt;</code>符号声明一个function，用<code>=&gt;</code>符号声明一个绑定上下文this的function。 <br />
+下面是一个使用胖箭头声明的function的例子</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nv">Mixin =</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">fun1 : </span><span class="nf">(customer, cart) =&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@customer = </span><span class="nx">customer</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@cart = </span><span class="nx">cart</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">fun2 : </span><span class="nf">(customer, cart) -&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@customer = </span><span class="nx">customer</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@cart = </span><span class="nx">cart</span></div></div></pre></div></figure>
+
+<p>翻译成javascript如下</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Mixin</span><span class="p">,</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">_this</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">Mixin</span> <span class="o">=</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">fun1</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span> <span class="nx">cart</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nx">_this</span><span class="p">.</span><span class="nx">customer</span> <span class="o">=</span> <span class="nx">customer</span><span class="p">;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="nx">_this</span><span class="p">.</span><span class="nx">cart</span> <span class="o">=</span> <span class="nx">cart</span><span class="p">;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;,</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">fun2</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span> <span class="nx">cart</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span><span class="p">.</span><span class="nx">customer</span> <span class="o">=</span> <span class="nx">customer</span><span class="p">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cart</span> <span class="o">=</span> <span class="nx">cart</span><span class="p">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;;</span></div></div></pre></div></figure>
+
+<p>上面例子中，将Mixin声明为普通对象，由于_this并指向当前Mixin所在的上下文this，当<code>=&gt;</code>声明的方法fun1被include到其他类中，_this并不会指向新的对象，有悖于通常的面向对象语言中this的语义。 <br />
+<code>-&gt;</code>声明的方法虽然this没有被静态绑定，但是由于js中this指向执行时的上下文，所以在方法被外部调用时，不能执行声明方法的类对象。</p>
+
+<p>再来看看把Mixin声明成class的情况</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">Mixin</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">fun1 : </span><span class="nf">(customer, cart) =&gt;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@customer = </span><span class="nx">customer</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@cart = </span><span class="nx">cart</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">fun2 : </span><span class="nf">(customer, cart) -&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@customer = </span><span class="nx">customer</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="vi">@cart = </span><span class="nx">cart</span></div></div></pre></div></figure>
+
+<p>翻译成javascript如下</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="kd">var</span> <span class="nx">Mixin</span><span class="p">,</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">__bind</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="nx">me</span><span class="p">)&#x7b;</span> <span class="k">return</span> <span class="kd">function</span><span class="p">()&#x7b;</span> <span class="k">return</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">me</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span> <span class="p">&#x7d;;</span> <span class="p">&#x7d;;</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">Mixin</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">function</span> <span class="nx">Mixin</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span><span class="p">.</span><span class="nx">fun1</span> <span class="o">=</span> <span class="nx">__bind</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">fun1</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Mixin</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">fun1</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span> <span class="nx">cart</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span><span class="p">.</span><span class="nx">customer</span> <span class="o">=</span> <span class="nx">customer</span><span class="p">;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cart</span> <span class="o">=</span> <span class="nx">cart</span><span class="p">;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Mixin</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">fun2</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">customer</span><span class="p">,</span> <span class="nx">cart</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">this</span><span class="p">.</span><span class="nx">customer</span> <span class="o">=</span> <span class="nx">customer</span><span class="p">;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">cart</span> <span class="o">=</span> <span class="nx">cart</span><span class="p">;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="k">return</span> <span class="nx">Mixin</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;)();</span></div></div></pre></div></figure>
+
+<p>如果将Mixin声明为一个class，翻译成js以后，Mixin里声明的方法都被注册到Mixin.prototype上了。而且this的绑定被写在了Mixin的构造方法里，通过一个__bind包装函数进行晚绑定。如果不调用Mixin的构造方法，我们可以绑定派生类的this到方法上。</p>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">Mixin</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">b: </span><span class="nf">=&gt;</span> <span class="vi">@something = </span><span class="mi">2</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">Foo</span> <span class="k">extends</span> <span class="nx">Module</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">@include</span> <span class="nv">Mixin::</span>
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">constructor: </span><span class="nf">-&gt;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">for</span> <span class="nx">fname</span> <span class="k">in</span> <span class="nx">_</span><span class="p">.</span><span class="nx">functions</span> <span class="nx">Mixin</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">@</span><span class="p">[</span><span class="nx">fname</span><span class="p">]</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nx">bind</span> <span class="nx">@</span><span class="p">[</span><span class="nx">fname</span><span class="p">],</span> <span class="nx">@</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">super</span></div></div></pre></div></figure>
+
+<p>有两点需要注意 <br />
+1. @include Minxin.prototype
+2. 构造方法中将从Mixin里继承的方法都重新绑定this</p>
+
+<p>如果使用underscore的_.bindAll方法，绑定this可以简化成</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="nx">_</span><span class="p">.</span><span class="nx">bindAll</span> <span class="nx">@</span><span class="p">,</span> <span class="nx">_funcitons</span><span class="p">(</span><span class="nx">Mixin</span><span class="p">)...</span></div></div></pre></div></figure>
+
+<h3 id="backbonejsmixin">结合backbonejs使用Mixin</h3>
+<p>使用上面的方法，在coffeescript里使用mixin，已经完美的解决了<code>=&gt;</code>this绑定的问题。</p>
+
+<p>先解决Backbone对象不支持include的问题。</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> 
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> 
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> 
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> 
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="kd">function</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="kd">var</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">_ref</span><span class="p">;</span>
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">for</span> <span class="p">(</span><span class="nx">key</span> <span class="k">in</span> <span class="nx">obj</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">value</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">key</span><span class="p">];</span>
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="k">if</span> <span class="p">(</span><span class="nx">key</span> <span class="o">!==</span> <span class="s1">&#39;included&#39;</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">          <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line">        <span class="p">&#x7d;</span>
+</div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="p">&#x7d;</span>
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">if</span> <span class="p">((</span><span class="nx">_ref</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">included</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">&#x7b;</span>
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">      <span class="nx">_ref</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="p">&#x7d;</span>
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="p">&#x7d;;</span>
+</div></div><div data-line="21" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="22" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="p">&#x7d;).</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span></div></div></pre></div></figure>
+
+<p>声明一个Mixin类</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">Mixin</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">b: </span><span class="nf">=&gt;</span> <span class="vi">@something = </span><span class="mi">2</span></div></div></pre></div></figure>
+
+<p>include该Mixin类</p>
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="k">class</span> <span class="nx">FooView</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nx">@include</span> <span class="nx">Mixin</span>
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">  <span class="nv">constructor: </span><span class="nf">-&gt;</span>
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="nv">b: </span><span class="nf">=&gt;</span> <span class="vi">@something = </span><span class="mi">2</span>
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">    <span class="k">super</span></div></div></pre></div></figure>
+
+<h3 id="section">参考阅读</h3>
+<ol>
+  <li><a href="https://gist.github.com/olivoil/1642328">Mixins/Modules behavior in coffeescript</a></li>
+  <li><a href="http://stackoverflow.com/questions/12839183/using-mixins-in-coffeescript">Using mixins in Coffeescript</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/';
+        var disqus_url = 'http://codelife.me/blog/2013/07/26/using-mixins-in-backbonejs-by-coffeescript/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

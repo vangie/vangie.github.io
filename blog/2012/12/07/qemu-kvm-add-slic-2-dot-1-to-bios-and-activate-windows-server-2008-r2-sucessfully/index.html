@@ -1,0 +1,394 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>qemu-kvm将SLIc 2.1刷入BIOS并成功激活Windows Server 2008 R2 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="qemu-kvm将SLIc 2.1刷入BIOS并成功激活Windows Server 2008 R2">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">qemu-kvm将SLIc 2.1刷入BIOS并成功激活Windows Server 2008 R2</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>在一台DELL R310的宿主机上安装了Ubuntu Server 12.10默认集成KVM虚拟机，用户态虚拟机软件qemu-kvm使用seabios的作为bios实现(位于 <code>/usr/share/qemu-kvm/bios.bin</code>,来自于qemu-common 1.2.0+noroms-0ubuntu2)，该bios.bin仅包含部分来自宿主机的SLIC信息，但不完整，无法通过Window OEM验证。</p>
+</blockquote>
+
+<p>本文将介绍安装KVM虚拟机，借助virt-install安装Windows客户机，去除bios.bin里内置的SLIC，然后使用-acpitable参数载入正确的SLIc 2.1信息，导入OEM证书和OEM key激活Windows。</p>
+
+<p>由于Ubuntu Server没有安装图形环境，DELL R310服务器也是不带显示器的，所有windows的安装过程是通过本来的Macbook Air的VNC客户端操作的。</p>
+
+<!--more-->
+
+<h3 id="kvm">安装KVM虚拟机</h3>
+
+<p>首先检查你的处理器是否支持硬件虚拟化；如果支持，下面这个命令</p>
+
+<pre><code>$ sudo egrep '(vmx|svm)' --color=always /proc/cpuinfo
+</code></pre>
+
+<p>会看到如下类似信息
+&gt;flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni dtes64 monitor ds_cpl <strong>vmx</strong> smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 sse4_2 popcnt lahf_lm ida dtherm tpr_shadow vnmi flexpriority ept vpid</p>
+
+<p>若什么都没有显示，那么你的处理器不支持硬件虚拟化，就此打住，不要往下折腾了。</p>
+
+<p>检查bios虚拟化开关是否开启</p>
+
+<pre><code>$ sudo kvm-ok
+</code></pre>
+
+<p>正确的返回如下
+&gt;INFO: /dev/kvm exists<br />
+KVM acceleration can be used</p>
+
+<p>安装KVM,(若在Ubuntu Server安装过程中已经安装了KVM忽略此步骤)</p>
+
+<pre><code>$ sudo apt-get install ubuntu-virt-server  kvm-ipxe
+</code></pre>
+
+<p>之后，将当前用户添加到libvirtd群组</p>
+
+<pre><code>$ sudo adduser `id -un` libvirtd
+$ sudo adduser `id -un` kvm
+</code></pre>
+
+<p>你需要要重新登录一下，才能让新群组生效。</p>
+
+<p>验证kvm是否成功安装</p>
+
+<pre><code>cloud03@cloud03:~$ virsh -c qemu:///system list
+ Id    Name                           State
+----------------------------------------------------
+
+cloud03@cloud03:~$ 
+</code></pre>
+
+<h3 id="windows-server-2008-r2">安装Windows Server 2008 R2</h3>
+<p>#### 准备</p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>[Windows Server 2008 R2 安装镜像ISO](ed2k://</td>
+          <td>file</td>
+          <td>cn_windows_server_2008_r2_standard_enterprise_datacenter_and_web_with_sp1_vl_build_x64_dvd_617396.iso</td>
+          <td>3368962048</td>
+          <td>7C210CAC37A05F459758BCC1F4478F9E</td>
+          <td>/)</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><a href="http://www.linux-kvm.org/page/WindowsGuestDrivers/Download_Drivers">Windows VirtIO Drivers</a>,若不加载该驱动windows installer会无法找到虚拟磁盘（没有验证过，网上是怎么说的） 点击下载：<a href="http://alt.fedoraproject.org/pub/alt/virtio-win/latest/images/bin/virtio-win-0.1-30.iso">virtio-win-0.1-30.iso</a></li>
+  <li>安装virt-install <code>$ sudo apt-get install virtinst</code></li>
+</ol>
+
+<h3 id="section">开始安装</h3>
+
+<pre><code>$ virt-install --connect qemu:///system --arch=x86_64 -n win2k8 -r 4096 --vcpus=2 \
+-c /home/cloud03/cn_windows_server_2008_r2_standard_enterprise_datacenter_and_web_with_sp1_vl_build_x64_dvd_617396.iso \
+--noautoconsole --os-type windows --os-variant win2k8 \
+--disk path=/home/cloud03/virtio-win-0.1-30.iso,device=cdrom,perms=ro \
+--disk path=/var/lib/libvirt/images/win2k8.img,size=50 \
+--graphics vnc,password=foobar,listen=0.0.0.0 
+</code></pre>
+
+<p>部分参数说明</p>
+
+<ul>
+  <li>-n win2k8 虚拟机的名称为win2k8</li>
+  <li>-r 4096 分配4G内存</li>
+  <li>-vcpus=2 两个cpu</li>
+  <li>-c /home/cloud03/cn_windows…617396.iso 指向ISO安装镜像位置</li>
+  <li>–disk path=/home/cloud03/virtio-win-0.1-30.iso,device=cdrom,perms=ro 加载virtio驱动</li>
+  <li>–disk path=/var/lib/libvirt/images/win2k8.img,size=50 创建虚拟磁盘，并分配50G的空间</li>
+  <li>–graphics vnc,password=foobar,listen=0.0.0.0 开启VNC，password选项是为了兼容mac内置Screen Sharing VNC终端无法连接不加密的VNC Server，listen选项是为了让VNC终端在所有IP地址上都开启监听，默认在127.0.0.1上监听，仅适用于本机VNC终端访问。</li>
+</ul>
+
+<p>使用VNC客户端打开远程桌面，Mac下非常简单，在Terminal.app里输入<code>open vnc://192.168.18.130</code>回车即可。windows和linux桌面系统请自行安装vnc客户端。</p>
+
+<p>另外不少网友推荐Mac下用<a href="http://sourceforge.net/projects/cotvnc/">Chicken of the VNC.app</a>，试用过后不如内置Screen Sharing好，特别是系统重启断线重连的时候内置的客户端表现很稳定，Chicken of the VNC会假死，需要退出程序重开。</p>
+
+<h3 id="biosbin">编译bios.bin</h3>
+
+<p><a href="https://github.com/ghuntley/seaslic">seaslic</a> 项目对seabios项目打了一个patch用于解决预安装正版windows的宿主机，改装linux运行kvm后，让虚拟机bios也有和宿主机一样的SLIc。简单的说就是把宿主机bios里的SLIc信息导入到虚拟机的bios.bin文件中去。让虚拟机也有正确的OEM标识。</p>
+
+<p>经过测试seaslic项目导入的SLIc信息不完整，（至少在DELL R310下是不完整的），无法通过windows校验。</p>
+
+<p>qemu-kvm有一个-acpitable选项，可以通过file=… 装载一个外部的SLIC文件（<a href="http://rghost.net/25221821">SLIC 2.1 BINS 1-31-2011.7z</a>） 这里几乎有所有OEM机器的SLIC文件和证书）。</p>
+
+<p>但是如果直接使用-acpitable选项加载外部SLIC进BIOS无论是使用内置的bios.bin(<code>/usr/share/qemu-kvm/bios.bin</code>),还是seaslic项目打过Patch的bios.bin都会导致ACPI table里有两条SLIc记录，一条正确的一条不完整的，导致windows无法激活。</p>
+
+<p>一个可行的方案：在sealic项目的基础上，稍作修改编译一个完全不包含SLIc的bios.bin,然后在结合-acpitable选项载入外部SLIC文件。经实践，可以激活。</p>
+
+<p>具体步骤如下：</p>
+
+<p>下载sealic项目源码</p>
+
+<pre><code>$ cd ~
+$ git clone git://github.com/ghuntley/seaslic
+</code></pre>
+
+<p>执行./patch.sh,该脚本会运用patch然后编译出bios.bin,调用该脚本只需要其运用patch的功能，编译出来的bios.bin先别管。</p>
+
+<pre><code>$ cd seaslic
+$ ./patch.sh
+</code></pre>
+
+<p>编辑acpi.c文件</p>
+
+<pre><code>$ vim  seabios.submodule/src/acpi.c
+</code></pre>
+
+<p>注释掉638-647行,</p>
+
+<pre><code>/*#ifdef CONFIG_OEM_SLIC
+{ void *buf = malloc_high(sizeof(SLIC));
+  if (!buf)
+    warn_noalloc();
+  else {
+    memcpy(buf, SLIC, sizeof(SLIC));
+    ACPI_INIT_TABLE(buf);
+  }
+}
+#endif*/
+</code></pre>
+
+<p>然后编译</p>
+
+<pre><code>$ cd seabios.submodule
+$ make
+</code></pre>
+
+<p>替换系统内置bios.bin</p>
+
+<pre><code>$ sudo cp out/bios.bin /usr/share/qemu-kvm/bios.bin
+</code></pre>
+
+<h3 id="section-1">修改虚拟机配置</h3>
+
+<p>使用virsh edit命令可以修改虚拟机的配置。</p>
+
+<pre><code>$ virsh edit win2k8
+</code></pre>
+
+<p>将第一行</p>
+
+<pre><code>&lt;domain type='kvm'&gt;
+</code></pre>
+
+<p>改成</p>
+
+<pre><code>&lt;domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'&gt;
+</code></pre>
+
+<p>然后，在靠近文件的末尾处，<code>&lt;/devices&gt;</code>便签之后，加入如下内容</p>
+
+<pre><code>&lt;qemu:commandline&gt;
+	&lt;qemu:arg value='-acpitable'/&gt;
+	&lt;qemu:arg value='file=/usr/share/qemu/SLIC-DELL-PE_SC3-2.1.BIN'/&gt;
+&lt;/qemu:commandline&gt;
+</code></pre>
+
+<p>保存退出。其中，SLIC-DELL-PE_SC3-2.1.BIN文件可以从<a href="http://rghost.net/25221821">SLIC 2.1 BINS 1-31-2011.7z</a>找到。</p>
+
+<p>重启虚拟机，然后在虚拟机下载windows工具[SLIC Toolkit](http://forums.mydigitallife.info/threads/6925-SLIC-ToolKit-x86-x64-(Includes-PKey-amp-Cert-Backup).若“<strong>SLIC诊断</strong>”栏显示SLIC状态为__验证通过__则表明已生效。</p>
+
+<h3 id="windowsoem">在Windows里安装OEM证书和序列号</h3>
+
+<p>现在是完事具备只欠东风了，从<a href="http://rghost.net/25221821">SLIC 2.1 BINS 1-31-2011.7z</a>压缩包中可以找到DEL的OEM证书。</p>
+
+<p>在windows控制台中使用如下命令导入</p>
+
+<pre><code>&gt; slmgr -ilc DELL-DELL-2.0.XRM-MS
+</code></pre>
+
+<p>然后在这里<a href="http://forums.mydigitallife.info/threads/2827-Server-2008-Server-2008-R2-OEM-SLP-Keys">Server 2008/Server 2008 R2 OEM SLP Keys</a>找到对应的Key。使用下面的命令导入</p>
+
+<pre><code>&gt; slmgr -ipk D7TCH-6P8JP-KRG4P-VJKYY-P9GFF
+</code></pre>
+
+<blockquote>
+  <p>Server 2008 R2 Standard DELL OEM KEY <br />
+D7TCH-6P8JP-KRG4P-VJKYY-P9GFF<br />
+Server 2008 R2 Enterprise DELL OEM KEY<br />
+BKCJJ-J6G9Y-4P7YF-8D4J7-7TCWD</p>
+</blockquote>
+
+<p>重新打开[SLIC Toolkit](http://forums.mydigitallife.info/threads/6925-SLIC-ToolKit-x86-x64-(Includes-PKey-amp-Cert-Backup)工具，若“<strong>序列号与证书验证及备份</strong>”栏显示__证书正确__，那表示已经大功告成。</p>
+
+<h3 id="section-2">参考文献</h3>
+<ol>
+  <li><a href="http://virtual.51cto.com/art/201206/341911.htm">在Ubuntu 12.04 LTS服务器上借助KVM实现虚拟化</a></li>
+  <li><a href="https://www.nnbfn.net/2011/01/installing-win-server-2008-r2-as-a-kvm-guest-with-virtio/">Installing Win Server 2008 R2 as a KVM Guest with VirtIO</a></li>
+  <li><a href="http://forums.mydigitallife.info/threads/33723-Crafting-an-SLIC-BIOS-for-Linux-KVM-Guests">Crafting an SLIC BIOS for Linux KVM Guests</a></li>
+</ol>
+
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/';
+        var disqus_url = 'http://codelife.me/blog/2012/12/07/qemu-kvm-add-slic-2-dot-1-to-bios-and-activate-windows-server-2008-r2-sucessfully/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

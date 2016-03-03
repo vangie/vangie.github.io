@@ -1,0 +1,280 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Jackson多态类型数据绑定 &#8211; Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+<meta name="keywords" content="">
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jackson多态类型数据绑定">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/blog/2012/11/03/jackson-polymorphic-deserialization/">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/blog/2012/11/03/jackson-polymorphic-deserialization/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+  <article class="entry">
+    <header class="header-title">
+      <div class="header-title-wrap">
+        <h1 class="entry-title">Jackson多态类型数据绑定</h1>
+      </div><!-- /.header-title-wrap -->
+    </header>
+    <div class="entry-content">
+      <blockquote>
+  <p>Jackson数据绑定可以很方便的将java的对象类型和json数据格式之间进行转换。对于有多个子类型的多态集成结构的对象，Jackson在序列化的时候加入一些类型信息，可以在反序列化的时候准确的还原某个类型的子类。</p>
+</blockquote>
+
+<p>想要把JSON数据准确的反序列化为正确的子类型，简单的方法就是在数据中存储数据的类型。但是Jackson序列化时默认不会将对象的类型信息保存到Json数据中。有两种方式开始使Jackson序列化类型信息</p>
+
+<!--more-->
+
+<h3 id="default-typing">方式一：全局Default Typing机制</h3>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="n">objectMapper</span><span class="o">.</span><span class="na">enableDefaultTyping</span><span class="o">();</span> <span class="c1">// default to using DefaultTyping.OBJECT_AND_NON_CONCRETE</span>
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line"><span class="n">objectMapper</span><span class="o">.</span><span class="na">enableDefaultTyping</span><span class="o">(</span><span class="n">ObjectMapper</span><span class="o">.</span><span class="na">DefaultTyping</span><span class="o">.</span><span class="na">NON_FINAL</span><span class="o">);</span></div></div></pre></div></figure>
+
+<p>DefaultTyping有四个选项</p>
+
+<ul>
+  <li><strong>JAVA_LANG_OBJECT</strong>: 当对象属性类型为Object时生效</li>
+  <li><strong>OBJECT_AND_NON_CONCRETE</strong>: 当对象属性类型为Object或者非具体类型（抽象类和接口）时生效</li>
+  <li><strong>NON_CONCRETE_AND+_ARRAYS</strong>: 同上, 另外所有的数组元素的类型都是非具体类型或者对象类型</li>
+  <li><strong>NON_FINAL</strong>: 对所有非final类型或者非final类型元素的数组</li>
+</ul>
+
+<p>开启DefaultTyping，并且让所有的非final类型对象持久化时都存储类型信息显然能准确的反序列多态类型的数据。</p>
+
+<h3 id="classjsontypeinfo">方式二： 为Class添加@JsonTypeInfo</h3>
+<p>先来看看<code>objectMapper.enableDefaultTyping()</code>的源码。</p>
+
+<pre><code>/**
+ * Convenience method that is equivalent to calling
+ *&lt;pre&gt;
+ *  enableObjectTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+ *&lt;/pre&gt;
+ */
+public ObjectMapper enableDefaultTyping() {
+    return enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE);
+}
+
+/**
+ * Convenience method that is equivalent to calling
+ *&lt;pre&gt;
+ *  enableObjectTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+ *&lt;/pre&gt;
+ */
+public ObjectMapper enableDefaultTyping(DefaultTyping dti) {
+    return enableDefaultTyping(dti, JsonTypeInfo.As.WRAPPER_ARRAY);
+}
+</code></pre>
+
+<p>该方法内部调用涉及到了<code>JsonTypeInfo.As.WRAPPER_ARRAY</code>。下面我们来看看如何使用@JsonTypeInfo这个注释来更精细的定制序列化的JSON文件格式。</p>
+
+<pre><code>@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+class Animal { }  在超类Animal上加上一段@JsonTypeInfo，所有Animal的子类反序列化都可以准确的对于子类型。 我们来解释一下这段注释的意思：
+</code></pre>
+
+<ul>
+  <li><code>use=JsonTypeInfo.Id.CLASS</code>:使用类的完全限定名作为唯一识别</li>
+  <li><code>include=JsonTypeInfo.As.PROPERTY</code>:将这个唯一识别的字段保存为属性值</li>
+  <li><code>property="@class"</code>该属性值的名称为@class</li>
+  <li><code>@JsonTypeResolver</code>和<code>@JsonTypeIdResolver</code>取默认值时可以省略</li>
+  <li>加上了该注释的类型和子类型都会生效</li>
+</ul>
+
+<p>use的几个可选值</p>
+
+<ul>
+  <li>CLASS 完全限定名</li>
+  <li>MINIMAL_CLASS 类名，若基类和子类在同一包类，会省略包名</li>
+  <li>NAME 逻辑名，需要单独定义名称与类的对应关系</li>
+  <li>CUSTOM 由@JsonTypeIdResolver对应</li>
+</ul>
+
+<p>include的几个选值</p>
+
+<ul>
+  <li>PROPERTY 将属性包含在对象成员属性里</li>
+  <li>WRAPPER_OBJECT 属性作为键，序列化的对象作为值</li>
+  <li>WRAPPER_ARRAY 第一个元素是类型ID，第二原始是序列化的对象</li>
+</ul>
+
+<figure class="code-highlight-figure"><div class="code-highlight"><pre class="code-highlight-pre"><div data-line="1" class="code-highlight-row numbered"><div class="code-highlight-line">  // Type name as a property, same as above
+</div></div><div data-line="2" class="code-highlight-row numbered"><div class="code-highlight-line">  &#x7b;
+</div></div><div data-line="3" class="code-highlight-row numbered"><div class="code-highlight-line">    "@type" : "Employee",
+</div></div><div data-line="4" class="code-highlight-row numbered"><div class="code-highlight-line">     ...
+</div></div><div data-line="5" class="code-highlight-row numbered"><div class="code-highlight-line">  &#x7d;
+</div></div><div data-line="6" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="7" class="code-highlight-row numbered"><div class="code-highlight-line">  // Wrapping class name as pseudo-property (similar to JAXB)
+</div></div><div data-line="8" class="code-highlight-row numbered"><div class="code-highlight-line">  &#x7b;
+</div></div><div data-line="9" class="code-highlight-row numbered"><div class="code-highlight-line">    "com.fasterxml.beans.EmployeeImpl" : &#x7b;
+</div></div><div data-line="10" class="code-highlight-row numbered"><div class="code-highlight-line">       ... // actual instance data without any metadata properties
+</div></div><div data-line="11" class="code-highlight-row numbered"><div class="code-highlight-line">    &#x7d;
+</div></div><div data-line="12" class="code-highlight-row numbered"><div class="code-highlight-line">  &#x7d;
+</div></div><div data-line="13" class="code-highlight-row numbered"><div class="code-highlight-line"> </div></div><div data-line="14" class="code-highlight-row numbered"><div class="code-highlight-line">  // Wrapping class name as first element of wrapper array:
+</div></div><div data-line="15" class="code-highlight-row numbered"><div class="code-highlight-line">  [
+</div></div><div data-line="16" class="code-highlight-row numbered"><div class="code-highlight-line">    "com.fasterxml.beans.EmployeeImpl",
+</div></div><div data-line="17" class="code-highlight-row numbered"><div class="code-highlight-line">    &#x7b;
+</div></div><div data-line="18" class="code-highlight-row numbered"><div class="code-highlight-line">       ... // actual instance data without any metadata properties
+</div></div><div data-line="19" class="code-highlight-row numbered"><div class="code-highlight-line">    &#x7d;
+</div></div><div data-line="20" class="code-highlight-row numbered"><div class="code-highlight-line">  ]</div></div></pre></div></figure>
+
+<h3 id="section">参考文献</h3>
+<ol>
+  <li><a href="http://wiki.fasterxml.com/JacksonPolymorphicDeserialization">JacksonPolymorphicDeserialization</a></li>
+</ol>
+
+      <footer class="entry-meta">
+        
+        
+      </footer>
+    </div><!-- /.entry-content -->
+    
+  </article>
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+<script type="text/javascript">
+      var disqus_shortname = 'code-life';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://codelife.me/blog/2012/11/03/jackson-polymorphic-deserialization/';
+        var disqus_url = 'http://codelife.me/blog/2012/11/03/jackson-polymorphic-deserialization/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//go.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>

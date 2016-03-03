@@ -1,0 +1,735 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js lt-ie9 lt-ie8" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js lt-ie9" lang="en"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"><!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>Code Life</title>
+
+
+<meta name="description" content="Blog of a Coder
+">
+
+
+
+<!-- Open Graph -->
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Code Life">
+<meta property="og:description" content="Blog of a Coder
+">
+<meta property="og:url" content="http://codelife.me/index.html">
+<meta property="og:site_name" content="Code Life">
+
+
+
+
+
+<link rel="canonical" href="http://codelife.me/">
+<link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Code Life Feed">
+
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="/assets/css/jquery.mmenu.all.css">
+
+<meta http-equiv="cleartype" content="on">
+
+<!-- Load Modernizr -->
+<script src="/assets/js/vendor/modernizr-2.6.2.custom.min.js"></script>
+
+<!-- Icons -->
+<!-- 16x16 -->
+<link rel="shortcut icon" href="/favicon.ico">
+<!-- 32x32 -->
+<link rel="shortcut icon" href="/favicon.png">
+<!-- 57x57 (precomposed) for iPhone 3GS, pre-2011 iPod Touch and older Android devices -->
+<link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+<!-- 72x72 (precomposed) for 1st generation iPad, iPad 2 and iPad mini -->
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72-precomposed.png">
+<!-- 114x114 (precomposed) for iPhone 4, 4S, 5 and post-2011 iPod Touch -->
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+<!-- 144x144 (precomposed) for iPad 3rd and 4th generation -->
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+</head>
+
+<body id="page" >
+
+<!--[if lt IE 9]><div class="upgrade"><strong><a href="http://whatbrowser.org/">Your browser is quite old!</strong> Why not upgrade to a different browser to better enjoy this site?</a></div><![endif]-->
+<div class="header-menu header-menu-top">
+    <ul class="header-item-container">
+      <li class="header-item-title header-toggle "><a href="#menu"><h2><i class="fa fa-bars"></i></h2></a></li>
+      <li class="header-item-title">
+          
+          <h3><a href="/" class="title"> Code Life </a><small>Succinctness is Power</small></h3>
+      </li>
+      
+        
+        
+
+        
+            
+                <li class="header-item "><a href="/blog/archives/"><h5>Archives</h5></a></li>
+            
+        
+      
+    </ul>
+  </div>
+
+<nav id="menu" style="display: none">
+  <ul>
+    
+      
+        <li><a href="/blog/archives/"><h3>Archives</h3></a></li>
+      
+    
+  </ul>
+</nav>
+
+
+
+<div id="main" role="main">
+    
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2015/01/05/register-npm-module-as-bower-package/" rel="bookmark" title="将 npm 模块注册成 bower 模块" itemprop="url">将 npm 模块注册成 bower 模块</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2015-01-05T23:25:10+08:00">
+            January 05, 2015
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p><code>npm</code>是node的包管理系统，通过<code>package.json</code>声明模块间的依赖关系。然而node采用<code>CommonJS</code>规范组织的模块在浏览器中无法直接使用。bower是前端资源的包管理系统，通过<code>bower.json</code>来组织js、css和图标资源。bower管理的js包，一般采用全局变量模式，或者requirejs推崇的AMD规范，亦或UMD。</p>
+</blockquote>
+
+<h3 id="umd">UMD（通用模块定义）</h3>
+
+<p>由于现行的javascript版本中，没有原生的依赖管理实现，而随着前端和Nodejs的越来越流行，javascript的代码量越来越大，于是对依赖管理和包管理的需求越来越高，于是社区就出现了CommonJS和AMD两大依赖管理的阵营。目前CommonJS规范是Nodejs的内置支持，主要用于后端js。AMD被requirejs支持，是一种前端依赖管理的选择。</p>
+
+<p><em>全局变量</em></p>
+
+<pre><code>// MyDependency is in your global scope
+var MyModule = function() {};
+</code></pre>
+
+<p><em>CommonJS，Nodejs支持的规范</em></p>
+
+<pre><code>var MyDependency = require('my-dependency');
+module.exports = function() {};
+</code></pre>
+
+<p><em><a href="http://requirejs.org/docs/whyamd.html">AMD</a>， <a href="http://requirejs.org/">requirejs</a> 支持的规范</em></p>
+
+<pre><code>define(['my-dependency'], function(MyDependency) {
+  return function() {};
+});
+</code></pre>
+
+<p><em><a href="https://github.com/umdjs/umd">UMD</a>，兼容所有规范</em></p>
+
+<pre><code>(function (root, factory) {
+  if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = factory(require('b'));
+  } else if (typeof define === 'function' &amp;&amp; define.amd) {
+    // AMD
+    define(['b'], function (b) {
+      return (root.returnExportsGlobal = factory(b));
+    });
+  } else {
+    // Global Variables
+    root.returnExportsGlobal = factory(root.b);
+  }
+}(this, function (b) {
+  // Your actual module
+  return {};
+}));
+</code></pre>
+
+
+		<a href="/blog/2015/01/05/register-npm-module-as-bower-package/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2015/01/05/how-to-debug-mocha-test-case/" rel="bookmark" title="如何调试mocha测试用例" itemprop="url">如何调试mocha测试用例</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2015-01-05T15:41:06+08:00">
+            January 05, 2015
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>用<code>Mocha</code> + <code>Chai</code> 进行BDD测试，是目前较为流行的Nodejs测试方法。本文介绍<code>mocha</code>测试用例失败时如何在非IDE环境下单步Debug找出问题。</p>
+</blockquote>
+
+<h3 id="mocha-">mocha 配置</h3>
+
+<pre><code>$ npm install mocha
+$ mkdir test
+$ $EDITOR test/test.js
+</code></pre>
+
+<p>内容如下</p>
+
+<pre><code>var assert = require("assert")
+describe('Array', function(){
+  describe('#indexOf()', function(){
+    it('should return -1 when the value is not present', function(){
+      assert.equal(-1, [1,2,3].indexOf(5));
+      assert.equal(-1, [1,2,3].indexOf(0));
+    })
+  })
+})
+</code></pre>
+
+<p>执行如下命令开始测试</p>
+
+<pre><code>$  mocha
+</code></pre>
+
+<h4 id="makefile">配置 Makefile</h4>
+<p>如果你更喜欢 Make 风格，可以配置相应的<code>Makefile</code>文件。</p>
+
+<pre><code>test:
+    @./node_modules/.bin/mocha --reporter nyan
+
+.PHONY: test
+</code></pre>
+
+<p>然后执行</p>
+
+<pre><code>$ make test
+</code></pre>
+
+<h4 id="packagejson">配置 package.json</h4>
+<p>然后在package.json 调用<code>make</code>命令。</p>
+
+<pre><code>{
+...
+  "scripts": {
+    "test": "make test"
+  },
+...
+}
+</code></pre>
+
+<p>然后执行</p>
+
+<pre><code>$ npm test
+</code></pre>
+
+<p>这里两次包装和转换，考虑到如果哪天将<code>mocha</code>换成<code>Jasmine</code>或者<code>jsUnit</code>等其他的测试框架也无需更改持续集成的配置。</p>
+
+
+		<a href="/blog/2015/01/05/how-to-debug-mocha-test-case/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/" rel="bookmark" title="解决 Javascript 中 atob 方法解码中文字符乱码问题" itemprop="url">解决 Javascript 中 atob 方法解码中文字符乱码问题</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-12-02T17:20:43+08:00">
+            December 02, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>由于一些网络通讯协议的限制,你必须使用<code>window.btoa()</code>方法对原数据进行编码后，才能进行发送。接收方使用相当于<code>window.atob()</code>的方法对接受到的base64数据进行解码,得到原数据。例如，发送某些含有ASCII码表中0到31之间的控制字符的数据。</p>
+</blockquote>
+
+<h3 id="windowbtoawindowatob"><code>window.btoa</code>与<code>window.atob</code>不支持中文</h3>
+
+<p>对于unicode编码的字符进行base64编码之后，通过浏览器原生的btoa方法界面中文会乱码。</p>
+
+<p>在bash终端，将“中文”转成 base64 编码</p>
+
+<pre><code>$ echo 中文 | base64
+5Lit5paHCg==
+</code></pre>
+
+<p>在Chrome console通过<code>window.atob</code>解码，结果为乱码</p>
+
+<pre><code>&gt; window.atob('5Lit5paHCg==')
+ä¸­æ
+</code></pre>
+
+<p>在Chrome console中执行<code>windows.btoa</code>编码，报错</p>
+
+<pre><code>&gt; window.btoa('中文')
+Uncaught DOMException: Failed to execute 'btoa' on 'Window': The string to be encoded contains characters outside of the Latin1 range.
+</code></pre>
+
+<p>从错误提示看，<code>btoa</code>仅支持 ASCII 编码。</p>
+
+
+		<a href="/blog/2014/12/02/resolve-atob-decode-chinese-character-outputting-messy-code-problem-in-javascript/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/10/30/understanding-the-mechanism-of-promise/" rel="bookmark" title="理解 Promise 的工作原理" itemprop="url">理解 Promise 的工作原理</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-10-30T18:37:45+08:00">
+            October 30, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Javascript 采用回调函数(callback)来处理异步编程。从同步编程到异步回调编程有一个适应的过程，但是如果出现多层回调嵌套，也就是我们常说的厄运的回调金字塔(Pyramid of Doom)，绝对是一种糟糕的编程体验。于是便有了 CommonJS 的 Promises/A 规范，用于解决回调金字塔问题。本文先介绍Promises相关规范，然后再通过解读一个迷你的 Promises 以加深理解。</p>
+</blockquote>
+
+<h3 id="promise">什么是 Promise</h3>
+
+<p>一个 Promise 对象代表一个目前还不可用，但是在未来的某个时间点可以被解析的值。它允许你以一种同步的方式编写异步代码。例如，如果你想要使用Promise API 异步调用一个远程的服务器，你需要创建一个代表数据将会在未来由 web 服务返回的 Promise 对象。唯一的问题是目前数据还不可用。当请求完成并从服务器返回时数据将变为可用数据。在此期间，Promise 对象将扮演一个真实数据的代理角色。接下来，你可以在 Promise 对象上绑定一个回调函数，一旦真实数据变得可用这个回调函数将会被调用。</p>
+
+<p>Promise 对象曾经以多种形式存在于许多语言中。</p>
+
+<h3 id="pyramid-of-doom">去除厄运的回调金字塔(Pyramid of Doom)</h3>
+
+<p>Javascript 中最常见的反模式做法是回调内部再嵌套回调。</p>
+
+<pre><code>// 回调金字塔
+asyncOperation(function(data){
+  // 处理 `data`
+  anotherAsync(function(data2){
+      // 处理 `data2`
+      yetAnotherAsync(function(){
+          // 完成
+      });
+  });
+});
+</code></pre>
+
+
+		<a href="/blog/2014/10/30/understanding-the-mechanism-of-promise/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/10/29/how-to-start-nginx-on-part-80-as-daemon-at-osx/" rel="bookmark" title="MacOS X中如何让nginx以服务形式启动在80端口" itemprop="url">MacOS X中如何让nginx以服务形式启动在80端口</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-10-29T15:52:49+08:00">
+            October 29, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>开发环境需要在本地映射域名和端口，无奈选择安装nginx。本文介绍如何将homebrew安装的nginx以符合MacOS标准的方式默认启动在80端口。</p>
+</blockquote>
+
+<p>安装nginx</p>
+
+<pre><code>brew install nginx
+</code></pre>
+
+<p>拷贝plist文件到启动脚本目录</p>
+
+<pre><code>sudo cp /usr/local/opt/nginx/homebrew.mxcl.nginx.plist /Library/LaunchDaemons/
+</code></pre>
+
+<p>文件内容如下</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+  &lt;dict&gt;
+    &lt;key&gt;Label&lt;/key&gt;
+    &lt;string&gt;homebrew.mxcl.nginx&lt;/string&gt;
+    &lt;key&gt;RunAtLoad&lt;/key&gt;
+    &lt;true/&gt;
+    &lt;key&gt;KeepAlive&lt;/key&gt;
+    &lt;false/&gt;
+    &lt;key&gt;ProgramArguments&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;/usr/local/opt/nginx/bin/nginx&lt;/string&gt;
+        &lt;string&gt;-g&lt;/string&gt;
+        &lt;string&gt;daemon off;&lt;/string&gt;
+    &lt;/array&gt;
+    &lt;key&gt;WorkingDirectory&lt;/key&gt;
+    &lt;string&gt;/usr/local&lt;/string&gt;
+  &lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre>
+
+<p>想要方便的启动和关闭nginx可以将下面两个别名添加到<code>$HOME/.profile</code></p>
+
+<pre><code># Nginx needs to bind to port 80 so must run as /Library/LaunchDaemon with sudo
+alias start-nginx='sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.nginx.plist'
+alias stop-nginx='sudo launchctl unload /Library/LaunchDaemons/homebrew.mxcl.nginx.plist'
+</code></pre>
+
+<h3 id="section">参考阅读</h3>
+
+<ol>
+  <li><a href="http://superuser.com/questions/304206/how-do-i-start-nginx-on-port-80-at-os-x-login">How do I start nginx on port 80 at OS X login?</a></li>
+  <li><a href="https://coderwall.com/p/dgwwuq">Installing Nginx in Mac OS X Maverick With Homebrew</a></li>
+</ol>
+
+
+		
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/" rel="bookmark" title="浅谈 _.throttle 和 _.debounce 的差异" itemprop="url">浅谈 _.throttle 和 _.debounce 的差异</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-10-21T13:27:00+08:00">
+            October 21, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>Underscore.js是一个很精干的库，压缩后只有5.2KB。它提供了几十种函数式编程的方法，弥补了标准库的不足，大大方便了JavaScript的编程。</p>
+
+  <p>本文仅探讨Underscore.js的两个函数方法 <code>_.throttle</code> 和 <code>_.debounce</code> 的原理、效果和用途。</p>
+</blockquote>
+
+<p>通常的函数（或方法）调用过程分为三个部分：请求、执行和响应。（文中“请求”与“调用”同义，“响应”与“返回”同义，为了更好的表述，刻意采用请求和响应的说法。）</p>
+
+<p>某些场景下，比如响应鼠标移动或者窗口大小调整的事件，触发频率比较高。若稍处理函数微复杂，需要较多的运算执行时间，响应速度跟不上触发频率，往往会出现延迟，导致假死或者卡顿感。</p>
+
+<p>在运算资源不够的时候，最直观的解决办法就是升级硬件，诚然通过购买更好的硬件可以解决部分问题，但是也需要为此付出高额的成本。特别是客户端和服务器模式，要求客户端统一升级硬件基本不可能。</p>
+
+<p>在资源有限的前提下，处理函数无法即时响应高频调用。退而求其次，只响应部分请求是否可行呢？某些场景下的密集性请求，具备很强的同质和连续性。比如说，鼠标移动的轨迹参数。响应越及时效果越平滑，但是如果响应速度跟不上时，反而会出现卡顿感，如果适当的丢弃一些请求效果更流畅。</p>
+
+<p><code>throttle</code> 和 <code>debounce</code> 是解决请求和响应速度不匹配问题的两个方案。二者的差异在于选择不同的策略。</p>
+
+<h3 id="section">电梯超时</h3>
+
+<p>想象每天上班大厦底下的电梯。把电梯完成一次运送，类比为一次函数的执行和响应。假设电梯有两种运行策略 <code>throttle</code> 和 <code>debounce</code> ，超时设定为15秒，不考虑容量限制。</p>
+
+<ul>
+  <li><code>throttle</code> 策略的电梯。保证如果电梯第一个人进来后，15秒后准时运送一次，不等待。如果没有人，则待机。</li>
+  <li><code>debounce</code> 策略的电梯。如果电梯里有人进来，等待15秒。如果又人进来，15秒等待重新计时，直到15秒超时，开始运送。</li>
+</ul>
+
+
+		<a href="/blog/2014/10/21/the-difference-between-throttle-and-debounce-in-underscorejs/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/08/16/4-ways-to-implement-real-time-web/" rel="bookmark" title="实时web的4种实现方式" itemprop="url">实时web的4种实现方式</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-08-16T20:34:05+08:00">
+            August 16, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>随着互联网的飞速发展，我们在网页里完成越来越多的事情。Web应用程序开始逐渐替代传统的桌面程序，然而HTTP协议设计之初没有考虑到面向应用开发的需求，HTTP协议服务端只能被动的响应客户端（浏览器）的请求，若服务端需要实时的给客户端推送消息，HTTP协议就需要借助与轮询和长连接等变通的技术。这些技术虽然勉强能够实现，但是都有些弊端。直到websocket协议推出，才真正的意义上解决了实时数据传输问题。但是由于旧版本浏览器不兼容websocket协议，为了更好的向下兼容，社区遍有了socket.io框架，该框架能智能识别浏览器端对websocket的支持情况，对于不支持的旧版本浏览器采用长轮询的方式通讯。本文将讨论4中常见的实时Web通讯技术。</p>
+</blockquote>
+
+
+		<a href="/blog/2014/08/16/4-ways-to-implement-real-time-web/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/07/15/how-to-create-split-zipped-archives-in-macosx/" rel="bookmark" title="Mac OS X下如何分卷压缩" itemprop="url">Mac OS X下如何分卷压缩</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-07-15T21:22:06+08:00">
+            July 15, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>一朋友的公司邮箱只能接受5M的附件，还世界500强企业真心落后。无奈只能分卷压缩大文件，Mac OS X下没有盗版的WinRar可用，所以只好采用ZIP格式分卷了</p>
+</blockquote>
+
+<h3 id="section">创建分卷压缩文件</h3>
+
+<h4 id="section-1">将目录分卷压缩</h4>
+
+<pre><code>zip -s 100m -x "*.DS_Store" -r split-foo.zip foo/
+</code></pre>
+
+<ul>
+  <li><code>-s</code> 切分单元的大小，可选的单位有k(kB), m(MB), g(GB), t(TB),默认为m</li>
+  <li><code>-r</code> 或者 <code>--recurse-paths</code> 递归目录</li>
+  <li><code>-x</code> 或者 <code>--exclude</code> 忽略文件</li>
+</ul>
+
+<h4 id="zip">切分已有zip文件</h4>
+
+<pre><code>zip existing.zip --out new.zip -s 50m
+</code></pre>
+
+<p>将创建</p>
+
+<blockquote>
+  <p>new.zip <br />
+new.z01   <br />
+new.z02 <br />
+new.z03 <br />
+…</p>
+</blockquote>
+
+
+		<a href="/blog/2014/07/15/how-to-create-split-zipped-archives-in-macosx/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/07/14/install-gdb-on-osx-mavericks/" rel="bookmark" title="在OS X Mavericks上安装gdb" itemprop="url">在OS X Mavericks上安装gdb</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-07-14T00:19:21+08:00">
+            July 14, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>最近帮外甥女写一段C程序作业。代码量不多，所有采用Sublime Text + gcc的方式。遇到了奇怪的<code>segmentation fault</code>,没有显示具体错误行号，所有需要借助gdb(The GNU Project Debugger 是*nix环境下著名的调试程序)返回更多有效信息和断点调试。</p>
+</blockquote>
+
+<h3 id="section">安装</h3>
+
+<pre><code>brew install gdb
+</code></pre>
+
+<h3 id="section-1">开启调试编译选项</h3>
+<p>希望gdb调试时输出行号与堆栈等详细信息需要<code>gcc</code>编译的时候使用<code>-g</code>选项</p>
+
+<pre><code>gcc -o course_test -g -rdynamic course_test.c
+</code></pre>
+
+<p>注意 homebrew安装的gnu版本的<code>gcc</code>在macox上不支持<code>-rdynamic</code>选项，此处使用的是xcode提供的<code>gcc</code>。</p>
+
+
+		<a href="/blog/2014/07/14/install-gdb-on-osx-mavericks/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+<article class="hentry">
+  <header>
+    
+      <h1 class="entry-title">
+        <a href="/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/" rel="bookmark" title="当元素滚动出可视区域后固定漂浮在底部" itemprop="url">当元素滚动出可视区域后固定漂浮在底部</a>
+      </h1>
+    
+    <div class="entry-meta">
+      <span class="entry-date date published updated">
+        <time datetime="2014-06-22T00:28:05+08:00">
+            June 22, 2014
+        </time>
+      </span>
+      
+    </div><!-- /.entry-meta -->
+  </header>
+  <div class="entry-content">
+    <blockquote>
+  <p>页面底部放置了几个功能按钮，当页面长度超过窗口高度时需要滚动到底部才能操作。点击按钮前多了一步滚动操作，多少有些不方便。如果元素位于可视区域之外时，可以固定漂浮于窗口底部就可以解决这种不便。</p>
+</blockquote>
+
+<p><img src="/images/post/2014-06-22/fixed-floating.png" alt="不在可视区域内时固定漂浮于底部" /></p>
+
+
+		<a href="/blog/2014/06/22/fixed-floating-bottom-when-element-scroll-out-of-client-area/" class="more-link">继续阅读 &rarr;</a>
+  </div><!-- /.entry-content -->
+</article><!-- /.hentry -->
+
+
+<div class="pagination">
+  
+    Previous
+  
+  <ul class="inline-list">
+    <li>
+      
+        <span class="current-page">1</span>
+      
+    </li>
+    
+      <li>
+        
+          <a href="/blog/page/2">2</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/3">3</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/4">4</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/5">5</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/6">6</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/7">7</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/8">8</a>
+        
+      </li>
+    
+      <li>
+        
+          <a href="/blog/page/9">9</a>
+        
+      </li>
+    
+  </ul>
+  
+    <a href="/blog/page/2" class="btn">Next</a>
+  
+</div><!-- /.pagination -->
+
+</div><!-- /#main -->
+
+<div class="footer-wrapper">
+  <footer role="contentinfo">
+    <span>Copyright &copy; 2016 <a href="mailto:%64%75%77%61%6E@%6C%69%76%65.%63%6F%6D" title="Contact me">Vangie Du</a> - All rights reserved.</span>
+  </footer>
+</div><!-- /.footer-wrapper -->
+
+<script src="/assets/js/vendor/jquery-1.9.1.min.js"></script>
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="/assets/js/plugins/jquery.mmenu.min.all.js"></script>
+<script src="/assets/js/scripts.min.js"></script>
+<script src="/assets/js/main.js"></script>
+
+
+
+
+
+
+<a style="position:fixed;bottom:5px;right:5px;font-size:4em;" href="#" title="Back to Top">
+  <i class="icon-circle-arrow-up"></i>
+</a>
+
+<link rel="stylesheet" href="/assets/js/plugins/prettify/prettify.css">
+<script src="/assets/js/plugins/prettify/prettify.js"></script>
+<script type="text/javascript">
+  $(function(){
+    $("pre").addClass("prettyprint");
+    prettyPrint();
+  });
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+
+</body>
+</html>
