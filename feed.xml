@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>代码人生</title>
+    <title>编码人生</title>
     <description>Blog of a Coder
 </description>
     <link>http://codelife.me/</link>
     <atom:link href="http://codelife.me/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 05 Mar 2016 01:48:20 +0800</pubDate>
-    <lastBuildDate>Sat, 05 Mar 2016 01:48:20 +0800</lastBuildDate>
+    <pubDate>Sat, 05 Mar 2016 02:04:21 +0800</pubDate>
+    <lastBuildDate>Sat, 05 Mar 2016 02:04:21 +0800</lastBuildDate>
     <generator>Jekyll v2.4.0</generator>
     
       <item>
